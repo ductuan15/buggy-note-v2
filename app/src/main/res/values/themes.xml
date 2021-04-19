@@ -1,0 +1,41 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="Theme.Base.BuggyNote2" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="Theme.BuggyNote2" parent="Theme.Base.BuggyNote2">
+        <item name="colorPrimary">@color/pink_500</item>
+        <item name="colorPrimaryVariant">@color/pink_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/pink_500</item>
+        <item name="colorSecondaryVariant">@color/pink_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:textColor">?colorOnSurface</item>
+        <item name="tint">?colorOnSurface</item>
+    </style>
+
+    <style name="Theme.BuggyNote2.Popup" parent="">
+        <item name="enforceMaterialTheme">true</item>
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+
+    <style name="Theme.BuggyNote2.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.BuggyNote2.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.BuggyNote2.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <item name="android:colorBackground">?colorSurface</item>
+        <item name="android:textColor">?colorOnSurface</item>
+    </style>
+
+</resources>
