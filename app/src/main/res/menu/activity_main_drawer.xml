@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_notes"
+            android:icon="@drawable/ic_note"
+            android:title="@string/menu_notes" />
+        <item
+            android:id="@+id/nav_tags"
+            android:icon="@drawable/ic_tag"
+            android:title="@string/menu_tags" />
+    </group>
+
+    <group
+        android:id="@+id/other_list_group"
+        android:checkableBehavior="single"
+        android:visible="false">
+        <item
+            android:id="@+id/nav_archive"
+            android:icon="@drawable/ic_archive"
+            android:title="@string/archive" />
+    </group>
+
+    <group
+        android:id="@+id/setting_group"
+        android:checkableBehavior="single"
+        android:visible="false">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_outline_settings_24"
+            android:title="@string/settings" />
+
+    </group>
+</menu>

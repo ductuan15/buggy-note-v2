@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?colorSurface"
+        tools:context=".fragments.NotesFragment">
+
+        <include
+            android:id="@+id/app_bar"
+            layout="@layout/app_bar_main" />
+
+        <!--            placeholderVisibility="@{noteViewModel.noteList}"-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            tools:visibility="gone">
+
+            <TextView
+                android:id="@+id/placeholder_emoticon"
+                placeHolderEmoticon="@{null}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textAppearance="?textAppearanceHeadline2"
+                android:textColor="?colorOnSurface"
+                tools:text="(っ◔◡◔)っ ❤" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/nothing_here"
+                android:textAppearance="?textAppearanceHeadline6" />
+
+        </LinearLayout>
+
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:orientation="vertical"-->
+        <!--            app:layout_behavior="@string/appbar_scrolling_view_behavior">-->
+
+        <!--            <androidx.recyclerview.widget.RecyclerView-->
+        <!--                android:id="@+id/tag_filter_list"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginStart="8dp"-->
+        <!--                android:nestedScrollingEnabled="false"-->
+        <!--                android:orientation="horizontal"-->
+        <!--                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+        <!--                app:loadFilterTags="@{tagViewModel.tags}"-->
+        <!--                tools:itemCount="5"-->
+        <!--                tools:listitem="@layout/item_tag_filter" />-->
+
+        <!--            <androidx.recyclerview.widget.RecyclerView-->
+        <!--                android:id="@+id/note_list"-->
+        <!--                pinnedNotes="@{noteViewModel.pinnedNotes}"-->
+        <!--                unpinnedNotes="@{noteViewModel.unpinnedNotes}"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="0dp"-->
+        <!--                android:layout_marginHorizontal="@dimen/item_note_margin"-->
+        <!--                android:layout_marginVertical="@dimen/item_note_margin"-->
+        <!--                android:layout_weight="1"-->
+        <!--                android:animateLayoutChanges="false"-->
+        <!--                android:layoutAnimation="@anim/layout_animator"-->
+        <!--                app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"-->
+        <!--                app:spanCount="2"-->
+        <!--                tools:itemCount="3"-->
+        <!--                tools:listitem="@layout/item_note" />-->
+        <!--        </LinearLayout>-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="@dimen/fab_margin"
+            app:layout_anchorGravity="bottom|end"
+            app:srcCompat="@drawable/ic_baseline_mode_edit_24"
+            tools:ignore="ContentDescription" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

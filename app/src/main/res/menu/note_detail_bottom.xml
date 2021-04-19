@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_set_font_type"
+        android:icon="@drawable/ic_outline_font_download_24"
+        android:title="@string/set_font_type"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_alignment"
+        android:icon="@drawable/ic_baseline_format_align_left_24"
+        android:title="@string/text_alignment"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_set_bold"
+        android:icon="@drawable/ic_baseline_format_bold_24"
+        android:title="@string/format_bold"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_set_italic"
+        android:icon="@drawable/ic_baseline_format_italic_24"
+        android:title="@string/format_italic"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_add_tag"
+        android:icon="@drawable/ic_outline_new_label_24"
+        android:title="@string/add_new_tag"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_remove_note"
+        android:icon="@drawable/ic_baseline_delete_24"
+        android:title="@string/remove"
+        app:showAsAction="never" />
+
+</menu>
