@@ -9,6 +9,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 
@@ -24,13 +25,24 @@ public interface BuggyNoteDao {
     @Transaction
     @Query("select * from note order by " + DaoConstant.DEFAULT_SORT_ORDER)
     List<NoteWithTags> getAllNotesWithTag();
+    //LiveData<List<NoteWithTags>> getAllNotesWithTag();
 
     @Transaction
     @Query("select * from note where note_id = :id")
     LiveData<NoteWithTags> getNoteFromId(Long id);
 
+    @Transaction
+    @Delete
+    void removeNote(Note... notes);
+
+    @Update
+    void updateNote(Note... notes);
+
+    @Insert
+    long addNewNote(Note notes);
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insertTag(Tag tag);
+    long insertTag(Tag tag);
 
     @Update
     void updateTag(Tag tag);

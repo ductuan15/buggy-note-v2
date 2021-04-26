@@ -15,19 +15,38 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.adapters.NoteAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.data.Note;
+import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
+import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
+import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
+import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
+
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import timber.log.Timber;
 
 public class NotesFragment extends Fragment implements OnBackPressed {
 
     private SharedPreferences preferences = null;
     private FragmentNotesBinding binding = null;
+
+    private BuggyNoteDao database;
 
     // TODO: init đào
     //      view models
@@ -36,6 +55,48 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     //      ItemTouchHelper.
 
     // TODO: main cab.
+
+    private NotesViewModel notesViewModel;
+
+    private final NoteAdapterCallbacks noteAdapterCallbacks = new NoteAdapterCallbacks() {
+        @Override
+        public void onClick(NoteWithTags note) {
+            notesViewModel.startNavigatingToNoteDetails(note.note.id);
+        }
+
+        @Override
+        public boolean onMultipleSelect(NoteWithTags note) {
+            return false;
+        }
+
+        @Override
+        public void onPostReordered(List<NoteWithTags> notes) {
+            // TODO: implement me
+        }
+
+        @Override
+        public void onItemSwiped(NoteWithTags note) {
+            // TODO: implement me
+
+        }
+    };
+
+    private final NoteAdapter noteAdapter = new NoteAdapter(noteAdapterCallbacks);
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
+
+        Timber.d("ping");
+    }
+
+    private final NotesViewModelCallBacks noteViewModelCallbacks = new NotesViewModelCallBacks() {
+        @Override
+        public void onNoteItemInserted(long newId) {
+            notesViewModel.startNavigatingToNoteDetails(newId);
+        }
+    };
 
     @Nullable
     @Override
@@ -47,16 +108,42 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         setHasOptionsMenu(true);
 
         binding.setLifecycleOwner(this);
+        notesViewModel = new ViewModelProvider(
+                requireActivity(),
+                new NotesViewModelFactory(
+                        database,
+                        requireActivity().getApplication(),
+                        noteViewModelCallbacks))
+                .get(NotesViewModel.class);
 
         binding.fab.setOnClickListener(view -> {
-            // TODO: replace with live data observer
-            Navigation.findNavController(binding.getRoot()).navigate(
-                    NotesFragmentDirections.actionNavNotesToNoteDetailsFragment(0)
-            );
+            notesViewModel.insertNewNote(Note.emptyInstance());
         });
         // TODO: bind view models.
+        binding.setNoteViewModel(notesViewModel);
+        initRecyclerViews();
+        initObservers();
 
         return binding.getRoot();
+    }
+
+    void initNoteAdapter(RecyclerView recyclerView,
+                         RecyclerView.Adapter adapter,
+                         ItemTouchHelper touchHelper,
+                         boolean addItemDecoration) {
+        // TODO: set layout manager
+        recyclerView.setAdapter(adapter);
+        if (addItemDecoration) {
+            // TODO: add item decoration
+            // recyclerView.addItemDecoration();
+        }
+        if (touchHelper != null) {
+            touchHelper.attachToRecyclerView(recyclerView);
+        }
+    }
+
+    void initRecyclerViews() {
+        initNoteAdapter(binding.noteList, noteAdapter, null, false);
     }
 
     // TODO: set adapter to the recycler views
@@ -65,13 +152,33 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     //       add ItemDecoration.
 
     // TODO: set observers from view models.
+    void initObservers() {
 
+        notesViewModel.getNoteList().observe(getViewLifecycleOwner(), noteWithTags -> {
+            if (noteWithTags != null) {
+                noteAdapter.notifyDataSetChanged();
+                Timber.d("loaded");
+            }
+        });
+
+        // noteViewModel.headerLabelVisibility
+        // tagViewModel.tags
+
+        notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
+            if (id != null) {
+                Navigation.findNavController(binding.getRoot()).navigate(
+                        NotesFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
+                );
+                notesViewModel.doneNavigatingToNoteDetails();
+            }
+        });
+    }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        // TODO: save the note to the database when changes occured.
+        // TODO: save the note to the database when changes occurred.
     }
 
     @Override
@@ -109,6 +216,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
+        // initObservers();
     }
 
     private void setUpNavigation() {

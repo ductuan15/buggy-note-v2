@@ -23,21 +23,21 @@ public class NoteWithTags {
     )
     public List<Tag> tags;
 
-    TextFormatter getTitleFormat() {
+    public TextFormatter getTitleFormat() {
         if (this.note.titleFormat.isEmpty()) {
             note.titleFormat = TextFormatter.DEFAULT_FORMAT_STRING;
         }
         return TextFormatter.parseFormat(note.titleFormat);
     }
 
-    TextFormatter getContentFormat() {
+    public TextFormatter getContentFormat() {
         if (this.note.contentFormat.isEmpty()) {
             note.contentFormat = TextFormatter.DEFAULT_FORMAT_STRING;
         }
         return TextFormatter.parseFormat(note.contentFormat);
     }
 
-    static DiffUtil.ItemCallback<NoteWithTags> diffCallBacks = new DiffUtil.ItemCallback<NoteWithTags>() {
+    public static DiffUtil.ItemCallback<NoteWithTags> diffCallBacks = new DiffUtil.ItemCallback<NoteWithTags>() {
         @Override
         public boolean areItemsTheSame(@NonNull NoteWithTags oldItem, @NonNull NoteWithTags newItem) {
             return false;

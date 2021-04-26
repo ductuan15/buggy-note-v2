@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -66,16 +67,16 @@ public class TextFormatter {
 
     public static final String DEFAULT_FORMAT_STRING = "8388611|0|0";
 
-    static final int TYPEFACE_REGULAR = 0;
-    static final int TYPEFACE_SANS_SERIF = 1;
-    static final int TYPEFACE_SERIF = 2;
-    static final int TYPEFACE_MONOSPACE = 4;
+    public static final int TYPEFACE_REGULAR = 0;
+    public static final int TYPEFACE_SANS_SERIF = 1;
+    public static final int TYPEFACE_SERIF = 2;
+    public static final int TYPEFACE_MONOSPACE = 4;
 
     public static TextFormatter parseFormat(String format) {
         try {
             // val ints = format.split(DELIM).map { it.toInt() }
-            String[] strs = format.split(DELIM);
-            List<Integer> ints = new ArrayList<Integer>();
+            String[] strs = format.split(Pattern.quote(DELIM));
+            List<Integer> ints = new ArrayList<>();
             for (String str : strs) {
                 ints.add(Integer.valueOf(str));
             }

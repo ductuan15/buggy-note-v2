@@ -18,11 +18,11 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
 
-    public static volatile BuggyNoteDatabase INSTANCE;
+    static volatile BuggyNoteDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-    static BuggyNoteDatabase getInstance(final Context context) {
+    public static BuggyNoteDatabase getInstance(final Context context) {
         if (INSTANCE == null) {
             synchronized (BuggyNoteDatabase.class) {
                 if (INSTANCE == null) {

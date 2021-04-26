@@ -5,15 +5,15 @@
 
     <data>
 
-        <!--        <variable-->
-        <!--            name="note"-->
-        <!--            type="com.hcmus.clc18se.buggynote.data.NoteWithTags" />-->
+        <variable
+            name="note"
+            type="com.hcmus.clc18se.buggynote2.data.NoteWithTags" />
 
-        <!--        <import type="android.view.View" />-->
+        <import type="android.view.View" />
 
-        <!--        <variable-->
-        <!--            name="chipOnClickListener"-->
-        <!--            type="View.OnClickListener" />-->
+        <variable
+            name="chipOnClickListener"
+            type="View.OnClickListener" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -35,34 +35,35 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/title"
+                noteTitleFormat="@{note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
+                android:text="@{note.note.title}"
                 android:textAppearance="?textAppearanceHeadline6"
                 tools:text="Title" />
-            <!--                android:text="@{note.title}"-->
-            <!--                noteTitleFormat="@{note}"-->
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/note_content"
+                noteContentFormat="@{note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="10"
+                android:text="@{note.note.noteContent}"
                 android:textAlignment="gravity"
                 android:textAppearance="?textAppearanceBody2"
                 tools:text="@tools:sample/lorem/random" />
-            <!--                android:text="@{note.noteContent}"-->
-            <!--                noteContentFormat="@{note}"-->
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/time_stamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
                 android:gravity="center"
                 android:textAppearance="?textAppearanceCaption"
                 app:drawableStartCompat="@drawable/ic_baseline_access_time_24"
+                app:timeStampFromLong="@{note.note.lastModify}"
                 tools:text="@tools:sample/date/ddmmyy" />
-            <!--                timeStampFromLong="@{note.note.lastModify}"-->
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/tag_group"
@@ -73,9 +74,9 @@
                 app:chipSpacingHorizontal="4dp"
                 app:itemSpacing="0dp"
                 app:lineSpacing="0dp" />
+            <!--            app:setOnClickToChips="@{chipOnClickListener}"-->
             <!--                app:chipLimit="@{3}"-->
-            <!--                app:loadTagList="@{note.tags}"-->
-            <!--                app:setOnClickToChips="@{chipOnClickListener}"-->
+            <!--                loadTagList="@{note.tags}"-->
 
         </LinearLayout>
 

@@ -15,6 +15,8 @@ public class Note {
 
     public String name = "";
 
+    public String title = "";
+
     @ColumnInfo(name = "note_content")
     public String noteContent = "";
 
@@ -35,6 +37,8 @@ public class Note {
 
     @ColumnInfo(name = "is_archived", defaultValue = "0")
     public boolean is_archived = false;
+
+    public Note() {}
 
     public Note(long id,
                 String name,
@@ -80,7 +84,7 @@ public class Note {
         this.noteContent = noteContent;
     }
 
-    public long getLastModify() {
+    public Long getLastModify() {
         return lastModify;
     }
 
@@ -126,5 +130,17 @@ public class Note {
 
     public void setIs_archived(boolean is_archived) {
         this.is_archived = is_archived;
+    }
+
+    public static Note emptyInstance() {
+        return new Note(0L,
+                "",
+                "",
+                System.currentTimeMillis(),
+                "",
+                "",
+                0,
+                false,
+                false);
     }
 }
