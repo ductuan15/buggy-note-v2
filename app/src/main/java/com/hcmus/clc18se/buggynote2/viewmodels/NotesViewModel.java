@@ -3,6 +3,7 @@ package com.hcmus.clc18se.buggynote2.viewmodels;
 import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -24,7 +25,12 @@ import timber.log.Timber;
 public class NotesViewModel extends AndroidViewModel {
 
     private final BuggyNoteDao database;
-    private final NotesViewModelCallBacks callBacks;
+
+    public void setCallBacks(NotesViewModelCallBacks callBacks) {
+        this.callBacks = callBacks;
+    }
+
+    private NotesViewModelCallBacks callBacks;
 
     public NotesViewModel(
             BuggyNoteDao database,
@@ -33,7 +39,31 @@ public class NotesViewModel extends AndroidViewModel {
         super(application);
         this.database = database;
         this.callBacks = callBacks;
+
+        this.noteList.observeForever(noteList -> {
+            if (noteList != null) {
+                int visibility;
+                if (!noteList.isEmpty() &&
+                    containsAnyNonArchivedNotes(noteList)) {
+                    visibility = View.GONE;
+                }
+                else {
+                    visibility = View.VISIBLE;
+                }
+                noteListVisibility.postValue(visibility);
+            }
+        });
+
         loadNotes();
+    }
+
+    public boolean containsAnyNonArchivedNotes(List<NoteWithTags> noteList) {
+        for (NoteWithTags note: noteList) {
+            if (!note.note.isArchived()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void loadNotes() {
@@ -54,7 +84,11 @@ public class NotesViewModel extends AndroidViewModel {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
                     long id = database.addNewNote(note);
                     if (callBacks != null) {
-                        new Handler(Looper.getMainLooper()).post(() -> callBacks.onNoteItemInserted(id));
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            loadNotesFromDatabase();
+                            callBacks.onNoteItemInserted(id);
+
+                        });
                     }
                 }
         );
@@ -98,6 +132,12 @@ public class NotesViewModel extends AndroidViewModel {
         }
         return filtered;
     });
+
+    private final MutableLiveData<Integer> noteListVisibility = new MutableLiveData<>(View.GONE);
+
+    public final LiveData<Integer> getNoteListVisibility() {
+        return noteListVisibility;
+    }
 
     public final LiveData<Long> getNavigateToNoteDetails() {
         return navigateToNoteDetails;

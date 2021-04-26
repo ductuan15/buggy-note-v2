@@ -15,7 +15,7 @@ public class TextFormatter {
 
     private int gravity = Gravity.START;
     private int typefaceStyle = Typeface.NORMAL;
-    private int typefaceType = TYPEFACE_REGULAR;
+    private int typefaceType = TYPEFACE_SANS_SERIF;
 
     @Override
     public @NotNull String toString() {
@@ -79,7 +79,6 @@ public class TextFormatter {
 
     public static TextFormatter parseFormat(String format) {
         try {
-            // val ints = format.split(DELIM).map { it.toInt() }
             String[] strs = format.split(Pattern.quote(DELIM));
             List<Integer> ints = new ArrayList<>();
             for (String str : strs) {

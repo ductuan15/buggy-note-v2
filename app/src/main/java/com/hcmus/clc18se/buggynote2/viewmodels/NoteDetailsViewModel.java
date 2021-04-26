@@ -29,7 +29,7 @@ public class NoteDetailsViewModel extends ViewModel {
         return note;
     }
 
-    private MutableLiveData<Boolean> reloadDataRequest = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> reloadDataRequest = new MutableLiveData<>(false);
 
     public final LiveData<Boolean> getReloadDataRequestState() {
         return (LiveData<Boolean>) reloadDataRequest;
@@ -60,6 +60,10 @@ public class NoteDetailsViewModel extends ViewModel {
     private final MutableLiveData<Boolean> deleteRequest = new MutableLiveData<>(false);
     public LiveData<Boolean> getDeleteRequest() {
         return (LiveData<Boolean>) deleteRequest;
+    }
+
+    public void doneHandlingRequestDate() {
+        deleteRequest.setValue(false);
     }
 
     public void deleteMe() {

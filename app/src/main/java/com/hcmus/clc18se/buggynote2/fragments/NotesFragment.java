@@ -169,6 +169,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 // TODO: filter by tags
                 notesViewModel.loadNotes();
                 notesViewModel.doneRequestingLoadData();
+
                 binding.noteList.invalidate();
                 binding.noteList.requestLayout();
 
@@ -177,7 +178,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
             if (id != null) {
-                Navigation.findNavController(binding.getRoot()).navigate(
+                Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
                         NotesFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
                 );
                 notesViewModel.doneNavigatingToNoteDetails();

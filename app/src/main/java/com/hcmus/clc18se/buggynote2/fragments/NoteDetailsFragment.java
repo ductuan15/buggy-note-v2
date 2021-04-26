@@ -71,7 +71,7 @@ public class NoteDetailsFragment extends Fragment {
         binding.setLifecycleOwner(this);
 
         NavBackStackEntry backStackEntry = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                .getBackStackEntry(R.id.navigation);
+                .getBackStackEntry(R.id.nav_note_details);
 
         viewModel = new ViewModelProvider(
                 backStackEntry,
@@ -118,6 +118,15 @@ public class NoteDetailsFragment extends Fragment {
                         // TODO: navigate to tag selection fragment.
                     }
                 });
+
+        viewModel.getDeleteRequest().observe(getViewLifecycleOwner(), state -> {
+                    if (state != null && state) {
+                        notesViewModel.requestReloadingData();
+                        requireActivity().onBackPressed();
+                        viewModel.doneRequestingReloadData();
+                    }
+                }
+        );
     }
 
     @Override

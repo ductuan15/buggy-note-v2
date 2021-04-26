@@ -41,7 +41,6 @@ public class BindingAdapters {
 
             Typeface typeface;
             switch (formatter.getTypefaceType()) {
-                case TextFormatter.TYPEFACE_SERIF: typeface = Typeface.SERIF; break;
                 case TextFormatter.TYPEFACE_SANS_SERIF: typeface = Typeface.SANS_SERIF; break;
                 case TextFormatter.TYPEFACE_MONOSPACE: typeface = Typeface.MONOSPACE; break;
                 default:
