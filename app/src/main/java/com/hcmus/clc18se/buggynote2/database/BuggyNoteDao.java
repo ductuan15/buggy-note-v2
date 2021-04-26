@@ -25,7 +25,6 @@ public interface BuggyNoteDao {
     @Transaction
     @Query("select * from note order by " + DaoConstant.DEFAULT_SORT_ORDER)
     List<NoteWithTags> getAllNotesWithTag();
-    //LiveData<List<NoteWithTags>> getAllNotesWithTag();
 
     @Transaction
     @Query("select * from note where note_id = :id")
@@ -33,7 +32,7 @@ public interface BuggyNoteDao {
 
     @Transaction
     @Delete
-    void removeNote(Note... notes);
+    int removeNote(Note... notes);
 
     @Update
     void updateNote(Note... notes);

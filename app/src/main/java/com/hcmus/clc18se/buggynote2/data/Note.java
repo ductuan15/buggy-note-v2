@@ -36,7 +36,7 @@ public class Note {
     public boolean isPinned = false;
 
     @ColumnInfo(name = "is_archived", defaultValue = "0")
-    public boolean is_archived = false;
+    public boolean isArchived = false;
 
     public Note() {}
 
@@ -48,7 +48,7 @@ public class Note {
                 String contentFormat,
                 int order,
                 boolean isPinned,
-                boolean is_archived) {
+                boolean isArchived) {
         this.id = id;
         this.name = name;
         this.noteContent = noteContent;
@@ -57,7 +57,7 @@ public class Note {
         this.contentFormat = contentFormat;
         this.order = order;
         this.isPinned = isPinned;
-        this.is_archived = is_archived;
+        this.isArchived = isArchived;
     }
 
     public long getId() {
@@ -124,12 +124,12 @@ public class Note {
         isPinned = pinned;
     }
 
-    public boolean isIs_archived() {
-        return is_archived;
+    public boolean isArchived() {
+        return isArchived;
     }
 
-    public void setIs_archived(boolean is_archived) {
-        this.is_archived = is_archived;
+    public void setArchived(boolean archived) {
+        this.isArchived = archived;
     }
 
     public static Note emptyInstance() {

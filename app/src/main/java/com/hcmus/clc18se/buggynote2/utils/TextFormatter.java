@@ -24,9 +24,14 @@ public class TextFormatter {
 
     public void toggleFontType() {
         switch (typefaceType) {
-            case TYPEFACE_SERIF: typefaceType = TYPEFACE_MONOSPACE; break;
-            case TYPEFACE_MONOSPACE: typefaceType = TYPEFACE_REGULAR; break;
-            default: typefaceType = TYPEFACE_SERIF;
+            case TYPEFACE_SERIF:
+                typefaceType = TYPEFACE_SANS_SERIF;
+                break;
+            case TYPEFACE_SANS_SERIF:
+                typefaceType = TYPEFACE_MONOSPACE ;
+                break;
+            default:
+                typefaceType = TYPEFACE_SERIF;
         }
     }
 
@@ -85,6 +90,26 @@ public class TextFormatter {
         } catch (Exception ex) {
             Timber.e(ex);
             return new TextFormatter();
+        }
+    }
+
+    public void toggleBold() {
+        typefaceStyle ^= Typeface.BOLD;
+    }
+
+
+    public void toggleItalic() {
+        typefaceStyle ^= Typeface.ITALIC;
+    }
+
+
+    public void toggleAlignment() {
+        if ((gravity & Gravity.START) != 0) {
+            gravity = Gravity.CENTER;
+        } else if ((gravity & Gravity.CENTER) != 0) {
+            gravity = Gravity.END;
+        } else {
+            gravity = Gravity.START;
         }
     }
 }

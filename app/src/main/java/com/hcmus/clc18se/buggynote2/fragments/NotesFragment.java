@@ -164,6 +164,17 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         // noteViewModel.headerLabelVisibility
         // tagViewModel.tags
 
+        notesViewModel.getReloadDataRequest().observe(getViewLifecycleOwner(), state -> {
+            if (state != null && state) {
+                // TODO: filter by tags
+                notesViewModel.loadNotes();
+                notesViewModel.doneRequestingLoadData();
+                binding.noteList.invalidate();
+                binding.noteList.requestLayout();
+
+            }
+        });
+
         notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
             if (id != null) {
                 Navigation.findNavController(binding.getRoot()).navigate(

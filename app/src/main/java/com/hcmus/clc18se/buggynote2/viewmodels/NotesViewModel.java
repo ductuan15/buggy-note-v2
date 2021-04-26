@@ -53,7 +53,9 @@ public class NotesViewModel extends AndroidViewModel {
         // new InsertNoteAsyncTask(new WeakReference<>(this)).execute(note);
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
                     long id = database.addNewNote(note);
-                    new Handler(Looper.getMainLooper()).post(() -> callBacks.onNoteItemInserted(id));
+                    if (callBacks != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> callBacks.onNoteItemInserted(id));
+                    }
                 }
         );
 
@@ -90,7 +92,7 @@ public class NotesViewModel extends AndroidViewModel {
     public final LiveData<List<NoteWithTags>> archivedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
         for (NoteWithTags note : noteList) {
-            if (note.note.is_archived) {
+            if (note.note.isArchived) {
                 filtered.add(note);
             }
         }
@@ -118,7 +120,7 @@ public class NotesViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> reloadDataRequest = new MutableLiveData<>(false);
 
     public void requestReloadingData() {
-        reloadDataRequest.setValue(true);
+        reloadDataRequest.postValue(true);
     }
 
     public void doneRequestingLoadData() {

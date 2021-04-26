@@ -5,15 +5,15 @@
 
     <data>
 
-        <!--        <import type="android.view.View" />-->
+        <import type="android.view.View" />
 
-        <!--        <variable-->
-        <!--            name="noteDetailsViewModel"-->
-        <!--            type="com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel" />-->
+        <variable
+            name="noteDetailsViewModel"
+            type="com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel" />
 
-        <!--        <variable-->
-        <!--            name="chipOnClickListener"-->
-        <!--            type="View.OnClickListener" />-->
+        <variable
+            name="chipOnClickListener"
+            type="View.OnClickListener" />
     </data>
 
 
@@ -65,11 +65,11 @@
                         android:hint="@string/title"
                         android:inputType="textMultiLine|textNoSuggestions"
                         android:labelFor="@id/title_layout"
+                        android:text="@{noteDetailsViewModel.note.note.title}"
                         android:textAlignment="gravity"
                         android:textColor="?colorOnSurface"
+                        noteTitleFormat="@{noteDetailsViewModel.note}"
                         tools:text="Title" />
-                    <!--                        app:noteTitleFormat="@{noteDetailsViewModel.noteWithTags}"-->
-                    <!--                        android:text="@{noteDetailsViewModel.noteWithTags.note.title}"-->
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -84,6 +84,7 @@
 
                     <androidx.appcompat.widget.AppCompatEditText
                         android:id="@+id/note_content"
+                        noteContentFormat="@{noteDetailsViewModel.note}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -94,10 +95,9 @@
                         android:hint="@string/content"
                         android:inputType="textMultiLine|textNoSuggestions|textLongMessage"
                         android:labelFor="@id/content_layout"
+                        android:text="@{noteDetailsViewModel.note.note.noteContent}"
                         android:textAlignment="gravity"
                         tools:text="@tools:sample/lorem/random" />
-                    <!--                        android:text="@{noteDetailsViewModel.noteWithTags.note.noteContent}"-->
-                    <!--                        app:noteContentFormat="@{noteDetailsViewModel.noteWithTags}"-->
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,11 +113,12 @@
                     app:chipSpacingHorizontal="4dp"
                     app:itemSpacing="0dp"
                     app:lineSpacing="0dp" />
-                <!--                    app:loadTagList="@{noteDetailsViewModel.noteWithTags.tags}"-->
+                <!--                    loadTagList="@{noteDetailsViewModel.noteWithTags.tags}"-->
                 <!--                    app:setOnClickToChips="@{chipOnClickListener}"-->
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/time_stamp"
+                    timeStampFromLong="@{noteDetailsViewModel.note.note.lastModify}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -126,9 +127,8 @@
                     android:focusable="false"
                     android:gravity="center"
                     android:textAppearance="?textAppearanceCaption"
+                    app:drawableStartCompat="@drawable/ic_baseline_access_time_24"
                     tools:text="@tools:sample/date/ddmmyy" />
-                <!--                    app:drawableStartCompat="@drawable/ic_baseline_access_time_24"-->
-                <!--                    app:timeStampFromLong="@{noteDetailsViewModel.noteWithTags.note.lastModify}"-->
             </LinearLayout>
 
         </androidx.core.widget.NestedScrollView>
