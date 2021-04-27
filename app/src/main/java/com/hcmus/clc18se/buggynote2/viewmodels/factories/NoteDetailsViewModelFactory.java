@@ -17,7 +17,6 @@ public class NoteDetailsViewModelFactory implements ViewModelProvider.Factory {
         this.database = database;
     }
 
-
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {

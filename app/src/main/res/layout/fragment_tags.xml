@@ -107,15 +107,15 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!--                loadTags="@{tagViewModel.tags}"-->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tag_list"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:itemCount="5" />
-            <!--                tools:listitem="@layout/item_tag" -->
-            <!--                app:loadTags="@{tagViewModel.tags}"-->
+                tools:itemCount="5"
+                tools:listitem="@layout/item_tag" />
 
         </LinearLayout>
 

@@ -10,6 +10,7 @@ import androidx.room.Relation;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
 import java.util.List;
+import java.util.Objects;
 
 public class NoteWithTags {
 
@@ -40,12 +41,30 @@ public class NoteWithTags {
     public static DiffUtil.ItemCallback<NoteWithTags> diffCallBacks = new DiffUtil.ItemCallback<NoteWithTags>() {
         @Override
         public boolean areItemsTheSame(@NonNull NoteWithTags oldItem, @NonNull NoteWithTags newItem) {
-            return false;
+            return oldItem.getId() == newItem.getId();
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull NoteWithTags oldItem, @NonNull NoteWithTags newItem) {
-            return false;
+            return oldItem.equals(newItem);
         }
     };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NoteWithTags that = (NoteWithTags) o;
+        return Objects.equals(note, that.note) &&
+                Objects.equals(tags, that.tags);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(note, tags);
+    }
+
+    private long getId() {
+        return note.id;
+    }
 }
