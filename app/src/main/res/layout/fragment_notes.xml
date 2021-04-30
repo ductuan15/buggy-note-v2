@@ -9,6 +9,9 @@
             name="noteViewModel"
             type="com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel" />
 
+        <variable
+            name="tagViewModel"
+            type="com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -55,17 +58,17 @@
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <!--                    <androidx.recyclerview.widget.RecyclerView-->
-            <!--                        android:id="@+id/tag_filter_list"-->
-            <!--                        android:layout_width="match_parent"-->
-            <!--                        android:layout_height="wrap_content"-->
-            <!--                        android:layout_marginStart="8dp"-->
-            <!--                        android:nestedScrollingEnabled="false"-->
-            <!--                        android:orientation="horizontal"-->
-            <!--                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
-            <!--                        app:loadFilterTags="@{tagViewModel.tags}"-->
-            <!--                        tools:itemCount="5"-->
-            <!--                        tools:listitem="@layout/item_tag_filter" />-->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/tag_filter_list"
+                loadFilterTags="@{tagViewModel.tags}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:nestedScrollingEnabled="false"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="5"
+                tools:listitem="@layout/item_tag_filter" />
 
             <!--                        pinnedNotes="@{noteViewModel.pinnedNotes}"-->
             <!--                        unpinnedNotes="@{noteViewModel.unpinnedNotes}"-->

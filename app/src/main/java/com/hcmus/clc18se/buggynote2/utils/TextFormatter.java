@@ -28,7 +28,7 @@ public class TextFormatter {
                 typefaceType = TYPEFACE_SANS_SERIF;
                 break;
             case TYPEFACE_SANS_SERIF:
-                typefaceType = TYPEFACE_MONOSPACE ;
+                typefaceType = TYPEFACE_MONOSPACE;
                 break;
             default:
                 typefaceType = TYPEFACE_SERIF;
@@ -103,12 +103,13 @@ public class TextFormatter {
 
 
     public void toggleAlignment() {
-        if ((gravity & Gravity.START) != 0) {
+        if (gravity == Gravity.START) {
             gravity = Gravity.CENTER;
-        } else if ((gravity & Gravity.CENTER) != 0) {
+        } else if (gravity == Gravity.CENTER) {
             gravity = Gravity.END;
         } else {
             gravity = Gravity.START;
+
         }
     }
 }

@@ -2,7 +2,6 @@ package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
-import androidx.preference.PreferenceManager;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -33,7 +31,6 @@ import com.hcmus.clc18se.buggynote2.databinding.FragmentTagsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemTagBinding;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
-import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.TagsViewModelCallbacks;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
@@ -44,14 +41,6 @@ public class TagsFragment extends Fragment {
     private FragmentTagsBinding binding = null;
 
     private TagsViewModel viewModel;
-    private TagsViewModelCallbacks tagsViewModelCallbacks = new TagsViewModelCallbacks() {
-        @Override
-        public void onInsertTagFailed() {
-            binding.addTagLayout.setErrorEnabled(true);
-            binding.addTagLayout.setError(getString(R.string.exist_tag));
-            binding.addTagLayout.getEditText().getText().clear();
-        }
-    };
 
     private NotesViewModel notesViewModel;
 
@@ -85,7 +74,7 @@ public class TagsFragment extends Fragment {
         itemTagBinding.getRoot().requestLayout();
     };
 
-    private TagsAdapter tagsAdapter = new TagsAdapter(tagsAdapterCallbacks);
+    private final TagsAdapter tagsAdapter = new TagsAdapter(tagsAdapterCallbacks);
 
     private void updateATag(Tag tag, @NonNull ItemTagBinding itemTagBinding) {
         String newTag = itemTagBinding.tagContent.getText().toString().trim();
@@ -136,7 +125,7 @@ public class TagsFragment extends Fragment {
         BuggyNoteDao dao = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
         viewModel = new ViewModelProvider(
                 requireActivity(),
-                new TagsViewModelFactory(dao, tagsViewModelCallbacks)
+                new TagsViewModelFactory(dao)
         ).get(TagsViewModel.class);
 
         notesViewModel = new ViewModelProvider(
@@ -182,8 +171,13 @@ public class TagsFragment extends Fragment {
             }
 
             binding.addTagLayout.setErrorEnabled(false);
-            viewModel.insertTag(tagContent);
+            boolean succeed = viewModel.insertTag(tagContent);
+            if (!succeed) {
+                binding.addTagLayout.setErrorEnabled(true);
+                binding.addTagLayout.setError(getString(R.string.exist_tag));
+            }
             binding.addTagLayout.getEditText().getText().clear();
+
         });
     }
 

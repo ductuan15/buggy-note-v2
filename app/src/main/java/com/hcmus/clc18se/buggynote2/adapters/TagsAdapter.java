@@ -11,7 +11,7 @@ import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagsAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.ItemTagBinding;
 
-public class TagsAdapter extends ListAdapter<Tag, ViewHolder> {
+public class TagsAdapter extends ListAdapter<Tag, TagsAdapter.ViewHolder> {
 
     TagsAdapterCallbacks callbacks;
 
@@ -32,9 +32,8 @@ public class TagsAdapter extends ListAdapter<Tag, ViewHolder> {
         holder.bind(tag);
         holder.setOnFocusListenerForEditor(callbacks, tag);
     }
-}
 
-class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
     ItemTagBinding binding;
 
@@ -64,3 +63,5 @@ class ViewHolder extends RecyclerView.ViewHolder {
         return new ViewHolder(binding);
     }
 }
+}
+

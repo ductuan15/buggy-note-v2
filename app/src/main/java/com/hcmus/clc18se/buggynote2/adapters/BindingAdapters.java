@@ -128,6 +128,14 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("loadFilterTags")
+    public static void loadFilterTags(@NonNull RecyclerView recyclerView,
+                                      @Nullable List<Tag> tags) {
+        if (recyclerView.getAdapter() instanceof TagFilterAdapter && tags != null) {
+            ((TagFilterAdapter) recyclerView.getAdapter()).submitList(tags);
+        }
+    }
+
     @BindingAdapter(value = {"loadTagList", "chipLimit", "setOnClickToChips"}, requireAll = false)
     public static void setTags(@NonNull ChipGroup chipGroup,
                                @Nullable List<Tag> tags,

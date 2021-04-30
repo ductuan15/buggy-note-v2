@@ -26,18 +26,27 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.NoteAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.TagFilterAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.TagsAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagsAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
+import com.hcmus.clc18se.buggynote2.databinding.ItemTagBinding;
+import com.hcmus.clc18se.buggynote2.utils.ContextUtils;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
+import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
+import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -48,8 +57,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private SharedPreferences preferences = null;
     private FragmentNotesBinding binding = null;
-
-    private BuggyNoteDao database;
 
     // TODO: init đào
     //      view models
@@ -86,11 +93,38 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private final NoteAdapter noteAdapter = new NoteAdapter(noteAdapterCallbacks);
 
+    private TagsViewModel tagsViewModel;
+
+    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
+        // TODO: complete this
+        if (tag.isSelectedState() != isChecked) {
+            noteAdapter.finishSelection();
+            //
+            tag.setSelectedState(isChecked);
+            notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+        }
+    };
+
+    private final TagFilterAdapter tagFilterAdapter = new TagFilterAdapter(tagFilterAdapterCallbacks);
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
+        BuggyNoteDao database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+
+        notesViewModel = new ViewModelProvider(
+                requireActivity(),
+                new NotesViewModelFactory(
+                        database,
+                        requireActivity().getApplication(),
+                        noteViewModelCallbacks))
+                .get(NotesViewModel.class);
+
+        tagsViewModel = new ViewModelProvider(
+                requireActivity(),
+                new TagsViewModelFactory(database)
+        ).get(TagsViewModel.class);
     }
 
     private final NotesViewModelCallBacks noteViewModelCallbacks = new NotesViewModelCallBacks() {
@@ -110,13 +144,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         setHasOptionsMenu(true);
 
         binding.setLifecycleOwner(this);
-        notesViewModel = new ViewModelProvider(
-                requireActivity(),
-                new NotesViewModelFactory(
-                        database,
-                        requireActivity().getApplication(),
-                        noteViewModelCallbacks))
-                .get(NotesViewModel.class);
 
         binding.fab.setOnClickListener(view -> {
             notesViewModel.insertNewNote(Note.emptyInstance());
@@ -124,6 +151,8 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         // TODO: bind view models.
         binding.setNoteViewModel(notesViewModel);
+        binding.setTagViewModel(tagsViewModel);
+
         initRecyclerViews();
         initObservers();
 
@@ -152,6 +181,11 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     void initRecyclerViews() {
         initNoteAdapter(binding.noteList, noteAdapter, null, true);
+
+        binding.tagFilterList.setAdapter(tagFilterAdapter);
+        binding.tagFilterList.addItemDecoration(
+                new SpaceItemDecoration((int) getResources().getDimension(R.dimen.item_note_margin))
+        );
     }
 
     // TODO: set adapter to the recycler views
@@ -159,7 +193,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     //       attach ItemTouchHelper
     //       add ItemDecoration.
 
-    // TODO: set observers from view models.
     void initObservers() {
 
         notesViewModel.getNoteList().observe(getViewLifecycleOwner(), noteWithTags -> {
@@ -170,12 +203,21 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         });
 
         // noteViewModel.headerLabelVisibility
-        // tagViewModel.tags
+
+        tagsViewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
+            tagFilterAdapter.notifyDataSetChanged();
+        });
 
         notesViewModel.getReloadDataRequest().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state) {
-                // TODO: filter by tags
-                notesViewModel.loadNotes();
+
+                if (tagsViewModel.getTags().getValue() != null) {
+                    notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+                }
+                else {
+                    notesViewModel.loadNotes();
+                }
+
                 notesViewModel.doneRequestingLoadData();
 
                 binding.noteList.invalidate();
@@ -204,7 +246,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        // TODO: re-setup the layout manager of the note list.
+        ViewUtils.setupLayoutManagerForNoteList(binding.noteList, preferences);
     }
 
     @Override
@@ -264,13 +306,10 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO: refresh the recycler view
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
-        // initObservers();
     }
 
     private void setUpNavigation() {

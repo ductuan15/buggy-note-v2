@@ -1,8 +1,5 @@
 package com.hcmus.clc18se.buggynote2.viewmodels;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,18 +7,15 @@ import androidx.lifecycle.ViewModel;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
-import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.TagsViewModelCallbacks;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class TagsViewModel extends ViewModel {
     final BuggyNoteDao database;
-    TagsViewModelCallbacks callbacks;
 
-    public TagsViewModel(BuggyNoteDao database, TagsViewModelCallbacks callbacks) {
+    public TagsViewModel(BuggyNoteDao database) {
         this.database = database;
-        this.callbacks = callbacks;
         loadTags();
     }
 
@@ -29,23 +23,29 @@ public class TagsViewModel extends ViewModel {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> tags.postValue(database.getAllTags()));
     }
 
-    private MutableLiveData<List<Tag>> tags = new MutableLiveData<>();
+    private final MutableLiveData<List<Tag>> tags = new MutableLiveData<>();
 
     public LiveData<List<Tag>> getTags() {
         return tags;
     }
 
-    public void insertTag(String tagContent) {
-        BuggyNoteDatabase.databaseWriteExecutor.execute(
-                () -> {
-                    if (database.containsTag(tagContent)) {
-                        new Handler(Looper.getMainLooper()).post(callbacks::onInsertTagFailed);
-                    } else {
-                        database.insertTag(new Tag(0L, tagContent));
-                        loadTags();
+    public boolean insertTag(String tagContent) {
+        try {
+            return BuggyNoteDatabase.databaseWriteExecutor.submit(
+                    () -> {
+                        if (database.containsTag(tagContent)) {
+                            return false;
+                        } else {
+                            database.insertTag(new Tag(0L, tagContent));
+                            loadTags();
+                            return true;
+                        }
                     }
-                }
-        );
+            ).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public boolean updateTag(Tag tag) {

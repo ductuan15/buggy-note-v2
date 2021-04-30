@@ -16,6 +16,8 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 
 import java.util.List;
 
+import static com.hcmus.clc18se.buggynote2.database.DaoConstant.DEFAULT_SORT_ORDER;
+
 class DaoConstant {
     public static final String DEFAULT_SORT_ORDER = "is_pinned desc,`order` asc, note_id desc";
 }
@@ -24,7 +26,7 @@ class DaoConstant {
 public interface BuggyNoteDao {
 
     @Transaction
-    @Query("select * from note order by " + DaoConstant.DEFAULT_SORT_ORDER)
+    @Query("select * from note order by " + DEFAULT_SORT_ORDER)
     List<NoteWithTags> getAllNotesWithTag();
 
     @Transaction
@@ -65,7 +67,12 @@ public interface BuggyNoteDao {
 
     @Delete
     void deleteNoteCrossRef(NoteCrossRef noteCrossRef);
-    //
-//    @Query("select * from notecrossref where note_id = :noteId")
-//    suspend fun getNoteCrossRef(noteId: Long): List<NoteCrossRef>
+
+    @Transaction
+    @Query(
+            "select * from note where note_id in (" +
+                    "select note_id from notecrossref where tag_id in (:tagIds)" +
+                    ") order by " + DEFAULT_SORT_ORDER
+    )
+    List<NoteWithTags> filterNoteByTagList(List<Long> tagIds);
 }

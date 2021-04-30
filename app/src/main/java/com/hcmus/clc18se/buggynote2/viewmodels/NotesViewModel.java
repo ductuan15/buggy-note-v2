@@ -13,6 +13,7 @@ import androidx.lifecycle.Transformations;
 
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
@@ -44,10 +45,9 @@ public class NotesViewModel extends AndroidViewModel {
             if (noteList != null) {
                 int visibility;
                 if (!noteList.isEmpty() &&
-                    containsAnyNonArchivedNotes(noteList)) {
+                        containsAnyNonArchivedNotes(noteList)) {
                     visibility = View.GONE;
-                }
-                else {
+                } else {
                     visibility = View.VISIBLE;
                 }
                 noteListVisibility.postValue(visibility);
@@ -58,7 +58,7 @@ public class NotesViewModel extends AndroidViewModel {
     }
 
     public boolean containsAnyNonArchivedNotes(List<NoteWithTags> noteList) {
-        for (NoteWithTags note: noteList) {
+        for (NoteWithTags note : noteList) {
             if (!note.note.isArchived()) {
                 return true;
             }
@@ -80,7 +80,6 @@ public class NotesViewModel extends AndroidViewModel {
     }
 
     public void insertNewNote(Note note) {
-        // new InsertNoteAsyncTask(new WeakReference<>(this)).execute(note);
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
                     long id = database.addNewNote(note);
                     if (callBacks != null) {
@@ -165,5 +164,30 @@ public class NotesViewModel extends AndroidViewModel {
 
     public void doneRequestingLoadData() {
         reloadDataRequest.setValue(false);
+    }
+
+    public void filterByTags(List<Tag> tags) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            boolean hasSelectedTags = false;
+            for (Tag tag : tags) {
+                if (tag.isSelectedState()) {
+                    hasSelectedTags = true;
+                    break;
+                }
+            }
+
+            if (hasSelectedTags) {
+                List<Long> tagIds = new ArrayList<>();
+                for (Tag tag : tags) {
+                    if (tag.isSelectedState()) {
+                        tagIds.add(tag.getId());
+                    }
+                }
+
+                noteList.postValue(database.filterNoteByTagList(tagIds));
+            } else {
+                loadNotesFromDatabase();
+            }
+        });
     }
 }
