@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +33,8 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
+import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
+import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
@@ -87,8 +90,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
-
-        Timber.d("ping");
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
     }
 
     private final NotesViewModelCallBacks noteViewModelCallbacks = new NotesViewModelCallBacks() {
@@ -119,6 +121,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         binding.fab.setOnClickListener(view -> {
             notesViewModel.insertNewNote(Note.emptyInstance());
         });
+
         // TODO: bind view models.
         binding.setNoteViewModel(notesViewModel);
         initRecyclerViews();
@@ -128,22 +131,27 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     }
 
     void initNoteAdapter(RecyclerView recyclerView,
-                         RecyclerView.Adapter adapter,
+                         RecyclerView.Adapter<?> adapter,
                          ItemTouchHelper touchHelper,
                          boolean addItemDecoration) {
-        // TODO: set layout manager
+
+        ViewUtils.setupLayoutManagerForNoteList(binding.noteList, preferences);
+
         recyclerView.setAdapter(adapter);
+
         if (addItemDecoration) {
-            // TODO: add item decoration
-            // recyclerView.addItemDecoration();
+            recyclerView.addItemDecoration(new SpaceItemDecoration(
+                    (int) requireContext().getResources().getDimension(R.dimen.item_note_margin)
+            ));
         }
+
         if (touchHelper != null) {
             touchHelper.attachToRecyclerView(recyclerView);
         }
     }
 
     void initRecyclerViews() {
-        initNoteAdapter(binding.noteList, noteAdapter, null, false);
+        initNoteAdapter(binding.noteList, noteAdapter, null, true);
     }
 
     // TODO: set adapter to the recycler views
@@ -203,7 +211,16 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
         super.onPrepareOptionsMenu(menu);
 
-        // TODO: init the state of pinned icon in the option menu
+        final String list = "1";
+        String noteListDisplayType = preferences.getString(
+                getString(R.string.note_list_view_type_key), "0");
+
+        MenuItem noteListDisplayItem = menu.findItem(R.id.note_list_item_view_type);
+        if (noteListDisplayType.equals(list)) {
+            noteListDisplayItem.setIcon(R.drawable.ic_baseline_grid_view_24);
+        } else {
+            noteListDisplayItem.setIcon(R.drawable.ic_baseline_list_alt_24);
+        }
     }
 
     @Override
@@ -215,14 +232,39 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     }
 
+    private void onItemTypeOptionClicked() {
+        String currentItemView = preferences.getString(getString(R.string.note_list_view_type_key), "0");
+        String nextItemView = currentItemView.equals("0") ? "1" : "0";
+
+        preferences.edit()
+                .putString(getString(R.string.note_list_view_type_key), nextItemView)
+                .apply();
+
+        refreshNoteList();
+    }
+
+    private void refreshNoteList() {
+        binding.noteList.setAdapter(null);
+        initNoteAdapter(binding.noteList, noteAdapter, null, false);
+
+        // 
+    }
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        // TODO: handle buttons
+        if (item.getItemId() == R.id.note_list_item_view_type) {
+            onItemTypeOptionClicked();
+            if (preferences.getString(getString(R.string.note_list_view_type_key), "0").equals("0")) {
+                item.setIcon(R.drawable.ic_baseline_list_alt_24);
+            } else {
+                item.setIcon(R.drawable.ic_baseline_grid_view_24);
+            }
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
     // TODO: refresh the recycler view
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

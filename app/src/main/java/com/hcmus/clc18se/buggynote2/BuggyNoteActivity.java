@@ -8,6 +8,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,9 +17,6 @@ import android.os.Looper;
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class BuggyNoteActivity extends AppCompatActivity {
 
@@ -37,6 +35,8 @@ public class BuggyNoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
 
         binding = ActivityBuggyNoteBinding.inflate(getLayoutInflater());
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);

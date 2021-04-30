@@ -92,7 +92,6 @@ public class NoteDetailsFragment extends Fragment {
         binding.setNoteDetailsViewModel(viewModel);
         // binding.setChipOnClickListener();
 
-
         initObservers();
 
         return binding.getRoot();
@@ -163,7 +162,6 @@ public class NoteDetailsFragment extends Fragment {
         }
 
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
