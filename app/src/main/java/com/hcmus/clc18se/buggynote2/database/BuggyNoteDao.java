@@ -48,6 +48,11 @@ public interface BuggyNoteDao {
 
     @Transaction
     @Delete
-    void deleteTag(Tag tag);
+    int deleteTag(Tag tag);
 
+    @Query("select * from tag order by name asc")
+    List<Tag> getAllTags();
+
+    @Query("select count(*) from tag where name = :content")
+    boolean containsTag(String content);
 }

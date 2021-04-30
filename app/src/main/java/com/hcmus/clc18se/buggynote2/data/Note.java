@@ -2,6 +2,7 @@ package com.hcmus.clc18se.buggynote2.data;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
@@ -38,6 +39,7 @@ public class Note {
     @ColumnInfo(name = "is_archived", defaultValue = "0")
     public boolean isArchived = false;
 
+    @Ignore
     public Note() {}
 
     public Note(long id,

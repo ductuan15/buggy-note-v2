@@ -56,8 +56,11 @@ class ViewHolder extends RecyclerView.ViewHolder {
     }
 
     public static ViewHolder from(ViewGroup parent) {
-        ItemTagBinding binding = ItemTagBinding.inflate(LayoutInflater.from(parent.getContext()));
+        ItemTagBinding binding = ItemTagBinding.inflate(
+                LayoutInflater.from(parent.getContext()),
+                parent,
+                false
+        );
         return new ViewHolder(binding);
-
     }
 }

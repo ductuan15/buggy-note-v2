@@ -5,9 +5,9 @@
 
     <data>
 
-        <!--        <variable-->
-        <!--            name="tagViewModel"-->
-        <!--            type="com.hcmus.clc18se.buggynote2.viewmodels.TagViewModel" />-->
+        <variable
+            name="tagViewModel"
+            type="com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -20,13 +20,13 @@
             layout="@layout/app_bar_main" />
 
         <LinearLayout
+            placeholderVisibility="@{tagViewModel.tags}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
             tools:visibility="gone">
-            <!--            app:placeholderVisibility="@{tagViewModel.tags}"-->
 
             <TextView
                 android:id="@+id/placeholder_emoticon"
@@ -107,12 +107,11 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!--                loadTags="@{tagViewModel.tags}"-->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tag_list"
+                loadTags="@{tagViewModel.tags}"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="5"
                 tools:listitem="@layout/item_tag" />

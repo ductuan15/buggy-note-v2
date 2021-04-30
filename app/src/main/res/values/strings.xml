@@ -35,4 +35,6 @@
     <string name="unarchived_moved_to_note_list">Unarchived</string>
     <string name="archive">Archive</string>
     <string name="settings">Settings</string>
+    <string name="remove_tag_dialog_title">Remove Tag?</string>
+    <string name="remove_tag_dialog_content">Your notes won\'t be removed when delete this tag.</string>
 </resources>

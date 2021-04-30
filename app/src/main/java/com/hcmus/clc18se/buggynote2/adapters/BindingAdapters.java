@@ -1,6 +1,8 @@
 package com.hcmus.clc18se.buggynote2.adapters;
 
 import android.graphics.Typeface;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
 import java.util.List;
@@ -19,6 +22,17 @@ import java.util.Random;
 import static com.hcmus.clc18se.buggynote2.utils.Utils.convertLongToDateString;
 
 public class BindingAdapters {
+
+    @BindingAdapter("placeholderVisibility")
+    public static void setPlaceholderVisibility(@NonNull ViewGroup viewGroup,
+                                                @Nullable List<?> list) {
+        if (list != null && list.isEmpty()) {
+            viewGroup.setVisibility(View.VISIBLE);
+        }
+        else {
+            viewGroup.setVisibility(View.GONE);
+        }
+    }
 
     @BindingAdapter("placeHolderEmoticon")
     public static void setPlaceHolderEmoticon(TextView textView, Object nothing) {
@@ -77,6 +91,13 @@ public class BindingAdapters {
     public static void loadNotes(@NonNull RecyclerView recyclerView, @Nullable List<NoteWithTags> notes) {
         if (recyclerView.getAdapter() instanceof ListAdapter && notes != null) {
             ((NoteAdapter) recyclerView.getAdapter()).submitList(notes);
+        }
+    }
+
+    @BindingAdapter("loadTags")
+    public static void loadTags(@NonNull RecyclerView recyclerView, @Nullable List<Tag> tags) {
+        if (recyclerView.getAdapter() instanceof TagsAdapter && tags != null) {
+            ((TagsAdapter) recyclerView.getAdapter()).submitList(tags);
         }
     }
 }
