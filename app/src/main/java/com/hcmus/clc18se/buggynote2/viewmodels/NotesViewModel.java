@@ -132,6 +132,11 @@ public class NotesViewModel extends AndroidViewModel {
         return filtered;
     });
 
+    public final LiveData<Integer> headerLabelVisibility = Transformations.map(pinnedNotes, (pinnedNotes) -> {
+        if (pinnedNotes.isEmpty()) return View.GONE;
+        return View.VISIBLE;
+    });
+
     private final MutableLiveData<Integer> noteListVisibility = new MutableLiveData<>(View.GONE);
 
     public final LiveData<Integer> getNoteListVisibility() {

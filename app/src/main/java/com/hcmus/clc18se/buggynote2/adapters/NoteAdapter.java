@@ -17,6 +17,24 @@ import java.util.List;
 
 public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolder> {
 
+    // Dirty flags
+    // position of the NoteAdapter containing a list of pinned notes in a ConcatAdapter
+    public static final int PINNED_POSITION = 1;
+    // position of the NoteAdapter containing a list of unpinned notes in a ConcatAdapter
+    public static final int UNPINNED_POSITION = 3;
+
+    public static final String PIN_TAG = "PIN";
+    public static final String UNPIN_TAG = "UNPIN";
+    public static final String ARCHIVE_TAG = "ARCHIVE";
+
+    public NoteAdapter(NoteAdapterCallbacks callbacks, String tag) {
+        super(NoteWithTags.diffCallBacks);
+        this.tag = tag;
+        this.callbacks = callbacks;
+    }
+
+    private final String tag;
+
     private boolean multiSelected = false;
 
     private final NoteAdapterCallbacks callbacks;
@@ -51,11 +69,6 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     }
 
     private final List<NoteWithTags> selectedItems = new ArrayList<>();
-
-    public NoteAdapter(NoteAdapterCallbacks callbacks) {
-        super(NoteWithTags.diffCallBacks);
-        this.callbacks = callbacks;
-    }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {

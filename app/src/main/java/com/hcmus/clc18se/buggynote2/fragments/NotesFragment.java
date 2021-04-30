@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,19 +27,15 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.NoteAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.NoteHeaderAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.TagFilterAdapter;
-import com.hcmus.clc18se.buggynote2.adapters.TagsAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
-import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagsAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
-import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
-import com.hcmus.clc18se.buggynote2.databinding.ItemTagBinding;
-import com.hcmus.clc18se.buggynote2.utils.ContextUtils;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
@@ -49,7 +46,6 @@ import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import timber.log.Timber;
 
@@ -87,18 +83,24 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         @Override
         public void onItemSwiped(NoteWithTags note) {
             // TODO: implement me
-
         }
     };
 
-    private final NoteAdapter noteAdapter = new NoteAdapter(noteAdapterCallbacks);
+    private final NoteAdapter pinnedNotesAdapter = new NoteAdapter(noteAdapterCallbacks, NoteAdapter.PIN_TAG);
+
+    private final NoteAdapter unpinnedNotesAdapter = new NoteAdapter(noteAdapterCallbacks, NoteAdapter.UNPIN_TAG);
+
+    private ConcatAdapter concatAdapter;
 
     private TagsViewModel tagsViewModel;
 
     private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
         // TODO: complete this
         if (tag.isSelectedState() != isChecked) {
-            noteAdapter.finishSelection();
+            pinnedNotesAdapter.finishSelection();
+            unpinnedNotesAdapter.finishSelection();
+
+
             //
             tag.setSelectedState(isChecked);
             notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
@@ -125,6 +127,22 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 requireActivity(),
                 new TagsViewModelFactory(database)
         ).get(TagsViewModel.class);
+
+        ConcatAdapter.Config config = new ConcatAdapter.Config.Builder()
+                .setIsolateViewTypes(false)
+                .build();
+
+        concatAdapter = new ConcatAdapter(config,
+                new NoteHeaderAdapter(getString(R.string.pinned),
+                        notesViewModel.headerLabelVisibility,
+                        R.drawable.ic_outline_push_pin_24),
+                pinnedNotesAdapter,
+                new NoteHeaderAdapter(getString(R.string.others),
+                        notesViewModel.headerLabelVisibility,
+                        null),
+                unpinnedNotesAdapter
+        );
+
     }
 
     private final NotesViewModelCallBacks noteViewModelCallbacks = new NotesViewModelCallBacks() {
@@ -149,7 +167,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             notesViewModel.insertNewNote(Note.emptyInstance());
         });
 
-        // TODO: bind view models.
         binding.setNoteViewModel(notesViewModel);
         binding.setTagViewModel(tagsViewModel);
 
@@ -180,7 +197,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     }
 
     void initRecyclerViews() {
-        initNoteAdapter(binding.noteList, noteAdapter, null, true);
+        initNoteAdapter(binding.noteList, concatAdapter, null, true);
 
         binding.tagFilterList.setAdapter(tagFilterAdapter);
         binding.tagFilterList.addItemDecoration(
@@ -195,26 +212,12 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     void initObservers() {
 
-        notesViewModel.getNoteList().observe(getViewLifecycleOwner(), noteWithTags -> {
-            if (noteWithTags != null) {
-                noteAdapter.notifyDataSetChanged();
-                Timber.d("loaded");
-            }
-        });
-
-        // noteViewModel.headerLabelVisibility
-
-        tagsViewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
-            tagFilterAdapter.notifyDataSetChanged();
-        });
-
         notesViewModel.getReloadDataRequest().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state) {
 
                 if (tagsViewModel.getTags().getValue() != null) {
                     notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
-                }
-                else {
+                } else {
                     notesViewModel.loadNotes();
                 }
 
@@ -224,6 +227,21 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 binding.noteList.requestLayout();
 
             }
+        });
+
+        notesViewModel.getNoteList().observe(getViewLifecycleOwner(), noteWithTags -> {
+            if (noteWithTags != null) {
+                concatAdapter.notifyDataSetChanged();
+                Timber.d("loaded");
+            }
+        });
+
+        notesViewModel.headerLabelVisibility.observe(getViewLifecycleOwner(), visibility -> {
+            concatAdapter.notifyDataSetChanged();
+        });
+
+        tagsViewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
+            tagFilterAdapter.notifyDataSetChanged();
         });
 
         notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
@@ -287,7 +305,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private void refreshNoteList() {
         binding.noteList.setAdapter(null);
-        initNoteAdapter(binding.noteList, noteAdapter, null, false);
+        initNoteAdapter(binding.noteList, concatAdapter, null, false);
 
         // 
     }

@@ -4,11 +4,13 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
+import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,6 +24,8 @@ import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
 import java.util.List;
 import java.util.Random;
+
+import timber.log.Timber;
 
 import static com.hcmus.clc18se.buggynote2.utils.Utils.convertLongToDateString;
 
@@ -169,6 +173,28 @@ public class BindingAdapters {
                     chip.setOnClickListener(clickListener);
                 }
             }
+        }
+    }
+
+    @BindingAdapter(value = {"pinnedNotes", "unpinnedNotes"}, requireAll = false)
+    public static void loadNotes2(@NonNull RecyclerView recyclerView,
+                                  @Nullable List<NoteWithTags> pinnedNotes,
+                                  @Nullable List<NoteWithTags> unpinnedNotes) {
+        if (!(recyclerView.getAdapter() instanceof ConcatAdapter)) {
+            Timber.w("Use the concat adapter to load 2 note lists");
+            return;
+        }
+
+        List<?> adapters = ((ConcatAdapter) recyclerView.getAdapter()).getAdapters();
+        if (adapters.isEmpty()) {
+            Timber.w("ConcatAdapter does not contain any NoteAdapter");
+        }
+
+        if (pinnedNotes != null) {
+            ((NoteAdapter)adapters.get(NoteAdapter.PINNED_POSITION)).submitList(pinnedNotes);
+        }
+         if (unpinnedNotes != null) {
+            ((NoteAdapter)adapters.get(NoteAdapter.UNPINNED_POSITION)).submitList(unpinnedNotes);
         }
     }
 }
