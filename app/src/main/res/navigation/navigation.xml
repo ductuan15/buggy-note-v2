@@ -40,50 +40,55 @@
             <argument
                 android:name="noteId"
                 app:argType="long" />
-<!--            <action-->
-<!--                android:id="@+id/action_nav_note_details_to_tagSelectionFragment"-->
-<!--                app:destination="@id/nav_tag_selection"-->
-<!--                app:enterAnim="@anim/fade_in"-->
-<!--                app:exitAnim="@anim/fade_out"-->
-<!--                app:popEnterAnim="@anim/fade_in"-->
-<!--                app:popExitAnim="@anim/fade_out" />-->
+            <action
+                android:id="@+id/action_nav_note_details_to_tagSelectionFragment"
+                app:destination="@id/nav_tag_selection"
+                app:enterAnim="@anim/fade_in"
+                app:exitAnim="@anim/fade_out"
+                app:popEnterAnim="@anim/fade_in"
+                app:popExitAnim="@anim/fade_out">
+                <argument
+                    android:name="noteId"
+                    app:argType="long" />
+            </action>
         </fragment>
 
-<!--        <fragment-->
-<!--            android:id="@+id/nav_tag_selection"-->
-<!--            android:name="com.hcmus.clc18se.buggynote2.fragments.TagSelectionFragment"-->
-<!--            android:label="">-->
-<!--            <argument-->
-<!--                android:name="noteId"-->
-<!--                app:argType="long" />-->
-<!--        </fragment>-->
+        <fragment
+            android:id="@+id/nav_tag_selection"
+            android:name="com.hcmus.clc18se.buggynote2.fragments.TagSelectionFragment"
+            android:label=""
+            tools:layout="@layout/fragment_select_tags">
+            <argument
+                android:name="noteId"
+                app:argType="long" />
+        </fragment>
     </navigation>
 
-<!--    <fragment-->
-<!--        android:id="@+id/nav_settings"-->
-<!--        android:name="com.hcmus.clc18se.buggynote2.fragments.SettingsFragment"-->
-<!--        android:label="@string/settings" />-->
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.hcmus.clc18se.buggynote2.fragments.SettingsFragment"
+        android:label="@string/settings" />
 
-<!--    &lt;!&ndash;Global action&ndash;&gt;-->
-<!--    <action-->
-<!--        android:id="@+id/open_settings_fragment"-->
-<!--        app:destination="@id/nav_settings" />-->
+    <!--Global action-->
+    <action
+        android:id="@+id/open_settings_fragment"
+        app:destination="@id/nav_settings" />
 
-<!--    <fragment-->
-<!--        android:id="@+id/nav_archive"-->
-<!--        android:name="com.hcmus.clc18se.buggynote2.fragments.ArchivedFragment"-->
-<!--        android:label="@string/archive">-->
-<!--        <action-->
-<!--            android:id="@+id/action_nav_notes_to_noteDetailsFragment"-->
-<!--            app:destination="@id/navigation_note_details"-->
-<!--            app:enterAnim="@anim/fade_in"-->
-<!--            app:exitAnim="@anim/fade_out"-->
-<!--            app:popEnterAnim="@anim/fade_in"-->
-<!--            app:popExitAnim="@anim/fade_out">-->
-<!--            <argument-->
-<!--                android:name="noteId"-->
-<!--                app:argType="long" />-->
-<!--        </action>-->
-<!--    </fragment>-->
+    <!--    <fragment-->
+    <!--        android:id="@+id/nav_archive"-->
+    <!--        android:name="com.hcmus.clc18se.buggynote2.fragments.ArchivedFragment"-->
+    <!--        android:label="@string/archive">-->
+    <!--        <action-->
+    <!--            android:id="@+id/action_nav_notes_to_noteDetailsFragment"-->
+    <!--            app:destination="@id/navigation_note_details"-->
+    <!--            app:enterAnim="@anim/fade_in"-->
+    <!--            app:exitAnim="@anim/fade_out"-->
+    <!--            app:popEnterAnim="@anim/fade_in"-->
+    <!--            app:popExitAnim="@anim/fade_out">-->
+    <!--            <argument-->
+    <!--                android:name="noteId"-->
+    <!--                app:argType="long" />-->
+    <!--        </action>-->
+    <!--    </fragment>-->
 
 </navigation>

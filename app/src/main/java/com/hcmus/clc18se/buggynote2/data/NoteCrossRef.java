@@ -22,4 +22,9 @@ public class NoteCrossRef {
 
     @ColumnInfo(name = "tag_id", index = true)
     public long tagId;
+
+    public NoteCrossRef(long noteId, long tagId) {
+        this.noteId = noteId;
+        this.tagId = tagId;
+    }
 }

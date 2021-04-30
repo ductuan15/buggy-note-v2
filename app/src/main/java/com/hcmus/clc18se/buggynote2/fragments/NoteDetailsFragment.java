@@ -50,7 +50,7 @@ public class NoteDetailsFragment extends Fragment {
 
     private BuggyNoteDao db;
 
-    // TODO: Tag on click listener
+    private final View.OnClickListener tagOnClickListener = v -> viewModel.navigateToTagSelection();
 
     private Menu menu;
 
@@ -90,7 +90,7 @@ public class NoteDetailsFragment extends Fragment {
                 .get(NotesViewModel.class);
 
         binding.setNoteDetailsViewModel(viewModel);
-        // binding.setChipOnClickListener();
+        binding.setChipOnClickListener(tagOnClickListener);
 
         initObservers();
 
@@ -114,7 +114,12 @@ public class NoteDetailsFragment extends Fragment {
         viewModel.getNavigateToTagSelection().observe(getViewLifecycleOwner(),
                 id -> {
                     if (id != null) {
-                        // TODO: navigate to tag selection fragment.
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
+                            NoteDetailsFragmentDirections.actionNavNoteDetailsToTagSelectionFragment(
+                                    arguments.getNoteId()
+                            )
+                        );
+                        viewModel.doneNavigatingToTagSelection();
                     }
                 });
 

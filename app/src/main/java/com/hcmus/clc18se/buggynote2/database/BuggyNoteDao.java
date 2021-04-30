@@ -10,6 +10,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.hcmus.clc18se.buggynote2.data.Note;
+import com.hcmus.clc18se.buggynote2.data.NoteCrossRef;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 
@@ -55,4 +56,16 @@ public interface BuggyNoteDao {
 
     @Query("select count(*) from tag where name = :content")
     boolean containsTag(String content);
+
+    @Query("select count(*) from notecrossref where note_id = :noteId and tag_id = :tagId")
+    boolean containsNoteCrossRef(long noteId, long tagId);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void addNoteCrossRef(NoteCrossRef noteCrossRef);
+
+    @Delete
+    void deleteNoteCrossRef(NoteCrossRef noteCrossRef);
+    //
+//    @Query("select * from notecrossref where note_id = :noteId")
+//    suspend fun getNoteCrossRef(noteId: Long): List<NoteCrossRef>
 }

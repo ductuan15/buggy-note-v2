@@ -28,8 +28,7 @@ public class BindingAdapters {
                                                 @Nullable List<?> list) {
         if (list != null && list.isEmpty()) {
             viewGroup.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             viewGroup.setVisibility(View.GONE);
         }
     }
@@ -49,16 +48,22 @@ public class BindingAdapters {
     }
 
     @BindingAdapter("noteTitleFormat")
-    public static void setNoteTitleFormat(@NonNull TextView textView, @Nullable NoteWithTags noteWithTags) {
+    public static void setNoteTitleFormat(@NonNull TextView textView,
+                                          @Nullable NoteWithTags noteWithTags) {
         if (noteWithTags != null) {
             TextFormatter formatter = noteWithTags.getTitleFormat();
 
             Typeface typeface;
             switch (formatter.getTypefaceType()) {
-                case TextFormatter.TYPEFACE_SANS_SERIF: typeface = Typeface.SANS_SERIF; break;
-                case TextFormatter.TYPEFACE_MONOSPACE: typeface = Typeface.MONOSPACE; break;
+                case TextFormatter.TYPEFACE_SANS_SERIF:
+                    typeface = Typeface.SANS_SERIF;
+                    break;
+                case TextFormatter.TYPEFACE_MONOSPACE:
+                    typeface = Typeface.MONOSPACE;
+                    break;
                 default:
-                    typeface = Typeface.SERIF; break;
+                    typeface = Typeface.SERIF;
+                    break;
             }
 
             textView.setGravity(formatter.getGravity());
@@ -68,17 +73,25 @@ public class BindingAdapters {
     }
 
     @BindingAdapter("noteContentFormat")
-    public static void setNoteContentFormat(@NonNull TextView textView, @Nullable NoteWithTags noteWithTags) {
+    public static void setNoteContentFormat(@NonNull TextView textView,
+                                            @Nullable NoteWithTags noteWithTags) {
         if (noteWithTags != null) {
             TextFormatter formatter = noteWithTags.getContentFormat();
 
             Typeface typeface;
             switch (formatter.getTypefaceType()) {
-                case TextFormatter.TYPEFACE_SERIF: typeface = Typeface.SERIF; break;
-                case TextFormatter.TYPEFACE_SANS_SERIF: typeface = Typeface.SANS_SERIF; break;
-                case TextFormatter.TYPEFACE_MONOSPACE: typeface = Typeface.MONOSPACE; break;
+                case TextFormatter.TYPEFACE_SERIF:
+                    typeface = Typeface.SERIF;
+                    break;
+                case TextFormatter.TYPEFACE_SANS_SERIF:
+                    typeface = Typeface.SANS_SERIF;
+                    break;
+                case TextFormatter.TYPEFACE_MONOSPACE:
+                    typeface = Typeface.MONOSPACE;
+                    break;
                 default:
-                    typeface = Typeface.SERIF; break;
+                    typeface = Typeface.SERIF;
+                    break;
             }
 
             textView.setGravity(formatter.getGravity());
@@ -88,16 +101,26 @@ public class BindingAdapters {
     }
 
     @BindingAdapter("loadNotes")
-    public static void loadNotes(@NonNull RecyclerView recyclerView, @Nullable List<NoteWithTags> notes) {
+    public static void loadNotes(@NonNull RecyclerView recyclerView,
+                                 @Nullable List<NoteWithTags> notes) {
         if (recyclerView.getAdapter() instanceof ListAdapter && notes != null) {
             ((NoteAdapter) recyclerView.getAdapter()).submitList(notes);
         }
     }
 
     @BindingAdapter("loadTags")
-    public static void loadTags(@NonNull RecyclerView recyclerView, @Nullable List<Tag> tags) {
+    public static void loadTags(@NonNull RecyclerView recyclerView,
+                                @Nullable List<Tag> tags) {
         if (recyclerView.getAdapter() instanceof TagsAdapter && tags != null) {
             ((TagsAdapter) recyclerView.getAdapter()).submitList(tags);
+        }
+    }
+
+    @BindingAdapter("loadSelectableTags")
+    public static void loadSelectableTags(@NonNull RecyclerView recyclerView,
+                                          @Nullable List<Tag> tags) {
+        if (recyclerView.getAdapter() instanceof TagSelectionAdapter && tags != null) {
+            ((TagSelectionAdapter) recyclerView.getAdapter()).submitList(tags);
         }
     }
 }
