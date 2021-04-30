@@ -18,7 +18,9 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
 
+import java.sql.DriverPropertyInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import timber.log.Timber;
@@ -103,7 +105,7 @@ public class NotesViewModel extends AndroidViewModel {
     public final LiveData<List<NoteWithTags>> unpinnedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
         for (NoteWithTags note : noteList) {
-            if (!note.note.isPinned) {
+            if (!note.note.isPinned && !note.note.isArchived) {
                 filtered.add(note);
             }
         }
@@ -114,7 +116,7 @@ public class NotesViewModel extends AndroidViewModel {
     public final LiveData<List<NoteWithTags>> pinnedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
         for (NoteWithTags note : noteList) {
-            if (note.note.isPinned) {
+            if (note.note.isPinned && !note.note.isArchived) {
                 filtered.add(note);
             }
         }
@@ -171,6 +173,24 @@ public class NotesViewModel extends AndroidViewModel {
         reloadDataRequest.setValue(false);
     }
 
+    private final MutableLiveData<Boolean> orderChanged = new MutableLiveData<>(false);
+
+    public void requestReordering() {
+        orderChanged.setValue(true);
+    }
+
+    public void reorderNotes(List<NoteWithTags> noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            Note[] notes = new Note[noteList.size()];
+
+            for (int i = 0; i < noteList.size(); i++) {
+                noteList.get(i).note.order = i;
+                notes[i] = noteList.get(i).note;
+            }
+            database.updateNote(notes);
+        });
+    }
+
     public void filterByTags(List<Tag> tags) {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
             boolean hasSelectedTags = false;
@@ -194,5 +214,34 @@ public class NotesViewModel extends AndroidViewModel {
                 loadNotesFromDatabase();
             }
         });
+    }
+
+    public void moveToArchived(NoteWithTags... notes) {
+        updateArchivedStatus(true, notes);
+    }
+
+    public void moveToNoteList(NoteWithTags... notes) {
+        updateArchivedStatus(false, notes);
+    }
+
+    private void updateArchivedStatus(boolean status, NoteWithTags... noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            Note[] notes = new Note[noteList.length];
+            for (int i = 0; i < noteList.length; ++i) {
+                noteList[i].note.isArchived = status;
+                notes[i] = noteList[i].note;
+            }
+
+            database.updateNote(notes);
+            reloadDataRequest.postValue(true);
+        });
+    }
+
+    public LiveData<Boolean> getOrderChanged() {
+        return orderChanged;
+    }
+
+    public void finishReordering() {
+        orderChanged.setValue(false);
     }
 }

@@ -2,6 +2,7 @@ package com.hcmus.clc18se.buggynote2.adapters;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Checkable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.ListAdapter;
@@ -13,6 +14,7 @@ import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.databinding.ItemNoteBinding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolder> {
@@ -33,7 +35,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         this.callbacks = callbacks;
     }
 
-    private final String tag;
+    public final String tag;
 
     private boolean multiSelected = false;
 
@@ -73,12 +75,39 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NoteWithTags item = getItem(position);
-        holder.bindFrom(item);
+        holder.bindFrom(item, tag);
 
         holder.itemView.setOnClickListener(view -> {
             callbacks.onClick(item);
         });
-        //
+//
+//        holder.itemView.setOnLongClickListener(v -> {
+//            if (!multiSelected) {
+//                multiSelected = true;
+//                selectItem(holder, item);
+//                callbacks.onMultipleSelect(item);
+//            }
+//            return true;
+//        });
+//
+//        if (holder.itemView instanceof Checkable) {
+//            ((Checkable) holder.itemView).setChecked(selectedItems.contains(item));
+//        }
+
+    }
+
+    private void selectItem(ViewHolder holder, NoteWithTags item) {
+        if (selectedItems.contains(item)) {
+            selectedItems.remove(item);
+            if (holder.itemView instanceof Checkable) {
+                ((Checkable) holder.itemView).setChecked(false);
+            }
+        } else {
+            selectedItems.add(item);
+            if (holder.itemView instanceof Checkable) {
+                ((Checkable) holder.itemView).setChecked(true);
+            }
+        }
     }
 
     @NonNull
@@ -86,7 +115,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         return new ViewHolder(
-                ItemNoteBinding.inflate(layoutInflater)
+                ItemNoteBinding.inflate(layoutInflater, parent, false)
         );
     }
 
@@ -95,18 +124,50 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         return R.layout.item_note;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public void onItemSwipe(int position) {
+        callbacks.onItemSwiped(getItem(position));
+    }
+
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        // Timber.d("$fromPosition to $toPosition")
+        if (fromPosition == RecyclerView.NO_POSITION
+                || toPosition == RecyclerView.NO_POSITION
+                || toPosition >= getCurrentList().size()
+        ) {
+            return false;
+        }
+
+        List<NoteWithTags> items = new ArrayList<>(getCurrentList().size());
+        items.addAll(getCurrentList());
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(items, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i >= toPosition + 1; i--) {
+                Collections.swap(items, i, i - 1);
+            }
+        }
+
+        submitList(items);
+        callbacks.onPostReordered(items);
+        return true;
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ItemNoteBinding binding;
+        public String tag;
+
         public ViewHolder(@NonNull ItemNoteBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
-        public void bindFrom(NoteWithTags note) {
+        public void bindFrom(NoteWithTags note, String tag) {
             binding.setNote(note);
+            this.tag = tag;
 
         }
     }
 }
-

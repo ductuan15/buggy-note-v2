@@ -25,6 +25,11 @@
                 app:popupTheme="@style/Theme.BuggyNote2.PopupOverlay" />
             <!--                android:background="@color/white_A80"-->
 
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cab_stub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
     </com.google.android.material.appbar.AppBarLayout>

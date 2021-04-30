@@ -1,6 +1,7 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,15 +26,18 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.NoteAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.NoteHeaderAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.TagFilterAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteItemTouchHelperCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
@@ -62,6 +67,8 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     // TODO: main cab.
 
+    // private AttachedCab mainCab;
+
     private NotesViewModel notesViewModel;
 
     private final NoteAdapterCallbacks noteAdapterCallbacks = new NoteAdapterCallbacks() {
@@ -72,17 +79,25 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public boolean onMultipleSelect(NoteWithTags note) {
+            // invalidateCab();
             return false;
         }
 
         @Override
         public void onPostReordered(List<NoteWithTags> notes) {
-            // TODO: implement me
+            notesViewModel.requestReordering();
         }
 
         @Override
         public void onItemSwiped(NoteWithTags note) {
-            // TODO: implement me
+            notesViewModel.moveToArchived(note);
+            Snackbar.make(binding.getRoot(), R.string.moved_to_archive, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.undo, v -> notesViewModel.moveToNoteList(note))
+                    .show();
+
+//            if (mainCab != null) {
+//                mainCab.destroy();
+//            }
         }
     };
 
@@ -100,7 +115,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             pinnedNotesAdapter.finishSelection();
             unpinnedNotesAdapter.finishSelection();
 
-
             //
             tag.setSelectedState(isChecked);
             notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
@@ -108,6 +122,8 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     };
 
     private final TagFilterAdapter tagFilterAdapter = new TagFilterAdapter(tagFilterAdapterCallbacks);
+
+    private ItemTouchHelper noteListTouchHelper;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -142,6 +158,12 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                         null),
                 unpinnedNotesAdapter
         );
+
+        NoteItemTouchHelperCallback callback = new NoteItemTouchHelperCallback(
+                pinnedNotesAdapter,
+                unpinnedNotesAdapter
+        );
+        noteListTouchHelper = new ItemTouchHelper(callback);
 
     }
 
@@ -197,7 +219,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     }
 
     void initRecyclerViews() {
-        initNoteAdapter(binding.noteList, concatAdapter, null, true);
+        initNoteAdapter(binding.noteList, concatAdapter, noteListTouchHelper, true);
 
         binding.tagFilterList.setAdapter(tagFilterAdapter);
         binding.tagFilterList.addItemDecoration(
@@ -258,7 +280,31 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public void onPause() {
         super.onPause();
 
-        // TODO: save the note to the database when changes occurred.
+        InputMethodManager imm =
+                (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+        }
+
+        if (notesViewModel.getOrderChanged().getValue() != null
+                && notesViewModel.getOrderChanged().getValue()
+        ) {
+            boolean isSelected = false;
+            if (tagsViewModel.getTags().getValue() != null) {
+                for (Tag tag : tagsViewModel.getTags().getValue()) {
+                    if (tag.isSelectedState()) {
+                        isSelected = true;
+                        break;
+                    }
+                }
+            }
+            if (!isSelected) {
+                notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
+                notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
+                notesViewModel.loadNotes();
+                notesViewModel.finishReordering();
+            }
+        }
     }
 
     @Override
@@ -305,9 +351,11 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private void refreshNoteList() {
         binding.noteList.setAdapter(null);
-        initNoteAdapter(binding.noteList, concatAdapter, null, false);
+        initNoteAdapter(binding.noteList, concatAdapter, noteListTouchHelper, false);
 
-        // 
+        notesViewModel.requestReordering();
+        concatAdapter.notifyDataSetChanged();
+        // binding.noteList.startLayoutAnimation();
     }
 
     @Override
@@ -342,8 +390,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             );
         }
     }
-
-    // TODO: Handle cabs
 
     @Override
     public boolean onBackPressed() {
