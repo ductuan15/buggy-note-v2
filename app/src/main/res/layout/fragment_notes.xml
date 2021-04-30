@@ -21,8 +21,8 @@
             android:id="@+id/app_bar"
             layout="@layout/app_bar_main" />
 
-        <!--            placeholderVisibility="@{noteViewModel.noteList}"-->
         <LinearLayout
+            placeholderVisibility="@{noteViewModel.noteList}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

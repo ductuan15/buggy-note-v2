@@ -67,6 +67,9 @@
 
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/tag_group"
+                chipLimit="@{3}"
+                loadTagList="@{note.tags}"
+                setOnClickToChips="@{chipOnClickListener}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="0dp"
@@ -74,9 +77,6 @@
                 app:chipSpacingHorizontal="4dp"
                 app:itemSpacing="0dp"
                 app:lineSpacing="0dp" />
-            <!--            app:setOnClickToChips="@{chipOnClickListener}"-->
-            <!--                app:chipLimit="@{3}"-->
-            <!--                loadTagList="@{note.tags}"-->
 
         </LinearLayout>
 

@@ -58,6 +58,7 @@
                     <EditText
                         android:id="@+id/text_view_title"
                         style="?textAppearanceHeadline4"
+                        noteTitleFormat="@{noteDetailsViewModel.note}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:autofillHints=""
@@ -68,7 +69,6 @@
                         android:text="@{noteDetailsViewModel.note.note.title}"
                         android:textAlignment="gravity"
                         android:textColor="?colorOnSurface"
-                        noteTitleFormat="@{noteDetailsViewModel.note}"
                         tools:text="Title" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -103,6 +103,8 @@
 
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/tag_group"
+                    loadTagList="@{noteDetailsViewModel.note.tags}"
+                    setOnClickToChips="@{chipOnClickListener}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
@@ -113,8 +115,6 @@
                     app:chipSpacingHorizontal="4dp"
                     app:itemSpacing="0dp"
                     app:lineSpacing="0dp" />
-                <!--                    loadTagList="@{noteDetailsViewModel.noteWithTags.tags}"-->
-                <!--                    app:setOnClickToChips="@{chipOnClickListener}"-->
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/time_stamp"
