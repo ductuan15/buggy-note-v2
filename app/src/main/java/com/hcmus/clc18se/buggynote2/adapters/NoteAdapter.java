@@ -58,12 +58,15 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
 
     public void selectAll() {
         multiSelected = true;
+        selectedItems.clear();
         selectedItems.addAll(getCurrentList());
+        notifyDataSetChanged();
     }
 
     public void unSelectAll() {
         multiSelected = false;
         selectedItems.clear();
+        notifyDataSetChanged();
     }
 
     public void enableSelection() {

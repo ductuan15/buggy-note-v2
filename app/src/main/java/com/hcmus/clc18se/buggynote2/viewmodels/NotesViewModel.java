@@ -123,7 +123,6 @@ public class NotesViewModel extends AndroidViewModel {
         return filtered;
     });
 
-
     public final LiveData<List<NoteWithTags>> archivedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
         for (NoteWithTags note : noteList) {
@@ -188,6 +187,32 @@ public class NotesViewModel extends AndroidViewModel {
                 notes[i] = noteList.get(i).note;
             }
             database.updateNote(notes);
+        });
+    }
+
+    public void togglePin(boolean isPinned, NoteWithTags... noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            Note[] notes = new Note[noteList.length];
+            for (int i = 0; i < noteList.length; ++i) {
+                noteList[i].note.isPinned = isPinned;
+                notes[i] = noteList[i].note;
+            }
+
+            database.updateNote(notes);
+            reloadDataRequest.postValue(true);
+
+        });
+    }
+
+    public void removeNote(List<NoteWithTags> noteWithTags) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+
+            Note[] notes = new Note[noteWithTags.size()];
+            for (int i = 0; i < noteWithTags.size(); ++i) {
+                notes[i] = noteWithTags.get(i).note;
+            }
+            database.removeNote(notes);
+            loadNotesFromDatabase();
         });
     }
 

@@ -29,6 +29,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
@@ -53,6 +54,8 @@ import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import timber.log.Timber;
@@ -395,6 +398,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     private void setUpNavigation() {
         MaterialToolbar toolbar = binding.appBar.toolbar;
         Activity parentActivity = requireActivity();
+
         if (parentActivity instanceof BuggyNoteActivity) {
             ((BuggyNoteActivity) parentActivity).setSupportActionBar(toolbar);
             NavigationUI.setupActionBarWithNavController(
@@ -480,6 +484,85 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.action_archive: {
+                    int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
+                            + unpinnedNotesAdapter.numberOfSelectedItems();
+
+                    if (nSelectedItems == 0) {
+                        return true;
+                    }
+
+                    List<NoteWithTags> selectedItems = new ArrayList<>();
+                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+                    NoteWithTags[] archiveNotes = selectedItems.toArray(new NoteWithTags[]{});
+
+                    notesViewModel.moveToArchived(archiveNotes);
+                    actionModeCallback.finishActionMode();
+
+                    return true;
+                }
+
+                case R.id.action_select_all: {
+
+                    pinnedNotesAdapter.selectAll();
+                    unpinnedNotesAdapter.selectAll();
+
+                    invalidateCab();
+
+                    return true;
+                }
+
+                case R.id.action_toggle_pin: {
+                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
+                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
+
+                    boolean actionPinAll = !selectedUnpinnedItems.isEmpty();
+                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
+                        return true;
+                    }
+
+                    List<NoteWithTags> selectedItems = new ArrayList<>();
+                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+                    NoteWithTags[] notes = selectedItems.toArray(new NoteWithTags[]{});
+                    notesViewModel.togglePin(actionPinAll, notes);
+                    notesViewModel.requestReloadingData();
+
+                    actionModeCallback.finishActionMode();
+
+                    return true;
+                }
+
+                case R.id.action_remove_note: {
+                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
+                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
+
+                    List<NoteWithTags> selectedItems = new ArrayList<>();
+                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
+                        return true;
+                    }
+
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.remove_from_device))
+                            .setMessage(getString(R.string.remove_confirmation))
+                            .setNegativeButton(getString(R.string.cancel), (làmBàiĐiMN, sắpĐếnDealineRồi) -> {
+                            })
+                            .setPositiveButton(getString(R.string.remove), (khôngNhắcThì, khôngAiThèmQuanTâmLuônÁ) -> {
+                                notesViewModel.removeNote(selectedItems);
+                            })
+                            .show();
+
+                    actionModeCallback.finishActionMode();
+                    return true;
+                }
+            }
             return false;
         }
 
