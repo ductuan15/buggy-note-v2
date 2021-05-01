@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.ActionMode;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -59,17 +62,9 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     private SharedPreferences preferences = null;
     private FragmentNotesBinding binding = null;
 
-    // TODO: init đào
-    //      view models
-    //      adapters
-    //      adapters' callbacks
-    //      ItemTouchHelper.
-
-    // TODO: main cab.
-
-    // private AttachedCab mainCab;
-
     private NotesViewModel notesViewModel;
+
+    private final NoteListActionMode actionModeCallback = new NoteListActionMode();
 
     private final NoteAdapterCallbacks noteAdapterCallbacks = new NoteAdapterCallbacks() {
         @Override
@@ -79,7 +74,8 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public boolean onMultipleSelect(NoteWithTags note) {
-            // invalidateCab();
+            // TODO: lock the drawer
+            invalidateCab();
             return false;
         }
 
@@ -95,9 +91,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                     .setAction(R.string.undo, v -> notesViewModel.moveToNoteList(note))
                     .show();
 
-//            if (mainCab != null) {
-//                mainCab.destroy();
-//            }
+            actionModeCallback.finishActionMode();
         }
     };
 
@@ -110,12 +104,31 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     private TagsViewModel tagsViewModel;
 
     private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
-        // TODO: complete this
         if (tag.isSelectedState() != isChecked) {
             pinnedNotesAdapter.finishSelection();
             unpinnedNotesAdapter.finishSelection();
 
-            //
+            actionModeCallback.finishActionMode();
+
+            boolean notFilter = true;
+            if (tagsViewModel.getTags().getValue() != null) {
+                for (Tag t : tagsViewModel.getTags().getValue()) {
+                    if (t.isSelectedState()) {
+                        notFilter = false;
+                        break;
+                    }
+                }
+            }
+
+            if (notesViewModel.getOrderChanged().getValue() != null
+                    && notesViewModel.getOrderChanged().getValue()
+                    && notFilter
+            ) {
+                notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
+                notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
+                notesViewModel.finishReordering();
+            }
+
             tag.setSelectedState(isChecked);
             notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
         }
@@ -376,6 +389,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
+
     }
 
     private void setUpNavigation() {
@@ -393,7 +407,100 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     @Override
     public boolean onBackPressed() {
-        // TODO: handle backpress
+        if (actionModeCallback.actionMode != null) {
+            actionModeCallback.finishActionMode();
+            return true;
+        }
         return false;
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void invalidateCab() {
+
+        int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
+                + unpinnedNotesAdapter.numberOfSelectedItems();
+        if (nSelectedItems == 0) {
+            actionModeCallback.finishActionMode();
+
+            return;
+        }
+
+        if (actionModeCallback.actionMode == null) {
+            binding.appBar.toolbar.startActionMode(actionModeCallback);
+        }
+
+        pinnedNotesAdapter.enableSelection();
+        unpinnedNotesAdapter.enableSelection();
+
+        actionModeCallback.actionMode.invalidate();
+
+    }
+
+    class NoteListActionMode implements ActionMode.Callback {
+        public ActionMode actionMode;
+
+        @Override
+        public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            actionMode = mode;
+            getActivity().getMenuInflater().inflate(R.menu.main_context, menu);
+            return true;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            int nSelectedUnpinnedNotes = unpinnedNotesAdapter.numberOfSelectedItems();
+            int numberOfSelectedItems = pinnedNotesAdapter.numberOfSelectedItems() +
+                    unpinnedNotesAdapter.numberOfSelectedItems();
+
+            mode.setTitle(Integer.valueOf(numberOfSelectedItems).toString());
+
+            MenuItem itemPin = menu.findItem(R.id.action_toggle_pin);
+            if (itemPin != null) {
+                @DrawableRes int pinRes;
+                String pinTitle;
+
+                if (nSelectedUnpinnedNotes == 0) {
+                    pinRes = R.drawable.ic_outline_push_pin_24;
+                    pinTitle = getString(R.string.unpin_selected_notes);
+                } else {
+                    pinRes = R.drawable.ic_baseline_push_pin_24;
+                    pinTitle = getString(R.string.pin_selected_notes);
+                }
+
+                itemPin.setIcon(pinRes);
+                itemPin.setTitle(pinTitle);
+            }
+
+            return true;
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return false;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            pinnedNotesAdapter.finishSelection();
+            unpinnedNotesAdapter.finishSelection();
+
+//            Activity parentActivity = requireActivity();
+//            if (parentActivity instanceof ControllableDrawerActivity) {
+//                parentActivity.unlockTheDrawer();
+//            }
+
+            actionMode = null;
+        }
+
+        void finishActionMode() {
+            if (actionMode != null) {
+                actionMode.finish();
+            }
+        }
+    }
 }
+

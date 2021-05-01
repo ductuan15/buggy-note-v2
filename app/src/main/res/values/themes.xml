@@ -5,6 +5,10 @@
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:statusBarColor">@color/black</item>
         <item name="windowActionModeOverlay">true</item>
+
+<!--        <item name="actionBarItemBackground">?colorOnPrimary</item>-->
+        <item name="actionModeBackground">?colorPrimary</item>
+        <item name="actionModeStyle">@style/Theme.BuggyNote2.ActionModeOverlay</item>
     </style>
 
     <!-- Base application theme. -->
@@ -55,6 +59,12 @@
         <item name="chipStrokeColor">@drawable/stroke_color</item>
         <item name="checkedIconVisible">false</item>
         <item name="shapeAppearanceOverlay">@null</item>
+    </style>
+
+    <style name="Theme.BuggyNote2.ActionModeOverlay" parent="Widget.AppCompat.Light.ActionMode.Inverse">
+        <item name="android:background">?colorPrimary</item>
+        <item name="android:textColor">?colorOnPrimary</item>
+        <item name="itemBackground">?colorOnPrimary</item>
     </style>
 
 

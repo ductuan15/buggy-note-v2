@@ -78,21 +78,28 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         holder.bindFrom(item, tag);
 
         holder.itemView.setOnClickListener(view -> {
-            callbacks.onClick(item);
+            if (multiSelected) {
+                selectItem(holder, item);
+                callbacks.onMultipleSelect(item);
+            }
+            else {
+                callbacks.onClick(item);
+            }
+
         });
-//
-//        holder.itemView.setOnLongClickListener(v -> {
-//            if (!multiSelected) {
-//                multiSelected = true;
-//                selectItem(holder, item);
-//                callbacks.onMultipleSelect(item);
-//            }
-//            return true;
-//        });
-//
-//        if (holder.itemView instanceof Checkable) {
-//            ((Checkable) holder.itemView).setChecked(selectedItems.contains(item));
-//        }
+
+        holder.itemView.setOnLongClickListener(v -> {
+            if (!multiSelected) {
+                multiSelected = true;
+                selectItem(holder, item);
+                callbacks.onMultipleSelect(item);
+            }
+            return true;
+        });
+
+        if (holder.itemView instanceof Checkable) {
+            ((Checkable) holder.itemView).setChecked(selectedItems.contains(item));
+        }
 
     }
 
