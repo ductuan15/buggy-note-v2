@@ -16,8 +16,7 @@
 
     <group
         android:id="@+id/other_list_group"
-        android:checkableBehavior="single"
-        android:visible="false">
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_archive"
             android:icon="@drawable/ic_archive"

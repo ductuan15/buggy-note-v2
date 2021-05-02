@@ -34,11 +34,11 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
 
     @Override
     public boolean isItemViewSwipeEnabled() {
-        for (NoteAdapter adapter: adapters) {
-            if (adapter.tag.equals(NoteAdapter.ARCHIVE_TAG)) {
-                return false;
-            }
-        }
+//        for (NoteAdapter adapter: adapters) {
+//            if (adapter.tag.equals(NoteAdapter.ARCHIVE_TAG)) {
+//                return false;
+//            }
+//        }
         return true;
     }
 

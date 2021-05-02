@@ -25,24 +25,23 @@
             layout="@layout/app_bar_main" />
 
         <LinearLayout
-            placeholderVisibility="@{noteViewModel.noteList}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="vertical"
-            android:visibility="@{noteViewModel.noteListVisibility}"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:placeholderVisibility="@{noteViewModel.archivedNotes}"
             tools:visibility="gone">
 
             <TextView
                 android:id="@+id/placeholder_emoticon"
-                placeHolderEmoticon="@{null}"
-                tools:text="(っ◔◡◔)っ ❤"
-                style="@style/placeholder_emoticon" />
+                style="@style/placeholder_emoticon"
+                app:placeHolderEmoticon="@{null}"
+                tools:text="(っ◔◡◔)っ ❤" />
 
             <TextView
-                android:text="@string/nothing_here"
-                style="@style/placeholder_text" />
+                style="@style/placeholder_text"
+                android:text="@string/nothing_here" />
 
         </LinearLayout>
 
@@ -54,33 +53,26 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/tag_filter_list"
-                loadFilterTags="@{tagViewModel.tags}"
+                style="@style/tag_filter_list_recycler_view"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:loadFilterTags="@{tagViewModel.tags}"
                 tools:itemCount="5"
-                tools:listitem="@layout/item_tag_filter"
-                style="@style/tag_filter_list_recycler_view" />
+                tools:listitem="@layout/item_tag_filter" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/note_list"
-                pinnedNotes="@{noteViewModel.pinnedNotes}"
-                unpinnedNotes="@{noteViewModel.unpinnedNotes}"
+                style="@style/note_list_recycler_view"
+                loadNotes="@{noteViewModel.archivedNotes}"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 app:spanCount="2"
                 tools:itemCount="3"
-                tools:listitem="@layout/item_note"
-                style="@style/note_list_recycler_view" />
-            <!--                        android:layoutAnimation="@anim/layout_animator"-->
+                tools:listitem="@layout/item_note" />
+
         </LinearLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:layout_anchorGravity="bottom|end"
-            app:srcCompat="@drawable/ic_baseline_mode_edit_24"
-            tools:ignore="ContentDescription" />
-
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </layout>
