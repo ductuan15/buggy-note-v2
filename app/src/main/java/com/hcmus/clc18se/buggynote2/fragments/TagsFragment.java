@@ -130,7 +130,7 @@ public class TagsFragment extends Fragment {
 
         notesViewModel = new ViewModelProvider(
                 requireActivity(),
-                new NotesViewModelFactory(dao, getActivity().getApplication(), null)
+                new NotesViewModelFactory(dao, requireActivity().getApplication())
         ).get(NotesViewModel.class);
     }
 

@@ -85,8 +85,7 @@ public class NoteDetailsFragment extends Fragment {
                 requireActivity(),
                 new NotesViewModelFactory(
                         db,
-                        requireActivity().getApplication(),
-                        null))
+                        requireActivity().getApplication()))
                 .get(NotesViewModel.class);
 
         binding.setNoteDetailsViewModel(viewModel);

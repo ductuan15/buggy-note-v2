@@ -1,8 +1,6 @@
 package com.hcmus.clc18se.buggynote2.viewmodels;
 
 import android.app.Application;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -16,12 +14,10 @@ import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
-import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
 
-import java.sql.DriverPropertyInfo;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import timber.log.Timber;
 
@@ -29,19 +25,11 @@ public class NotesViewModel extends AndroidViewModel {
 
     private final BuggyNoteDao database;
 
-    public void setCallBacks(NotesViewModelCallBacks callBacks) {
-        this.callBacks = callBacks;
-    }
-
-    private NotesViewModelCallBacks callBacks;
-
     public NotesViewModel(
             BuggyNoteDao database,
-            @NonNull Application application,
-            NotesViewModelCallBacks callBacks) {
+            @NonNull Application application) {
         super(application);
         this.database = database;
-        this.callBacks = callBacks;
 
         this.noteList.observeForever(noteList -> {
             if (noteList != null) {
@@ -81,19 +69,18 @@ public class NotesViewModel extends AndroidViewModel {
 
     }
 
-    public void insertNewNote(Note note) {
-        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
-                    long id = database.addNewNote(note);
-                    if (callBacks != null) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            loadNotesFromDatabase();
-                            callBacks.onNoteItemInserted(id);
-
-                        });
+    public long insertNewNote(Note note) {
+        try {
+            return BuggyNoteDatabase.databaseWriteExecutor.submit(() -> {
+                        long id = database.addNewNote(note);
+                        loadNotesFromDatabase();
+                        return id;
                     }
-                }
-        );
-
+            ).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return 0L;
     }
 
     public final LiveData<List<NoteWithTags>> getNoteList() {

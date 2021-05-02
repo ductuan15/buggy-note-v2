@@ -36,7 +36,7 @@ public class TagSelectionFragment extends Fragment {
     private NoteDetailsViewModel noteDetailsViewModel;
 
 
-    private TagSelectionAdapterCallbacks callbacks = (itemView, isChecked, tag) -> {
+    private final TagSelectionAdapterCallbacks callbacks = (itemView, isChecked, tag) -> {
         if (tag.isSelectedState() == isChecked) {
             return;
         }
@@ -49,7 +49,7 @@ public class TagSelectionFragment extends Fragment {
         }
     };
 
-    private TagSelectionAdapter adapter = new TagSelectionAdapter(callbacks);
+    private final TagSelectionAdapter adapter = new TagSelectionAdapter(callbacks);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

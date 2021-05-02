@@ -50,7 +50,6 @@ import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
-import com.hcmus.clc18se.buggynote2.viewmodels.callbacks.NotesViewModelCallBacks;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
@@ -151,8 +150,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 requireActivity(),
                 new NotesViewModelFactory(
                         database,
-                        requireActivity().getApplication(),
-                        noteViewModelCallbacks))
+                        requireActivity().getApplication()))
                 .get(NotesViewModel.class);
 
         tagsViewModel = new ViewModelProvider(
@@ -183,13 +181,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     }
 
-    private final NotesViewModelCallBacks noteViewModelCallbacks = new NotesViewModelCallBacks() {
-        @Override
-        public void onNoteItemInserted(long newId) {
-            notesViewModel.startNavigatingToNoteDetails(newId);
-        }
-    };
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -202,7 +193,8 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         binding.setLifecycleOwner(this);
 
         binding.fab.setOnClickListener(view -> {
-            notesViewModel.insertNewNote(Note.emptyInstance());
+            long newId = notesViewModel.insertNewNote(Note.emptyInstance());
+            notesViewModel.startNavigatingToNoteDetails(newId);
         });
 
         binding.setNoteViewModel(notesViewModel);
@@ -556,10 +548,9 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                             })
                             .setPositiveButton(getString(R.string.remove), (khôngNhắcThì, khôngAiThèmQuanTâmLuônÁ) -> {
                                 notesViewModel.removeNote(selectedItems);
+                                actionModeCallback.finishActionMode();
                             })
                             .show();
-
-                    actionModeCallback.finishActionMode();
                     return true;
                 }
             }
