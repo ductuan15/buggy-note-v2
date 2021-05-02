@@ -6,18 +6,18 @@
         android:id="@+id/action_unarchived"
         android:icon="@drawable/ic_outline_unarchive_24"
         android:title="@string/unarchive"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_remove_note"
         android:icon="@drawable/ic_baseline_delete_24"
         android:title="@string/remove"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_select_all"
         android:icon="@drawable/ic_baseline_select_all_24"
         android:title="@android:string/selectAll"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
 </menu>

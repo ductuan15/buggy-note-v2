@@ -307,7 +307,7 @@ public class ArchivedFragment extends Fragment {
         notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
             if (id != null) {
                 Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
-                        NotesFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
+                        ArchivedFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
                 );
                 notesViewModel.doneNavigatingToNoteDetails();
             }
@@ -382,7 +382,6 @@ public class ArchivedFragment extends Fragment {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            requireActivity().getMenuInflater().inflate(R.menu.main_context, menu);
 
             requireActivity().getWindow().setStatusBarColor(ViewUtils.getColorAttr(
                     requireContext(), R.attr.colorPrimaryVariant
@@ -407,7 +406,9 @@ public class ArchivedFragment extends Fragment {
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            return false;
+            mode.setTitle(Integer.valueOf(archivedNoteAdapter.numberOfSelectedItems()).toString());
+
+            return true;
         }
 
         @Override
@@ -447,16 +448,10 @@ public class ArchivedFragment extends Fragment {
                         return true;
                     }
 
-                    new MaterialAlertDialogBuilder(requireContext())
-                            .setTitle(getString(R.string.remove_from_device))
-                            .setMessage(getString(R.string.remove_confirmation))
-                            .setNegativeButton(getString(R.string.cancel), (v, u) -> {
-                            })
-                            .setPositiveButton(getString(R.string.remove), (v, u) -> {
-                                notesViewModel.removeNote(selectedItems);
-                                actionModeCallback.finishActionMode();
-                            })
-                            .show();
+                    NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
+                    notesViewModel.moveToTrash(trashedNotes);
+                    finishActionMode();
+
                     return true;
                 }
             }
@@ -499,4 +494,3 @@ public class ArchivedFragment extends Fragment {
     }
 
 }
-

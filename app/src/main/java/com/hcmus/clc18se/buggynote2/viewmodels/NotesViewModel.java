@@ -16,6 +16,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -49,7 +50,7 @@ public class NotesViewModel extends AndroidViewModel {
 
     public boolean containsAnyNonArchivedNotes(List<NoteWithTags> noteList) {
         for (NoteWithTags note : noteList) {
-            if (!note.note.isArchived()) {
+            if (!note.note.isArchived) {
                 return true;
             }
         }
@@ -91,20 +92,25 @@ public class NotesViewModel extends AndroidViewModel {
 
     public final LiveData<List<NoteWithTags>> unpinnedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
-        for (NoteWithTags note : noteList) {
-            if (!note.note.isPinned && !note.note.isArchived) {
-                filtered.add(note);
+        for (NoteWithTags noteWithTags : noteList) {
+            if (!noteWithTags.note.isPinned
+                    && !noteWithTags.note.isArchived
+                    && noteWithTags.note.removingDate == null
+            ) {
+                filtered.add(noteWithTags);
             }
         }
         return filtered;
     });
 
-
     public final LiveData<List<NoteWithTags>> pinnedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
-        for (NoteWithTags note : noteList) {
-            if (note.note.isPinned && !note.note.isArchived) {
-                filtered.add(note);
+        for (NoteWithTags noteWithTags : noteList) {
+            if (noteWithTags.note.isPinned
+                    && !noteWithTags.note.isArchived
+                    && noteWithTags.note.removingDate == null
+            ) {
+                filtered.add(noteWithTags);
             }
         }
         return filtered;
@@ -112,11 +118,25 @@ public class NotesViewModel extends AndroidViewModel {
 
     public final LiveData<List<NoteWithTags>> archivedNotes = Transformations.map(noteList, (noteList) -> {
         List<NoteWithTags> filtered = new ArrayList<>();
-        for (NoteWithTags note : noteList) {
-            if (note.note.isArchived) {
-                filtered.add(note);
+        for (NoteWithTags noteWithTags : noteList) {
+            if (noteWithTags.note.isArchived && noteWithTags.note.removingDate == null) {
+                filtered.add(noteWithTags);
             }
         }
+        return filtered;
+    });
+
+    public final LiveData<List<NoteWithTags>> removedNotes = Transformations.map(noteList, (noteList) -> {
+
+        List<NoteWithTags> filtered = new ArrayList<>();
+        for (NoteWithTags noteWithTags : noteList) {
+            if (noteWithTags.note.removingDate != null) {
+                filtered.add(noteWithTags);
+            }
+        }
+
+        Collections.sort(filtered, (o1, o2) -> o1.note.removingDate.compareTo(o2.note.removingDate));
+
         return filtered;
     });
 
@@ -191,7 +211,7 @@ public class NotesViewModel extends AndroidViewModel {
         });
     }
 
-    public void removeNote(List<NoteWithTags> noteWithTags) {
+    public void permanentlyRemoveNote(List<NoteWithTags> noteWithTags) {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
 
             Note[] notes = new Note[noteWithTags.size()];
@@ -249,11 +269,44 @@ public class NotesViewModel extends AndroidViewModel {
         });
     }
 
+    public void moveToTrash(NoteWithTags... noteList) {
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            long removingTime = System.currentTimeMillis() + Note.N_REMOVING_DAYS * 24L * 60L * 60L * 1000L;
+
+            Note[] notes = new Note[noteList.length];
+            for (int i = 0; i < noteList.length; ++i) {
+                noteList[i].note.removingDate = removingTime;
+                notes[i] = noteList[i].note;
+            }
+
+            database.updateNote(notes);
+            reloadDataRequest.postValue(true);
+        });
+    }
+
     public LiveData<Boolean> getOrderChanged() {
         return orderChanged;
     }
 
     public void finishReordering() {
         orderChanged.setValue(false);
+    }
+
+    public void restoreNoteFromTrash(NoteWithTags... noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+
+            Note[] notes = new Note[noteList.length];
+
+            for (int i = 0; i < noteList.length; ++i) {
+                noteList[i].note.removingDate = null;
+                noteList[i].note.isArchived = false;
+                notes[i] = noteList[i].note;
+            }
+
+            database.updateNote(notes);
+            reloadDataRequest.postValue(true);
+        });
+
     }
 }

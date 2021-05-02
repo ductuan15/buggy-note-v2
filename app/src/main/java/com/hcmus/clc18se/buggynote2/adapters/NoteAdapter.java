@@ -28,6 +28,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static final String PIN_TAG = "PIN";
     public static final String UNPIN_TAG = "UNPIN";
     public static final String ARCHIVE_TAG = "ARCHIVE";
+    public static final String TRASH_TAG = "TRASH";
 
     public NoteAdapter(NoteAdapterCallbacks callbacks, String tag) {
         super(NoteWithTags.diffCallBacks);

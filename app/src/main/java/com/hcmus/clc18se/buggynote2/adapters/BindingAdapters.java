@@ -22,7 +22,9 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.TagChipBinding;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import timber.log.Timber;
@@ -191,10 +193,33 @@ public class BindingAdapters {
         }
 
         if (pinnedNotes != null) {
-            ((NoteAdapter)adapters.get(NoteAdapter.PINNED_POSITION)).submitList(pinnedNotes);
+            ((NoteAdapter) adapters.get(NoteAdapter.PINNED_POSITION)).submitList(pinnedNotes);
         }
-         if (unpinnedNotes != null) {
-            ((NoteAdapter)adapters.get(NoteAdapter.UNPINNED_POSITION)).submitList(unpinnedNotes);
+        if (unpinnedNotes != null) {
+            ((NoteAdapter) adapters.get(NoteAdapter.UNPINNED_POSITION)).submitList(unpinnedNotes);
+        }
+    }
+
+    @BindingAdapter("visibilityWhenNoteInTrash")
+    public static void setVisibilityWhenNoteInTrash(@NonNull View view,
+                                                    @Nullable Long removingDate) {
+        if (removingDate != null) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
+        }
+    }
+
+    @BindingAdapter("removeDateWarning")
+    public static void setTextRemoveDateWarning(@NonNull TextView textView,
+                                                @Nullable Long removingDate) {
+        if (removingDate != null) {
+            String date = new SimpleDateFormat("MMM/dd/yyyy", Locale.getDefault())
+                    .format(removingDate);
+
+            textView.setText(textView.getContext().getString(
+                    R.string.removing_date_warining, date
+            ));
         }
     }
 }

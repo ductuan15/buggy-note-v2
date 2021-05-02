@@ -37,4 +37,8 @@
     <string name="settings">Settings</string>
     <string name="remove_tag_dialog_title">Remove Tag?</string>
     <string name="remove_tag_dialog_content">Your notes won\'t be removed when delete this tag.</string>
+    <string name="trash_can_description">Your notes will be permanently removed after 30 days in Trash.</string>
+    <string name="removing_date_warining">Your notes will be permanently removed on %1$s</string>
+    <string name="restore">Restore</string>
+    <string name="trash">Trash</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.hcmus.clc18se.buggynote2.data;
 
+import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -38,6 +39,13 @@ public class Note {
 
     @ColumnInfo(name = "is_archived", defaultValue = "0")
     public boolean isArchived = false;
+
+    @ColumnInfo(name = "removing_date", defaultValue = "null")
+    @Nullable
+    public Long removingDate = null;
+
+    @Ignore
+    public static final int N_REMOVING_DAYS = 30;
 
     @Ignore
     public Note() {}
@@ -88,50 +96,6 @@ public class Note {
 
     public Long getLastModify() {
         return lastModify;
-    }
-
-    public void setLastModify(long lastModify) {
-        this.lastModify = lastModify;
-    }
-
-    public String getTitleFormat() {
-        return titleFormat;
-    }
-
-    public void setTitleFormat(String titleFormat) {
-        this.titleFormat = titleFormat;
-    }
-
-    public String getContentFormat() {
-        return contentFormat;
-    }
-
-    public void setContentFormat(String contentFormat) {
-        this.contentFormat = contentFormat;
-    }
-
-    public int getOrder() {
-        return order;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    public boolean isPinned() {
-        return isPinned;
-    }
-
-    public void setPinned(boolean pinned) {
-        isPinned = pinned;
-    }
-
-    public boolean isArchived() {
-        return isArchived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.isArchived = archived;
     }
 
     public static Note emptyInstance() {

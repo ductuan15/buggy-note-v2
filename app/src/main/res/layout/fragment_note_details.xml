@@ -45,7 +45,17 @@
                 android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <!--    TODO: extract some attribute in MaterialEditText & EditText into styles-->
+                <TextView
+                    tools:text="Removing date warning will appear here"
+                    removeDateWarning="@{noteDetailsViewModel.note.note.removingDate}"
+                    visibilityWhenNoteInTrash="@{noteDetailsViewModel.note.note.removingDate}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:textAlignment="center"
+                    android:textAppearance="?textAppearanceCaption"
+                    android:textStyle="italic" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/title_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"

@@ -77,7 +77,8 @@
     <fragment
         android:id="@+id/nav_archive"
         android:name="com.hcmus.clc18se.buggynote2.fragments.ArchivedFragment"
-        android:label="@string/archive">
+        android:label="@string/archive"
+        tools:layout="@layout/fragment_archived">
         <action
             android:id="@+id/action_nav_notes_to_noteDetailsFragment"
             app:destination="@id/navigation_note_details"
@@ -89,6 +90,25 @@
                 android:name="noteId"
                 app:argType="long" />
         </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_trash"
+        android:name="com.hcmus.clc18se.buggynote2.fragments.TrashFragment"
+        android:label="@string/trash"
+        tools:layout="@layout/fragment_trash">
+        <action
+            android:id="@+id/action_nav_notes_to_noteDetailsFragment"
+            app:destination="@id/navigation_note_details"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out">
+            <argument
+                android:name="noteId"
+                app:argType="long" />
+        </action>
+
     </fragment>
 
 </navigation>

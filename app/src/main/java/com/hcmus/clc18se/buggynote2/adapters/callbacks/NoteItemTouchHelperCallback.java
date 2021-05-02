@@ -25,8 +25,12 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
 
     @Override
     public boolean isLongPressDragEnabled() {
+
         int nSelectedItems = 0;
-        for (NoteAdapter adapter: adapters) {
+        for (NoteAdapter adapter : adapters) {
+            if (adapter.tag.equals(NoteAdapter.TRASH_TAG)) {
+                return false;
+            }
             nSelectedItems += adapter.numberOfSelectedItems();
         }
         return nSelectedItems <= 1;
@@ -34,11 +38,11 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
 
     @Override
     public boolean isItemViewSwipeEnabled() {
-//        for (NoteAdapter adapter: adapters) {
-//            if (adapter.tag.equals(NoteAdapter.ARCHIVE_TAG)) {
-//                return false;
-//            }
-//        }
+        for (NoteAdapter adapter : adapters) {
+            if (adapter.tag.equals(NoteAdapter.TRASH_TAG)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -54,7 +58,7 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         if (viewHolder instanceof NoteAdapter.ViewHolder) {
-            for (NoteAdapter adapter: adapters) {
+            for (NoteAdapter adapter : adapters) {
                 if (adapter.tag.equals(((NoteAdapter.ViewHolder) viewHolder).tag)) {
                     adapter.onItemSwipe(viewHolder.getBindingAdapterPosition());
                 }
@@ -68,7 +72,7 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
                           @NonNull RecyclerView.ViewHolder viewHolder,
                           @NonNull RecyclerView.ViewHolder target) {
         if (viewHolder instanceof NoteAdapter.ViewHolder) {
-            for (NoteAdapter adapter: adapters) {
+            for (NoteAdapter adapter : adapters) {
                 if (adapter.tag.equals(((NoteAdapter.ViewHolder) viewHolder).tag)) {
                     return adapter.onItemMove(viewHolder.getBindingAdapterPosition(),
                             target.getBindingAdapterPosition());

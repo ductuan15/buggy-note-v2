@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,28 +23,23 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.NoteAdapter;
-import com.hcmus.clc18se.buggynote2.adapters.NoteHeaderAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.TagFilterAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteItemTouchHelperCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
-import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
-import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
-import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
+import com.hcmus.clc18se.buggynote2.databinding.FragmentTrashBinding;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
@@ -58,14 +52,14 @@ import java.util.List;
 
 import timber.log.Timber;
 
-public class NotesFragment extends Fragment implements OnBackPressed {
+public class TrashFragment extends Fragment {
 
     private SharedPreferences preferences = null;
-    private FragmentNotesBinding binding = null;
+    private FragmentTrashBinding binding = null;
 
     private NotesViewModel notesViewModel;
 
-    private final NoteListActionMode actionModeCallback = new NoteListActionMode();
+    private final TrashActionMode actionModeCallback = new TrashActionMode();
 
     private final NoteAdapterCallbacks noteAdapterCallbacks = new NoteAdapterCallbacks() {
         @Override
@@ -87,48 +81,17 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public void onItemSwiped(NoteWithTags note) {
-            notesViewModel.moveToArchived(note);
-            Snackbar.make(binding.getRoot(), R.string.moved_to_archive, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.undo, v -> notesViewModel.moveToNoteList(note))
-                    .show();
-
-            actionModeCallback.finishActionMode();
         }
     };
 
-    private final NoteAdapter pinnedNotesAdapter = new NoteAdapter(noteAdapterCallbacks, NoteAdapter.PIN_TAG);
-
-    private final NoteAdapter unpinnedNotesAdapter = new NoteAdapter(noteAdapterCallbacks, NoteAdapter.UNPIN_TAG);
-
-    private ConcatAdapter concatAdapter;
+    private final NoteAdapter trashedNoteAdapter = new NoteAdapter(noteAdapterCallbacks, NoteAdapter.TRASH_TAG);
 
     private TagsViewModel tagsViewModel;
 
     private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
         if (tag.isSelectedState() != isChecked) {
-            pinnedNotesAdapter.finishSelection();
-            unpinnedNotesAdapter.finishSelection();
-
+            trashedNoteAdapter.finishSelection();
             actionModeCallback.finishActionMode();
-
-            boolean notFilter = true;
-            if (tagsViewModel.getTags().getValue() != null) {
-                for (Tag t : tagsViewModel.getTags().getValue()) {
-                    if (t.isSelectedState()) {
-                        notFilter = false;
-                        break;
-                    }
-                }
-            }
-
-            if (notesViewModel.getOrderChanged().getValue() != null
-                    && notesViewModel.getOrderChanged().getValue()
-                    && notFilter
-            ) {
-                notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
-                notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
-                notesViewModel.finishReordering();
-            }
 
             tag.setSelectedState(isChecked);
             notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
@@ -139,9 +102,25 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private ItemTouchHelper noteListTouchHelper;
 
+    private void invalidateCab() {
+
+        int nSelectedItems = trashedNoteAdapter.numberOfSelectedItems();
+        if (nSelectedItems == 0) {
+            actionModeCallback.finishActionMode();
+            return;
+        }
+
+        if (actionModeCallback.actionMode == null) {
+            binding.appBar.toolbar.startActionMode(actionModeCallback);
+        }
+
+        trashedNoteAdapter.enableSelection();
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         BuggyNoteDao database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
@@ -157,25 +136,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 new TagsViewModelFactory(database)
         ).get(TagsViewModel.class);
 
-        ConcatAdapter.Config config = new ConcatAdapter.Config.Builder()
-                .setIsolateViewTypes(false)
-                .build();
-
-        concatAdapter = new ConcatAdapter(config,
-                new NoteHeaderAdapter(getString(R.string.pinned),
-                        notesViewModel.headerLabelVisibility,
-                        R.drawable.ic_outline_push_pin_24),
-                pinnedNotesAdapter,
-                new NoteHeaderAdapter(getString(R.string.others),
-                        notesViewModel.headerLabelVisibility,
-                        null),
-                unpinnedNotesAdapter
-        );
-
-        NoteItemTouchHelperCallback callback = new NoteItemTouchHelperCallback(
-                pinnedNotesAdapter,
-                unpinnedNotesAdapter
-        );
+        NoteItemTouchHelperCallback callback = new NoteItemTouchHelperCallback(trashedNoteAdapter);
         noteListTouchHelper = new ItemTouchHelper(callback);
 
     }
@@ -185,17 +146,11 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        binding = FragmentNotesBinding.inflate(inflater, container, false);
+        binding = FragmentTrashBinding.inflate(inflater, container, false);
 
         setHasOptionsMenu(true);
 
         binding.setLifecycleOwner(this);
-
-        binding.fab.setOnClickListener(view -> {
-            long newId = notesViewModel.insertNewNote(Note.emptyInstance());
-            notesViewModel.startNavigatingToNoteDetails(newId);
-        });
-
         binding.setNoteViewModel(notesViewModel);
         binding.setTagViewModel(tagsViewModel);
 
@@ -203,6 +158,23 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         initObservers();
 
         return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        setUpNavigation();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        InputMethodManager imm =
+                (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+        }
     }
 
     void initNoteAdapter(RecyclerView recyclerView,
@@ -226,7 +198,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     }
 
     void initRecyclerViews() {
-        initNoteAdapter(binding.noteList, concatAdapter, noteListTouchHelper, true);
+        initNoteAdapter(binding.noteList, trashedNoteAdapter, noteListTouchHelper, true);
 
         binding.tagFilterList.setAdapter(tagFilterAdapter);
         binding.tagFilterList.addItemDecoration(
@@ -234,8 +206,23 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         );
     }
 
-    void initObservers() {
+    private void setUpNavigation() {
+        MaterialToolbar toolbar = binding.appBar.toolbar;
+        Activity parentActivity = requireActivity();
 
+        if (parentActivity instanceof BuggyNoteActivity) {
+            ((BuggyNoteActivity) parentActivity).setSupportActionBar(toolbar);
+
+            NavigationUI.setupActionBarWithNavController(
+                    (AppCompatActivity) parentActivity,
+                    Navigation.findNavController(binding.getRoot()),
+                    ((BuggyNoteActivity) parentActivity).getAppBarConfiguration()
+            );
+
+        }
+    }
+
+    private void initObservers() {
         notesViewModel.getReloadDataRequest().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state) {
 
@@ -255,13 +242,13 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         notesViewModel.getNoteList().observe(getViewLifecycleOwner(), noteWithTags -> {
             if (noteWithTags != null) {
-                concatAdapter.notifyDataSetChanged();
+                trashedNoteAdapter.notifyDataSetChanged();
                 Timber.d("loaded");
             }
         });
 
         notesViewModel.headerLabelVisibility.observe(getViewLifecycleOwner(), visibility -> {
-            concatAdapter.notifyDataSetChanged();
+            trashedNoteAdapter.notifyDataSetChanged();
         });
 
         tagsViewModel.getTags().observe(getViewLifecycleOwner(), tags -> {
@@ -271,42 +258,12 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         notesViewModel.getNavigateToNoteDetails().observe(getViewLifecycleOwner(), id -> {
             if (id != null) {
                 Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
-                        NotesFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
+                        TrashFragmentDirections.actionNavNotesToNoteDetailsFragment(id)
                 );
                 notesViewModel.doneNavigatingToNoteDetails();
             }
         });
-    }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        InputMethodManager imm =
-                (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (imm != null) {
-            imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
-        }
-
-        if (notesViewModel.getOrderChanged().getValue() != null
-                && notesViewModel.getOrderChanged().getValue()
-        ) {
-            boolean isSelected = false;
-            if (tagsViewModel.getTags().getValue() != null) {
-                for (Tag tag : tagsViewModel.getTags().getValue()) {
-                    if (tag.isSelectedState()) {
-                        isSelected = true;
-                        break;
-                    }
-                }
-            }
-            if (!isSelected) {
-                notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
-                notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
-                notesViewModel.loadNotes();
-                notesViewModel.finishReordering();
-            }
-        }
     }
 
     @Override
@@ -334,30 +291,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.main, menu);
-
-        // TODO: handle searching
-
-    }
-
-    private void onItemTypeOptionClicked() {
-        String currentItemView = preferences.getString(getString(R.string.note_list_view_type_key), "0");
-        String nextItemView = currentItemView.equals("0") ? "1" : "0";
-
-        preferences.edit()
-                .putString(getString(R.string.note_list_view_type_key), nextItemView)
-                .apply();
-
-        refreshNoteList();
-    }
-
-    private void refreshNoteList() {
-        binding.noteList.setAdapter(null);
-        initNoteAdapter(binding.noteList, concatAdapter, noteListTouchHelper, false);
-
-        notesViewModel.requestReordering();
-        concatAdapter.notifyDataSetChanged();
-        // binding.noteList.startLayoutAnimation();
+        inflater.inflate(R.menu.trash, menu);
     }
 
     @Override
@@ -374,71 +308,31 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        setUpNavigation();
+    private void onItemTypeOptionClicked() {
+        String currentItemView = preferences.getString(getString(R.string.note_list_view_type_key), "0");
+        String nextItemView = currentItemView.equals("0") ? "1" : "0";
 
+        preferences.edit()
+                .putString(getString(R.string.note_list_view_type_key), nextItemView)
+                .apply();
+
+        refreshNoteList();
     }
 
-    private void setUpNavigation() {
-        MaterialToolbar toolbar = binding.appBar.toolbar;
-        Activity parentActivity = requireActivity();
+    private void refreshNoteList() {
+        binding.noteList.setAdapter(null);
+        initNoteAdapter(binding.noteList, trashedNoteAdapter, noteListTouchHelper, false);
 
-        if (parentActivity instanceof BuggyNoteActivity) {
-            ((BuggyNoteActivity) parentActivity).setSupportActionBar(toolbar);
-            NavigationUI.setupActionBarWithNavController(
-                    (AppCompatActivity) parentActivity,
-                    Navigation.findNavController(binding.getRoot()),
-                    ((BuggyNoteActivity) parentActivity).getAppBarConfiguration()
-            );
-        }
+        notesViewModel.requestReordering();
+        trashedNoteAdapter.notifyDataSetChanged();
+        // binding.noteList.startLayoutAnimation();
     }
 
-    @Override
-    public boolean onBackPressed() {
-        if (actionModeCallback.actionMode != null) {
-            actionModeCallback.finishActionMode();
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onDestroy() {
-        actionModeCallback.finishActionMode();
-        super.onDestroy();
-    }
-
-    private void invalidateCab() {
-
-        int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
-                + unpinnedNotesAdapter.numberOfSelectedItems();
-        if (nSelectedItems == 0) {
-            actionModeCallback.finishActionMode();
-
-            return;
-        }
-
-        if (actionModeCallback.actionMode == null) {
-            binding.appBar.toolbar.startActionMode(actionModeCallback);
-        }
-
-        pinnedNotesAdapter.enableSelection();
-        unpinnedNotesAdapter.enableSelection();
-
-        actionModeCallback.actionMode.invalidate();
-
-    }
-
-    class NoteListActionMode implements ActionMode.Callback {
+    class TrashActionMode implements ActionMode.Callback {
         public ActionMode actionMode;
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-            actionMode = mode;
-
-            requireActivity().getMenuInflater().inflate(R.menu.main_context, menu);
 
             requireActivity().getWindow().setStatusBarColor(ViewUtils.getColorAttr(
                     requireContext(), R.attr.colorPrimaryVariant
@@ -450,60 +344,40 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 ));
             }
 
-            binding.outer.setBackgroundColor(ViewUtils.getColorAttr(
+            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
                     requireContext(), R.attr.colorPrimaryLight
             ));
 
             ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+
+            actionMode = mode;
+            requireActivity().getMenuInflater().inflate(R.menu.trash_can_context, menu);
             return true;
         }
 
         @Override
         public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            int nSelectedUnpinnedNotes = unpinnedNotesAdapter.numberOfSelectedItems();
-            int numberOfSelectedItems = pinnedNotesAdapter.numberOfSelectedItems() +
-                    unpinnedNotesAdapter.numberOfSelectedItems();
 
-            mode.setTitle(Integer.valueOf(numberOfSelectedItems).toString());
-
-            MenuItem itemPin = menu.findItem(R.id.action_toggle_pin);
-            if (itemPin != null) {
-                @DrawableRes int pinRes;
-                String pinTitle;
-
-                if (nSelectedUnpinnedNotes == 0) {
-                    pinRes = R.drawable.ic_outline_push_pin_24;
-                    pinTitle = getString(R.string.unpin_selected_notes);
-                } else {
-                    pinRes = R.drawable.ic_baseline_push_pin_24;
-                    pinTitle = getString(R.string.pin_selected_notes);
-                }
-
-                itemPin.setIcon(pinRes);
-                itemPin.setTitle(pinTitle);
-            }
-
+            mode.setTitle(Integer.valueOf(trashedNoteAdapter.numberOfSelectedItems()).toString());
             return true;
+
         }
 
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.action_archive: {
-                    int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
-                            + unpinnedNotesAdapter.numberOfSelectedItems();
+                case R.id.action_restore: {
+                    int nSelectedItems = trashedNoteAdapter.numberOfSelectedItems();
 
                     if (nSelectedItems == 0) {
                         return true;
                     }
 
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+                    List<NoteWithTags> selectedItems = new ArrayList<>(trashedNoteAdapter.getSelectedItems());
 
-                    NoteWithTags[] archiveNotes = selectedItems.toArray(new NoteWithTags[]{});
+                    NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
 
-                    notesViewModel.moveToArchived(archiveNotes);
+                    notesViewModel.restoreNoteFromTrash(trashedNotes);
                     actionModeCallback.finishActionMode();
 
                     return true;
@@ -511,52 +385,31 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
                 case R.id.action_select_all: {
 
-                    pinnedNotesAdapter.selectAll();
-                    unpinnedNotesAdapter.selectAll();
-
+                    trashedNoteAdapter.selectAll();
                     invalidateCab();
 
                     return true;
                 }
 
-                case R.id.action_toggle_pin: {
-                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
-                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
+                case R.id.action_remove_forever: {
+                    List<NoteWithTags> selectedTrashedItems = trashedNoteAdapter.getSelectedItems();
 
-                    boolean actionPinAll = !selectedUnpinnedItems.isEmpty();
-                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
+                    List<NoteWithTags> selectedItems = new ArrayList<>(trashedNoteAdapter.getSelectedItems());
+
+                    if (selectedTrashedItems.isEmpty()) {
                         return true;
                     }
 
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
-
-                    NoteWithTags[] notes = selectedItems.toArray(new NoteWithTags[]{});
-                    notesViewModel.togglePin(actionPinAll, notes);
-                    notesViewModel.requestReloadingData();
-
-                    actionModeCallback.finishActionMode();
-
-                    return true;
-                }
-
-                case R.id.action_remove_note: {
-                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
-                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
-
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
-
-                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
-                        return true;
-                    }
-
-                    NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
-                    notesViewModel.moveToTrash(trashedNotes);
-                    finishActionMode();
-
+                    new MaterialAlertDialogBuilder(requireContext())
+                            .setTitle(getString(R.string.remove_from_device))
+                            .setMessage(getString(R.string.remove_confirmation))
+                            .setNegativeButton(getString(R.string.cancel), (v, u) -> {
+                            })
+                            .setPositiveButton(getString(R.string.remove), (v, u) -> {
+                                notesViewModel.permanentlyRemoveNote(selectedItems);
+                                actionModeCallback.finishActionMode();
+                            })
+                            .show();
                     return true;
                 }
             }
@@ -565,6 +418,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            trashedNoteAdapter.finishSelection();
 
             ViewUtils.setLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
 
@@ -578,12 +432,9 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 ));
             }
 
-            binding.outer.setBackgroundColor(ViewUtils.getColorAttr(
+            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
                     requireContext(), R.attr.colorSurface
             ));
-
-            pinnedNotesAdapter.finishSelection();
-            unpinnedNotesAdapter.finishSelection();
 
 //            Activity parentActivity = requireActivity();
 //            if (parentActivity instanceof ControllableDrawerActivity) {
@@ -599,5 +450,5 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             }
         }
     }
-}
 
+}

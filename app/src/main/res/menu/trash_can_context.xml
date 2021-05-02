@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_restore"
+        android:icon="@drawable/ic_baseline_restart_alt_24"
+        android:title="@string/restore"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_remove_forever"
+        android:icon="@drawable/ic_baseline_delete_forever_24"
+        android:title="@string/remove_from_device"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_select_all"
+        android:icon="@drawable/ic_baseline_select_all_24"
+        android:title="@android:string/selectAll"
+        app:showAsAction="ifRoom" />
+
+</menu>

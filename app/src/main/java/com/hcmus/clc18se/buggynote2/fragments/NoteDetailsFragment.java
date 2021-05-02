@@ -287,7 +287,7 @@ public class NoteDetailsFragment extends Fragment {
         NoteWithTags note = viewModel.getNote().getValue();
         if (note != null && pinnedItem != null) {
             int pinIcon;
-            if (note.note.isPinned()) {
+            if (note.note.isPinned) {
                 pinIcon = R.drawable.ic_baseline_push_pin_24;
             } else {
                 pinIcon = R.drawable.ic_outline_push_pin_24;
@@ -310,7 +310,7 @@ public class NoteDetailsFragment extends Fragment {
                 NoteWithTags note = viewModel.getNote().getValue();
                 if (note != null) {
                     int pinIcon;
-                    if (note.note.isPinned()) {
+                    if (note.note.isPinned) {
                         pinIcon = R.drawable.ic_baseline_push_pin_24;
                     } else {
                         pinIcon = R.drawable.ic_outline_push_pin_24;
