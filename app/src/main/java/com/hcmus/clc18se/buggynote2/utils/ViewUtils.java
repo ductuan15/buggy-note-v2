@@ -1,7 +1,13 @@
 package com.hcmus.clc18se.buggynote2.utils;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.util.TypedValue;
+import android.view.View;
 
+import androidx.annotation.AttrRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,5 +32,34 @@ public class ViewUtils {
         }
 
         recyclerView.setLayoutManager(layoutManager);
+    }
+
+    public static void setLightStatusBar(View view, Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            int flags = view.getSystemUiVisibility();
+            flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            view.setSystemUiVisibility(flags);
+        }
+    }
+
+    public static void unsetLightStatusBar(View view, Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            int flags = view.getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            view.setSystemUiVisibility(flags);
+        }
+    }
+
+    public static int getColorAttr(Context context, @AttrRes int attrId) {
+        TypedValue typedValue = new TypedValue();
+
+        context.getTheme().resolveAttribute(
+                attrId,
+                typedValue,
+                true);
+
+        return typedValue.data;
     }
 }

@@ -7,7 +7,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
 
-<!--        <item name="actionBarItemBackground">?colorOnPrimary</item>-->
+        <!--        <item name="actionBarItemBackground">?colorOnPrimary</item>-->
         <item name="actionModeBackground">?colorPrimary</item>
         <item name="actionModeStyle">@style/Theme.BuggyNote2.ActionModeOverlay</item>
     </style>
@@ -25,7 +25,7 @@
         <item name="colorSecondary">@color/pink_A200</item>
         <item name="colorSecondaryVariant">@color/pink_A200</item>
         <item name="colorOnSecondary">@color/black</item>
-
+        <item name="colorPrimaryLight">@color/pink_A100</item>
     </style>
 
 </resources>

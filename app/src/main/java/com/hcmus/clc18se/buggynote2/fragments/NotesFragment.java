@@ -4,7 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -437,7 +441,24 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             actionMode = mode;
-            getActivity().getMenuInflater().inflate(R.menu.main_context, menu);
+
+            requireActivity().getMenuInflater().inflate(R.menu.main_context, menu);
+
+            requireActivity().getWindow().setStatusBarColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorPrimaryVariant
+            ));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
+                        requireContext(), R.attr.colorPrimaryLight
+                ));
+            }
+
+            binding.outer.setBackgroundColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorPrimaryLight
+            ));
+
+            ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
             return true;
         }
 
@@ -554,6 +575,23 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+
+            ViewUtils.setLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+
+            requireActivity().getWindow().setStatusBarColor(
+                    ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+            );
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
+                        requireContext(), R.attr.colorSurface
+                ));
+            }
+
+            binding.outer.setBackgroundColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorSurface
+            ));
+
             pinnedNotesAdapter.finishSelection();
             unpinnedNotesAdapter.finishSelection();
 

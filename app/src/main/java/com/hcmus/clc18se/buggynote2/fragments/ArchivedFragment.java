@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
@@ -381,6 +382,24 @@ public class ArchivedFragment extends Fragment {
 
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+            requireActivity().getMenuInflater().inflate(R.menu.main_context, menu);
+
+            requireActivity().getWindow().setStatusBarColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorPrimaryVariant
+            ));
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
+                        requireContext(), R.attr.colorPrimaryLight
+                ));
+            }
+
+            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorPrimaryLight
+            ));
+
+            ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+
             actionMode = mode;
             requireActivity().getMenuInflater().inflate(R.menu.archive_context, menu);
             return true;
@@ -447,6 +466,22 @@ public class ArchivedFragment extends Fragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             archivedNoteAdapter.finishSelection();
+
+            ViewUtils.setLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+
+            requireActivity().getWindow().setStatusBarColor(
+                    ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+            );
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
+                        requireContext(), R.attr.colorSurface
+                ));
+            }
+
+            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
+                    requireContext(), R.attr.colorSurface
+            ));
 
 //            Activity parentActivity = requireActivity();
 //            if (parentActivity instanceof ControllableDrawerActivity) {

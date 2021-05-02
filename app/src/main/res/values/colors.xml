@@ -326,4 +326,6 @@
     <color name="dark_grey_A50">#80121212</color>
     <color name="white_A80">#CCFFFFFF</color>
 
+    <color name="primary">@color/pink_500</color>
+
 </resources>
