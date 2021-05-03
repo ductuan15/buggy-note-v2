@@ -309,4 +309,25 @@ public class NotesViewModel extends AndroidViewModel {
         });
 
     }
+
+    public void cleanTrash() {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            List<NoteWithTags> removed = removedNotes.getValue();
+
+            List<NoteWithTags> removeForever = new ArrayList<>();
+
+            if (removed != null) {
+                long now = System.currentTimeMillis();
+
+                for (NoteWithTags note : removed) {
+                    if (note.note.removingDate != null && note.note.removingDate < now) {
+                        removeForever.add(note);
+                    }
+                }
+            }
+            if (!removeForever.isEmpty()) {
+                permanentlyRemoveNote(removeForever);
+            }
+        });
+    }
 }
