@@ -33,6 +33,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             BuggyNoteDatabase.class,
                             "buggy_note2_database")
                             .addMigrations(MIGRATION_1_2)
+                            .addMigrations(MIGRATION_2_3)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -45,6 +46,13 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE note ADD COLUMN `removing_date` INTEGER DEFAULT null");
+        }
+    };
+
+    public static Migration MIGRATION_2_3 = new Migration(2, 3) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE note ADD COLUMN `color` INTEGER DEFAULT null");
         }
     };
 

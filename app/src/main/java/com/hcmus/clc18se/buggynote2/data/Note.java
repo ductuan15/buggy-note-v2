@@ -44,6 +44,9 @@ public class Note {
     @Nullable
     public Long removingDate = null;
 
+    @ColumnInfo(name = "color", defaultValue = "null")
+    public Integer color = null;
+
     @Ignore
     public static final int N_REMOVING_DAYS = 30;
 

@@ -30,7 +30,7 @@
             android:gravity="center"
             android:orientation="vertical"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            app:placeholderVisibility="@{noteViewModel.archivedNotes}"
+            app:placeholderVisibility="@{noteViewModel.removedNotes}"
             tools:visibility="gone">
 
             <TextView
