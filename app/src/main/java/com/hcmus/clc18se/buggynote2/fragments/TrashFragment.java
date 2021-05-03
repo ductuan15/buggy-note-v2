@@ -163,6 +163,7 @@ public class TrashFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        notesViewModel.cleanTrash();
         setUpNavigation();
     }
 
@@ -344,9 +345,7 @@ public class TrashFragment extends Fragment {
                 ));
             }
 
-            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
-                    requireContext(), R.attr.colorPrimaryLight
-            ));
+            binding.getRoot().setBackgroundResource(R.drawable.multi_selection_background);
 
             ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
 

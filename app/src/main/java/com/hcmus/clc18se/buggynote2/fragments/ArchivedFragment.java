@@ -393,9 +393,7 @@ public class ArchivedFragment extends Fragment {
                 ));
             }
 
-            binding.getRoot().setBackgroundColor(ViewUtils.getColorAttr(
-                    requireContext(), R.attr.colorPrimaryLight
-            ));
+            binding.getRoot().setBackgroundResource(R.drawable.multi_selection_background);
 
             ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
 
