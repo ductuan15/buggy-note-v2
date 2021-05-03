@@ -108,7 +108,6 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
 
     public static List<Integer> getDefaultColors(Context context) {
         ArrayList<Integer> colorPickerColors = new ArrayList<>();
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.white));
         colorPickerColors.add(ContextCompat.getColor(context, R.color.red_500));
         colorPickerColors.add(ContextCompat.getColor(context, R.color.pink_500));
         colorPickerColors.add(ContextCompat.getColor(context, R.color.purple_500));
