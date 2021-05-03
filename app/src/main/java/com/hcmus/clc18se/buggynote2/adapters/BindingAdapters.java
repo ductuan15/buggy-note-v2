@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.BindingAdapter;
@@ -220,6 +221,14 @@ public class BindingAdapters {
             textView.setText(textView.getContext().getString(
                     R.string.removing_date_warining, date
             ));
+        }
+    }
+
+    @BindingAdapter("backgroundColor")
+    public static void setBackgroundColor(@NonNull View view,
+                                          @Nullable @ColorInt Integer color) {
+        if (color != null) {
+            view.setBackgroundColor(color);
         }
     }
 }

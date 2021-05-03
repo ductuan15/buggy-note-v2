@@ -16,7 +16,7 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Note.class, Tag.class, NoteCrossRef.class}, version = 2)
+@Database(entities = {Note.class, Tag.class, NoteCrossRef.class}, version = 3)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();

@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +25,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
@@ -32,6 +34,7 @@ import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
+import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
@@ -40,7 +43,7 @@ import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
 import timber.log.Timber;
 
-public class NoteDetailsFragment extends Fragment {
+public class NoteDetailsFragment extends Fragment implements PropertiesBSFragment.Properties{
 
     private FragmentNoteDetailsBinding binding = null;
     private NoteDetailsFragmentArgs arguments;
@@ -53,6 +56,9 @@ public class NoteDetailsFragment extends Fragment {
     private final View.OnClickListener tagOnClickListener = v -> viewModel.navigateToTagSelection();
 
     private Menu menu;
+
+    private PropertiesBSFragment propertiesBSFragment;
+    int currentColor;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +96,9 @@ public class NoteDetailsFragment extends Fragment {
 
         binding.setNoteDetailsViewModel(viewModel);
         binding.setChipOnClickListener(tagOnClickListener);
+
+        propertiesBSFragment = new PropertiesBSFragment();
+        propertiesBSFragment.setPropertiesChangeListener(this);
 
         initObservers();
 
@@ -146,7 +155,6 @@ public class NoteDetailsFragment extends Fragment {
     void saveNote(boolean require) {
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
         String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
-
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
         if (noteWithTags != null) {
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
@@ -156,6 +164,7 @@ public class NoteDetailsFragment extends Fragment {
                     noteWithTags.note.title = title;
                     noteWithTags.note.noteContent = content;
                     noteWithTags.note.lastModify = System.currentTimeMillis();
+                    noteWithTags.note.color = currentColor;
 
                     Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
@@ -218,6 +227,11 @@ public class NoteDetailsFragment extends Fragment {
                 actionFormat(item.getItemId());
                 return true;
             }
+            case R.id.action_set_color: {
+                showBottomSheetDialogFragment(propertiesBSFragment);
+                return true;
+            }
+
 
 
         }
@@ -324,5 +338,19 @@ public class NoteDetailsFragment extends Fragment {
             }
         }
         return false;
+    }
+
+    private void showBottomSheetDialogFragment(BottomSheetDialogFragment fragment) {
+        if (fragment == null || fragment.isAdded()) {
+            return;
+        }
+        fragment.show(getChildFragmentManager() , fragment.getTag());
+    }
+
+    @Override
+    public void onColorChanged(int colorCode) {
+        binding.coordinatorLayout.findViewById(R.id.coordinator_layout).setBackgroundColor(colorCode);
+        currentColor = colorCode;
+        saveNote(true);
     }
 }

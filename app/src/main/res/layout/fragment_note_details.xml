@@ -18,6 +18,7 @@
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        backgroundColor="@{noteDetailsViewModel.note.note.color}"
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -144,6 +145,7 @@
         </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.bottomappbar.BottomAppBar
+            backgroundColor="@{noteDetailsViewModel.note.note.color}"
             android:id="@+id/bottom_bar"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"

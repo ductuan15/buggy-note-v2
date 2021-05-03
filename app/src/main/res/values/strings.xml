@@ -41,4 +41,5 @@
     <string name="removing_date_warining">Your notes will be permanently removed on %1$s</string>
     <string name="restore">Restore</string>
     <string name="trash">Trash</string>
+    <string name="set_note_color">Set note color</string>
 </resources>
