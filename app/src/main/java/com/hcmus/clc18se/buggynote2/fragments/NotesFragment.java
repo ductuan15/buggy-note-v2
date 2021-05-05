@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -555,7 +556,29 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
                     NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
                     notesViewModel.moveToTrash(trashedNotes);
+
+                    binding.constraintLayoutRestore.setVisibility(View.VISIBLE);
+                    binding.fab.setVisibility(View.GONE);
+                    binding.restore.setOnClickListener(v ->{
+                        notesViewModel.restoreNoteFromTrash(trashedNotes);
+                        binding.constraintLayoutRestore.setVisibility(View.GONE);
+                        binding.fab.setVisibility(View.VISIBLE);
+                    });
+
                     finishActionMode();
+
+                    CountDownTimer cdt = new CountDownTimer(3000, 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+
+                        }
+
+                        public void onFinish() {
+                            binding.constraintLayoutRestore.setVisibility(View.GONE);
+                            binding.fab.setVisibility(View.VISIBLE);
+                        }
+
+                    }.start();
 
                     return true;
                 }
