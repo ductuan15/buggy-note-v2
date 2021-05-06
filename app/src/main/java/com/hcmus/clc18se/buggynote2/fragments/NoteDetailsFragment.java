@@ -2,6 +2,7 @@ package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -229,6 +230,20 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             }
             case R.id.action_set_color: {
                 showBottomSheetDialogFragment(propertiesBSFragment);
+                return true;
+            }
+            case R.id.action_share: {
+                String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
+                String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
+                String contentShare = title + "\n" + content;
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
+//                sendIntent.setData(contentUri);
+//                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
+                sendIntent.setType("*/*");
+                startActivity(Intent.createChooser(sendIntent, "Share to")) ;
                 return true;
             }
 

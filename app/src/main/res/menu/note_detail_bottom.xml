@@ -32,6 +32,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_baseline_share_24"
+        android:title="@string/share"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_add_tag"
         android:icon="@drawable/ic_outline_new_label_24"
         android:title="@string/add_new_tag"
