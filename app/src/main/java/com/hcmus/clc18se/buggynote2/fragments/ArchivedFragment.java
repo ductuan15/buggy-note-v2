@@ -448,6 +448,14 @@ public class ArchivedFragment extends Fragment {
 
                     NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
                     notesViewModel.moveToTrash(trashedNotes);
+
+                    Snackbar.make(binding.getRoot(), R.string.restore_status, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, v -> {
+                                notesViewModel.restoreNoteFromTrash(trashedNotes);
+                                notesViewModel.moveToArchived(trashedNotes);
+                            })
+                            .show();
+
                     finishActionMode();
 
                     return true;
