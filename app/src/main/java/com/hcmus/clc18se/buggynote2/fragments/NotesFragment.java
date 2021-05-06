@@ -557,28 +557,11 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                     NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
                     notesViewModel.moveToTrash(trashedNotes);
 
-                    binding.constraintLayoutRestore.setVisibility(View.VISIBLE);
-                    binding.fab.setVisibility(View.GONE);
-                    binding.restore.setOnClickListener(v ->{
-                        notesViewModel.restoreNoteFromTrash(trashedNotes);
-                        binding.constraintLayoutRestore.setVisibility(View.GONE);
-                        binding.fab.setVisibility(View.VISIBLE);
-                    });
+                    Snackbar.make(binding.getRoot(), R.string.restore_status, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, v -> notesViewModel.restoreNoteFromTrash(trashedNotes))
+                            .show();
 
-                    finishActionMode();
-
-                    CountDownTimer cdt = new CountDownTimer(3000, 1000) {
-
-                        public void onTick(long millisUntilFinished) {
-
-                        }
-
-                        public void onFinish() {
-                            binding.constraintLayoutRestore.setVisibility(View.GONE);
-                            binding.fab.setVisibility(View.VISIBLE);
-                        }
-
-                    }.start();
+                    actionModeCallback.finishActionMode();
 
                     return true;
                 }
