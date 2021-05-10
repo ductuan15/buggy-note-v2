@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -333,24 +332,27 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 return true;
             }
             case R.id.action_share: {
-                String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
-                String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
-                String contentShare = title + "\n" + content;
-                Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
-//                sendIntent.setData(contentUri);
-//                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
-                sendIntent.setType("*/*");
-                startActivity(Intent.createChooser(sendIntent, "Share to"));
+                onActionShare();
                 return true;
             }
-
 
         }
         return false;
     };
+
+    private void onActionShare() {
+        String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
+        String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
+        String contentShare = title + "\n" + content;
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
+//                sendIntent.setData(contentUri);
+//                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
+        sendIntent.setType("*/*");
+        startActivity(Intent.createChooser(sendIntent, "Share to"));
+    }
 
     private void actionFormat(int itemId) {
         int targetId = getActionFormatTarget();
@@ -449,6 +451,10 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     saveNote(true);
                     return true;
                 }
+            }
+            case R.id.action_share: {
+                onActionShare();
+                return true;
             }
         }
         return false;

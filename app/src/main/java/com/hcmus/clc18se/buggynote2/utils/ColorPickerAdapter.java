@@ -127,7 +127,7 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
         colorPickerColors.add(ContextCompat.getColor(context, R.color.brown_500));
         colorPickerColors.add(ContextCompat.getColor(context, R.color.grey_500));
         colorPickerColors.add(ContextCompat.getColor(context, R.color.blue_grey_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.brown_500));
+        colorPickerColors.add(ContextCompat.getColor(context, R.color.white));
         return colorPickerColors;
     }
 }
