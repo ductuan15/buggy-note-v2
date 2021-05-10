@@ -23,15 +23,18 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.BindingAdapters;
 import com.hcmus.clc18se.buggynote2.adapters.CheckListAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.MarkdownPagerAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
@@ -150,24 +153,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         propertiesBSFragment.setPropertiesChangeListener(this);
 
         binding.addCheckListDone.setOnClickListener(v -> {
-            String content = binding.addCheckListContent.getText().toString().trim();
-            binding.addCheckListTextLayout.getEditText().getText().clear();
-            if (content.isEmpty()) {
-                return;
-            }
-
-            binding.addCheckListTextLayout.setErrorEnabled(false);
-
-            List<CheckListItem> currentList = checkListAdapter.getCurrentList();
-
-            List<CheckListItem> items = new ArrayList<>();
-            if (currentList != null) {
-                items.addAll(currentList);
-            }
-
-            items.add(new CheckListItem(items.size(), false, content));
-            checkListAdapter.submitList(items);
-
+            checkAListItem();
         });
 
         initRecyclerViews();
@@ -176,9 +162,32 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         return binding.getRoot();
     }
 
+    private void checkAListItem() {
+        String content = binding.addCheckListContent.getText().toString().trim();
+        binding.addCheckListTextLayout.getEditText().getText().clear();
+        if (content.isEmpty()) {
+            return;
+        }
+
+        binding.addCheckListTextLayout.setErrorEnabled(false);
+
+        List<CheckListItem> currentList = checkListAdapter.getCurrentList();
+
+        List<CheckListItem> items = new ArrayList<>();
+        if (currentList != null) {
+            items.addAll(currentList);
+        }
+
+        items.add(new CheckListItem(items.size(), false, content));
+        checkListAdapter.submitList(items);
+    }
+
     private void initObservers() {
         viewModel.getNote().observe(getViewLifecycleOwner(), noteWithTags -> {
-            updateMenu();
+            if (noteWithTags != null) {
+                updateMenu();
+                setUpViewPagerWhenNoteIsMarkDown(noteWithTags);
+            }
         });
 
         viewModel.getReloadDataRequestState().observe(getViewLifecycleOwner(),
@@ -203,19 +212,47 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 });
 
         viewModel.getDeleteRequest().observe(getViewLifecycleOwner(), state -> {
-                    if (state != null && state) {
-                        notesViewModel.requestReloadingData();
-                        requireActivity().onBackPressed();
-                        viewModel.doneRequestingReloadData();
-                    }
-                }
-        );
+            if (state != null && state) {
+                notesViewModel.requestReloadingData();
+                requireActivity().onBackPressed();
+                viewModel.doneRequestingReloadData();
+            }
+        });
 
         viewModel.getCheckListItems().observe(getViewLifecycleOwner(), list -> {
             if (list != null) {
                 checkListAdapter.submitList(list);
             }
         });
+    }
+
+    private final ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+        }
+    };
+
+    private void setUpViewPagerWhenNoteIsMarkDown(@NonNull NoteWithTags noteWithTags) {
+
+        if (noteWithTags.note.isMarkdown()) {
+            binding.markdownViewPager.unregisterOnPageChangeCallback(callback);
+
+            binding.markdownViewPager.setAdapter(new MarkdownPagerAdapter(this));
+            new TabLayoutMediator(binding.tabs, binding.markdownViewPager, (tab, page) -> {
+                tab.setText(getTabText(page));
+            }).attach();
+
+            binding.markdownViewPager.registerOnPageChangeCallback(callback);
+        }
+    }
+
+    private String getTabText(int position) {
+        switch (position) {
+            case MarkdownPagerAdapter.PAGE_PREVIEW: return getString(R.string.preview);
+            case MarkdownPagerAdapter.PAGE_EDITOR: return getString(R.string.editor);
+        }
+        return "";
     }
 
     private void initRecyclerViews() {

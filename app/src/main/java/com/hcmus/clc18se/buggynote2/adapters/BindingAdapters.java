@@ -13,6 +13,7 @@ import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
@@ -236,25 +237,49 @@ public class BindingAdapters {
     @BindingAdapter("visibleWhenNoteIsCheckList")
     public static void setVisibleWhenNoteIsCheckList(@NonNull View view,
                                                      @Nullable Note note) {
-        int visibility;
-        if (note != null) {
-            visibility = note.isCheckList() ? View.VISIBLE : View.GONE;
-        } else {
-            visibility = View.GONE;
-        }
-        view.setVisibility(visibility);
+
+        setVisibilityBasedOnNoteType(view,
+                note,
+                Note::isCheckList
+        );
+
     }
 
     @BindingAdapter("visibleWhenNoteIsPlainText")
     public static void setVisibleWhenNoteIsPlainText(@NonNull View view,
                                                      @Nullable Note note) {
+        setVisibilityBasedOnNoteType(view,
+                note,
+                Note::isPlainText
+        );
+
+    }
+
+    @BindingAdapter("visibleWhenNoteIsMarkdown")
+    public static void setVisibleWhenNoteIsMarkdown(@NonNull View view,
+                                                    @Nullable Note note) {
+        setVisibilityBasedOnNoteType(view,
+                note,
+                Note::isMarkdown
+        );
+    }
+
+    public interface NoteValidationSAM {
+        boolean validateNoteType(Note note);
+    }
+
+    public static void setVisibilityBasedOnNoteType(@NonNull View view,
+                                                    @Nullable Note note,
+                                                    NoteValidationSAM noteValidateFunc
+    ) {
         int visibility;
         if (note != null) {
-            visibility = note.isPlainText() ? View.VISIBLE : View.GONE;
+            visibility = noteValidateFunc.validateNoteType(note) ? View.VISIBLE : View.GONE;
         } else {
             visibility = View.GONE;
         }
         view.setVisibility(visibility);
+
     }
 
     @BindingAdapter("displayCheckList")

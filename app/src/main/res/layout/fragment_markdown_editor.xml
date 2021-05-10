@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="noteWithTags"
+            type="com.hcmus.clc18se.buggynote2.data.NoteWithTags" />
+    </data>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/content_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="1dp"
+        app:hintEnabled="false">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/note_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:autofillHints=""
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="start"
+            android:hint="@string/content"
+            android:inputType="textMultiLine|textNoSuggestions|textLongMessage"
+            android:labelFor="@id/content_layout"
+            android:text="@{noteWithTags.note.noteContent}"
+            android:textAlignment="gravity"
+            tools:text="@tools:sample/lorem/random" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+</layout>

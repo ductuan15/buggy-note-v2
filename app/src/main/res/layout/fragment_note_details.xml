@@ -55,7 +55,8 @@
                     android:textAlignment="center"
                     android:textAppearance="?textAppearanceCaption"
                     android:textStyle="italic"
-                    tools:text="Removing date warning will appear here" />
+                    tools:text="Removing date warning will appear here"
+                    tools:visibility="gone" />
 
                 <!--                Title of the note-->
                 <com.google.android.material.textfield.TextInputLayout
@@ -72,7 +73,7 @@
                         style="?textAppearanceHeadline4"
                         noteTitleFormat="@{noteDetailsViewModel.note}"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="90dp"
                         android:autofillHints=""
                         android:gravity="start|top"
                         android:hint="@string/title"
@@ -91,7 +92,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    tools:visibility="gone">
 
                     <ImageButton
                         android:id="@+id/add_tag_icon"
@@ -144,8 +146,28 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:itemCount="2"
                     tools:listitem="@layout/item_check_list"
-                    tools:visibility="visible" />
+                    tools:visibility="gone" />
                 <!--                END CHECK LIST-->
+
+                <!--                MARKDOWN EDITOR-->
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabs"
+                    style="@style/Widget.MaterialComponents.TabLayout"
+                    visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabInlineLabel="true"
+                    app:tabSelectedTextColor="?colorPrimary"
+                    app:tabTextColor="?colorOnSurface"
+                    tools:visibility="gone" />
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/markdown_view_pager"
+                    visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:visibility="visible" />
 
                 <!--                PLAIN TEXT-->
 
@@ -227,6 +249,5 @@
             app:menu="@menu/note_detail_bottom" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
 
 </layout>
