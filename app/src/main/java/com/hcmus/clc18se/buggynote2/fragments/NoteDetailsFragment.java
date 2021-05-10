@@ -3,6 +3,7 @@ package com.hcmus.clc18se.buggynote2.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -10,8 +11,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,10 +31,14 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.BindingAdapters;
+import com.hcmus.clc18se.buggynote2.adapters.CheckListAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
+import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
 import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
@@ -41,9 +46,12 @@ import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import timber.log.Timber;
 
-public class NoteDetailsFragment extends Fragment implements PropertiesBSFragment.Properties{
+public class NoteDetailsFragment extends Fragment implements PropertiesBSFragment.Properties {
 
     private FragmentNoteDetailsBinding binding = null;
     private NoteDetailsFragmentArgs arguments;
@@ -59,6 +67,42 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     private PropertiesBSFragment propertiesBSFragment;
     int currentColor;
+
+    private final CheckListAdapterCallbacks checkListAdapterCallbacks = new CheckListAdapterCallbacks() {
+        @Override
+        public void onFocus(ItemCheckListBinding binding,
+                            boolean hasFocus,
+                            CheckListItem item) {
+            binding.removeButton.setVisibility(
+                    hasFocus ? View.VISIBLE : View.INVISIBLE
+            );
+
+            if (hasFocus) {
+                checkListAdapter.setCurrentFocusedView(binding, item);
+            } else {
+                checkListAdapter.setCurrentFocusedView(null, null);
+
+            }
+
+            String text = binding.listContent.getText().toString().trim();
+            if (text.isEmpty()) {
+                binding.listContent.setText(item.getContent());
+            }
+
+            if (!item.getContent().equals(text)) {
+                item.setContent(text);
+            }
+        }
+
+        @Override
+        public void onCheckedChanged(CompoundButton itemView,
+                                     boolean isChecked,
+                                     CheckListItem item) {
+            item.setChecked(isChecked);
+        }
+    };
+
+    private final CheckListAdapter checkListAdapter = new CheckListAdapter(checkListAdapterCallbacks);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -100,6 +144,28 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         propertiesBSFragment = new PropertiesBSFragment();
         propertiesBSFragment.setPropertiesChangeListener(this);
 
+        binding.addCheckListDone.setOnClickListener(v -> {
+            String content = binding.addCheckListContent.getText().toString().trim();
+            binding.addCheckListTextLayout.getEditText().getText().clear();
+            if (content.isEmpty()) {
+                return;
+            }
+
+            binding.addCheckListTextLayout.setErrorEnabled(false);
+
+            List<CheckListItem> currentList = checkListAdapter.getCurrentList();
+
+            List<CheckListItem> items = new ArrayList<>();
+            if (currentList != null) {
+                items.addAll(currentList);
+            }
+
+            items.add(new CheckListItem(items.size(), false, content));
+            checkListAdapter.submitList(items);
+
+        });
+
+        initRecyclerViews();
         initObservers();
 
         return binding.getRoot();
@@ -123,9 +189,9 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 id -> {
                     if (id != null) {
                         Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
-                            NoteDetailsFragmentDirections.actionNavNoteDetailsToTagSelectionFragment(
-                                    arguments.getNoteId()
-                            )
+                                NoteDetailsFragmentDirections.actionNavNoteDetailsToTagSelectionFragment(
+                                        arguments.getNoteId()
+                                )
                         );
                         viewModel.doneNavigatingToTagSelection();
                     }
@@ -139,6 +205,17 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
                 }
         );
+
+        viewModel.getCheckListItems().observe(getViewLifecycleOwner(), list -> {
+            if (list != null) {
+                checkListAdapter.submitList(list);
+            }
+        });
+    }
+
+    private void initRecyclerViews() {
+        //RecyclerView checkListRecyclerView = binding.scrollLayout.findViewById()
+        binding.checkListRecyclerView.setAdapter(checkListAdapter);
     }
 
     @Override
@@ -153,16 +230,34 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     void saveNote(boolean require) {
+
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
         String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
+
+        checkListAdapter.saveFocusedView();
+
         if (noteWithTags != null) {
+
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+
+                String encodedCheckListContent = "";
+                if (noteWithTags.note.isCheckList()) {
+                    encodedCheckListContent = CheckListItem.toNoteContent(checkListAdapter.getCurrentList());
+                }
+
                 if (!title.equals(noteWithTags.note.title) ||
-                        !content.equals(noteWithTags.note.noteContent) ||
+                        (noteWithTags.note.isPlainText() && !content.equals(noteWithTags.note.noteContent)) ||
+                        (noteWithTags.note.isCheckList() && !noteWithTags.note.noteContent.equals(encodedCheckListContent)) ||
                         require) {
                     noteWithTags.note.title = title;
-                    noteWithTags.note.noteContent = content;
+
+                    if (noteWithTags.note.isPlainText()) {
+                        noteWithTags.note.noteContent = content;
+                    } else if (noteWithTags.note.isCheckList()) {
+                        noteWithTags.note.noteContent = encodedCheckListContent;
+                    }
+
                     noteWithTags.note.lastModify = System.currentTimeMillis();
                     noteWithTags.note.color = currentColor;
 
@@ -231,7 +326,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 showBottomSheetDialogFragment(propertiesBSFragment);
                 return true;
             }
-
 
 
         }
@@ -344,7 +438,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         if (fragment == null || fragment.isAdded()) {
             return;
         }
-        fragment.show(getChildFragmentManager() , fragment.getTag());
+        fragment.show(getChildFragmentManager(), fragment.getTag());
     }
 
     @Override

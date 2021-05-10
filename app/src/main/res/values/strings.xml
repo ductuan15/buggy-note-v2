@@ -42,4 +42,5 @@
     <string name="restore">Restore</string>
     <string name="trash">Trash</string>
     <string name="set_note_color">Set note color</string>
+    <string name="add_a_check_list_item">Add a checklist item</string>
 </resources>

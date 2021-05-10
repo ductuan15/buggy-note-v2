@@ -44,7 +44,7 @@ public class TagsFragment extends Fragment {
 
     private NotesViewModel notesViewModel;
 
-    private TagsAdapterCallbacks tagsAdapterCallbacks = (itemTagBinding, hasFocus, tag) -> {
+    private final TagsAdapterCallbacks tagsAdapterCallbacks = (itemTagBinding, hasFocus, tag) -> {
         Timber.d("On focus listener is called");
 
         int removeIcon = R.drawable.ic_outline_label_24;

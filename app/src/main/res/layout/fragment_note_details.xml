@@ -16,10 +16,9 @@
             type="View.OnClickListener" />
     </data>
 
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        backgroundColor="@{noteDetailsViewModel.note.note.color}"
         android:id="@+id/coordinator_layout"
+        backgroundColor="@{noteDetailsViewModel.note.note.color}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?colorSurface">
@@ -46,8 +45,8 @@
                 android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+                <!--                Message when the note in Trash-->
                 <TextView
-                    tools:text="Removing date warning will appear here"
                     removeDateWarning="@{noteDetailsViewModel.note.note.removingDate}"
                     visibilityWhenNoteInTrash="@{noteDetailsViewModel.note.note.removingDate}"
                     android:layout_width="match_parent"
@@ -55,8 +54,10 @@
                     android:layout_margin="8dp"
                     android:textAlignment="center"
                     android:textAppearance="?textAppearanceCaption"
-                    android:textStyle="italic" />
+                    android:textStyle="italic"
+                    tools:text="Removing date warning will appear here" />
 
+                <!--                Title of the note-->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/title_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
@@ -83,9 +84,75 @@
                         tools:text="Title" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!--                CHECK LIST-->
+                <LinearLayout
+                    android:id="@+id/add_check_list_layout"
+                    visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/add_tag_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="?colorSurface"
+                        android:paddingHorizontal="16dp"
+                        android:src="@drawable/ic_baseline_add_24"
+                        tools:ignore="ContentDescription" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/add_check_list_text_layout"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        app:boxStrokeWidth="0dp"
+                        app:errorContentDescription="@string/exist_tag"
+                        app:errorEnabled="false"
+                        app:hintEnabled="false">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/add_check_list_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/add_a_check_list_item"
+                            android:inputType="text"
+                            android:labelFor="@id/add_tag_layout"
+                            android:textColor="?colorOnSurface"
+                            tools:text="Label" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/add_check_list_done"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="?colorSurface"
+                        android:paddingHorizontal="16dp"
+                        android:src="@drawable/ic_baseline_done_24"
+                        tools:ignore="ContentDescription" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="2"
+                    android:id="@+id/check_list_recycler_view"
+                    tools:listitem="@layout/item_check_list"
+                    tools:visibility="visible" />
+                <!--                END CHECK LIST-->
+
+                <!--                PLAIN TEXT-->
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/content_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    visibleWhenNoteIsPlainText="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
@@ -111,7 +178,10 @@
                         tools:text="@tools:sample/lorem/random" />
 
                 </com.google.android.material.textfield.TextInputLayout>
+                <!--                END PLAIN TEXT-->
 
+
+                <!--                Tag-->
                 <com.google.android.material.chip.ChipGroup
                     android:id="@+id/tag_group"
                     loadTagList="@{noteDetailsViewModel.note.tags}"
@@ -145,8 +215,8 @@
         </androidx.core.widget.NestedScrollView>
 
         <com.google.android.material.bottomappbar.BottomAppBar
-            backgroundColor="@{noteDetailsViewModel.note.note.color}"
             android:id="@+id/bottom_bar"
+            backgroundColor="@{noteDetailsViewModel.note.note.color}"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:layout_gravity="bottom"

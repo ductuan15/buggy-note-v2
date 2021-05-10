@@ -4,9 +4,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
+
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -25,6 +28,17 @@ public class NoteDetailsViewModel extends ViewModel {
     public LiveData<NoteWithTags> getNote() {
         if (note == null) {
             note = database.getNoteFromId(id);
+            note.observeForever((note) -> {
+                if (note != null) {
+                    if (note.note.isCheckList()) {
+                        BuggyNoteDatabase.databaseWriteExecutor.execute(() ->
+                                checkListItems.postValue(
+                                        CheckListItem.compileFromNoteContent(note.note.noteContent)
+                                )
+                        );
+                    }
+                }
+            });
         }
         return note;
     }
@@ -49,6 +63,12 @@ public class NoteDetailsViewModel extends ViewModel {
         return (LiveData<Long>) navigateToTagSelection;
     }
 
+    private final MutableLiveData<List<CheckListItem>> checkListItems = new MutableLiveData<>(null);
+
+    public final LiveData<List<CheckListItem>> getCheckListItems() {
+        return checkListItems;
+    }
+
     public void navigateToTagSelection() {
         navigateToTagSelection.setValue(id);
     }
@@ -58,6 +78,7 @@ public class NoteDetailsViewModel extends ViewModel {
     }
 
     private final MutableLiveData<Boolean> deleteRequest = new MutableLiveData<>(false);
+
     public LiveData<Boolean> getDeleteRequest() {
         return (LiveData<Boolean>) deleteRequest;
     }

@@ -4,7 +4,6 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.TagChipBinding;
@@ -230,5 +230,31 @@ public class BindingAdapters {
         if (color != null) {
             view.setBackgroundColor(color);
         }
+    }
+
+    @BindingAdapter("visibleWhenNoteIsCheckList")
+    public static void setVisibleWhenNoteIsCheckList(@NonNull View view,
+                                                     @Nullable Note note) {
+        int visibility;
+        if (note != null) {
+             visibility = note.isCheckList() ? View.VISIBLE : View.GONE;
+        }
+        else {
+            visibility = View.GONE;
+        }
+        view.setVisibility(visibility);
+    }
+
+    @BindingAdapter("visibleWhenNoteIsPlainText")
+    public static void setVisibleWhenNoteIsPlainText(@NonNull View view,
+                                                     @Nullable Note note) {
+        int visibility;
+        if (note != null) {
+            visibility = note.isPlainText() ? View.VISIBLE : View.GONE;
+        }
+        else {
+            visibility = View.GONE;
+        }
+        view.setVisibility(visibility);
     }
 }
