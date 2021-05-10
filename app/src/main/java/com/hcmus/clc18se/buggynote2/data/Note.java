@@ -47,11 +47,15 @@ public class Note {
     @ColumnInfo(name = "color", defaultValue = "null")
     public Integer color = null;
 
+    @ColumnInfo(defaultValue = "0")
+    public int type = NOTE_TYPE_PLAIN_TEXT;
+
     @Ignore
     public static final int N_REMOVING_DAYS = 30;
 
     @Ignore
-    public Note() {}
+    public Note() {
+    }
 
     public Note(long id,
                 String name,
@@ -112,4 +116,22 @@ public class Note {
                 false,
                 false);
     }
+
+    public boolean isPlainText() {
+        return type == NOTE_TYPE_PLAIN_TEXT;
+    }
+
+    public boolean isMarkdown() {
+        return type == NOTE_TYPE_MARKDOWN;
+    }
+
+    public boolean isCheckList() {
+        return type == NOTE_TYPE_CHECK_LIST;
+    }
+
+    public static final int NOTE_TYPE_PLAIN_TEXT = 0;
+
+    public static final int NOTE_TYPE_CHECK_LIST = 1;
+
+    public static final int NOTE_TYPE_MARKDOWN = 2;
 }

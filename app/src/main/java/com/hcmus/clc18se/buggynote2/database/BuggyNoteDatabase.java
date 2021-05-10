@@ -16,7 +16,7 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Note.class, Tag.class, NoteCrossRef.class}, version = 3)
+@Database(entities = {Note.class, Tag.class, NoteCrossRef.class}, version = 4)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
@@ -34,6 +34,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             "buggy_note2_database")
                             .addMigrations(MIGRATION_1_2)
                             .addMigrations(MIGRATION_2_3)
+                            .addMigrations(MIGRATION_3_4)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -53,6 +54,13 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE note ADD COLUMN `color` INTEGER DEFAULT null");
+        }
+    };
+
+    public static Migration MIGRATION_3_4  = new Migration(3, 4) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE note ADD COLUMN `type` INTEGER NOT NULL DEFAULT 0");
         }
     };
 
