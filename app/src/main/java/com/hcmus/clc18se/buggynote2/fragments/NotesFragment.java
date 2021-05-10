@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -555,7 +556,12 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
                     NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
                     notesViewModel.moveToTrash(trashedNotes);
-                    finishActionMode();
+
+                    Snackbar.make(binding.getRoot(), R.string.restore_status, Snackbar.LENGTH_LONG)
+                            .setAction(R.string.undo, v -> notesViewModel.restoreNoteFromTrash(trashedNotes))
+                            .show();
+
+                    actionModeCallback.finishActionMode();
 
                     return true;
                 }
