@@ -45,4 +45,5 @@
     <string name="restore_status">Note has been move to recycle bin</string>
     <string name="share">Share</string>
     <string name="add_a_check_list_item">Add a checklist item</string>
+    <string name="dot_dot_dot">...</string>
 </resources>

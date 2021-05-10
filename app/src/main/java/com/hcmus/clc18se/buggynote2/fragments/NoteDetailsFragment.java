@@ -80,9 +80,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
             if (hasFocus) {
                 checkListAdapter.setCurrentFocusedView(binding, item);
+
+                binding.removeButton.setOnClickListener(v -> {
+                    List<CheckListItem> list = new ArrayList<>(checkListAdapter.getCurrentList());
+                    list.remove(item);
+                    checkListAdapter.submitList(list);
+                });
             } else {
                 checkListAdapter.setCurrentFocusedView(null, null);
-
             }
 
             String text = binding.listContent.getText().toString().trim();
@@ -338,7 +343,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 //                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
                 sendIntent.setType("*/*");
-                startActivity(Intent.createChooser(sendIntent, "Share to")) ;
+                startActivity(Intent.createChooser(sendIntent, "Share to"));
                 return true;
             }
 

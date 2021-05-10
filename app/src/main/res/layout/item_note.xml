@@ -16,7 +16,7 @@
             type="View.OnClickListener" />
     </data>
 
-    <com.google.android.material.card.MaterialCardView
+    <com.hcmus.clc18se.buggynote2.utils.InterceptTouchCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/item_note_margin"
@@ -44,9 +44,27 @@
                 android:textAppearance="?textAppearanceHeadline6"
                 tools:text="Title" />
 
+            <androidx.recyclerview.widget.RecyclerView
+                displayCheckList="@{note.note}"
+                visibleWhenNoteIsCheckList="@{note.note}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_check_list_preview" />
+
+            <TextView
+                visibleWhenNoteIsCheckList="@{note.note}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="8dp"
+                android:paddingEnd="0dp"
+                android:text="@string/dot_dot_dot" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/note_content"
                 noteContentFormat="@{note}"
+                visibleWhenNoteIsPlainText="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="10"
@@ -61,7 +79,10 @@
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
                 android:gravity="center"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
                 android:textAppearance="?textAppearanceCaption"
+                android:visibility="gone"
                 app:drawableStartCompat="@drawable/ic_baseline_access_time_24"
                 app:timeStampFromLong="@{note.note.lastModify}"
                 tools:text="@tools:sample/date/ddmmyy" />
@@ -81,5 +102,5 @@
 
         </LinearLayout>
 
-    </com.google.android.material.card.MaterialCardView>
+    </com.hcmus.clc18se.buggynote2.utils.InterceptTouchCardView>
 </layout>

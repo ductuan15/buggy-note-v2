@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Tag;
@@ -237,9 +238,8 @@ public class BindingAdapters {
                                                      @Nullable Note note) {
         int visibility;
         if (note != null) {
-             visibility = note.isCheckList() ? View.VISIBLE : View.GONE;
-        }
-        else {
+            visibility = note.isCheckList() ? View.VISIBLE : View.GONE;
+        } else {
             visibility = View.GONE;
         }
         view.setVisibility(visibility);
@@ -251,10 +251,25 @@ public class BindingAdapters {
         int visibility;
         if (note != null) {
             visibility = note.isPlainText() ? View.VISIBLE : View.GONE;
-        }
-        else {
+        } else {
             visibility = View.GONE;
         }
         view.setVisibility(visibility);
+    }
+
+    @BindingAdapter("displayCheckList")
+    public static void displayCheckList(@NonNull RecyclerView recyclerView,
+                                        @Nullable Note note
+    ) {
+        if (note != null && note.isCheckList()) {
+            if (recyclerView.getAdapter() == null ||
+                    !(recyclerView.getAdapter() instanceof CheckListPreviewAdapter)) {
+                recyclerView.setAdapter(new CheckListPreviewAdapter());
+            }
+
+            ((CheckListPreviewAdapter) recyclerView.getAdapter()).submitList(
+                    CheckListItem.compileFromNoteContent(note.getNoteContent())
+            );
+        }
     }
 }

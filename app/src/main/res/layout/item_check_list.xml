@@ -13,7 +13,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingEnd="0dp">
 
         <CheckBox
             android:id="@+id/checkbox"
@@ -24,31 +26,21 @@
             android:checked="@{checkListItem.isChecked}"
             android:gravity="center_vertical" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/list_item_layout"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/list_content"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            app:boxStrokeWidth="0dp"
-            app:hintEnabled="false">
+            android:background="?colorSurface"
+            android:focusable="true"
+            android:inputType="text|textLongMessage|textMultiLine|textImeMultiLine"
+            android:labelFor="@id/add_tag_layout"
+            android:padding="16dp"
+            android:singleLine="true"
+            android:text="@{checkListItem.content}"
+            android:textColor="?colorOnSurface"
+            tools:text="@tools:sample/cities" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/list_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="?colorSurface"
-                android:focusable="true"
-                android:singleLine="true"
-                android:inputType="text|textLongMessage|textMultiLine|textImeMultiLine"
-                android:labelFor="@id/add_tag_layout"
-                android:padding="16dp"
-                android:text="@{checkListItem.content}"
-                android:textColor="?colorOnSurface"
-                tools:text="@tools:sample/cities" />
-
-        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:id="@+id/remove_button"
