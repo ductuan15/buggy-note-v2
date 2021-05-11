@@ -8,6 +8,10 @@
         <variable
             name="noteWithTags"
             type="com.hcmus.clc18se.buggynote2.data.NoteWithTags" />
+
+        <variable
+            name="markwon"
+            type="io.noties.markwon.Markwon" />
     </data>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -19,14 +23,17 @@
         app:boxStrokeWidthFocused="1dp"
         app:hintEnabled="false">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <EditText
+            android:id="@+id/edit_text"
+            markwon="@{markwon}"
+            noteContent="@{noteWithTags.note.noteContent}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="false"
             android:enabled="false"
             android:focusable="false"
+            android:inputType="textMultiLine|textLongMessage"
             android:minHeight="56dp"
-            android:text="@{noteWithTags.note.noteContent}"
             android:textColor="?colorOnSurface"
             tools:text="@tools:sample/lorem/random" />
 

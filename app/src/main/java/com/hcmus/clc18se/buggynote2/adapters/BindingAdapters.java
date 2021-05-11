@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import io.noties.markwon.Markwon;
 import timber.log.Timber;
 
 import static com.hcmus.clc18se.buggynote2.utils.Utils.convertLongToDateString;
@@ -305,6 +306,17 @@ public class BindingAdapters {
             ((CheckListPreviewAdapter) recyclerView.getAdapter()).submitList(
                     CheckListItem.compileFromNoteContent(note.getNoteContent())
             );
+        }
+    }
+
+    @BindingAdapter(value = {"markwon", "noteContent"})
+    public static void setMarkdown(@NonNull TextView textView,
+                                   @Nullable Markwon markwon,
+                                   @Nullable String noteContent) {
+        if (markwon != null && noteContent != null) {
+            markwon.setMarkdown(textView, noteContent);
+        } else if (noteContent != null) {
+            textView.setText(noteContent);
         }
     }
 }

@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.noties.markwon.Markwon;
+
 public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolder> {
 
     // Dirty flags
@@ -29,6 +31,8 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static final String UNPIN_TAG = "UNPIN";
     public static final String ARCHIVE_TAG = "ARCHIVE";
     public static final String TRASH_TAG = "TRASH";
+
+    private Markwon markwon;
 
     public NoteAdapter(NoteAdapterCallbacks callbacks, String tag) {
         super(NoteWithTags.diffCallBacks);
@@ -50,7 +54,6 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         return selectedItems.size();
     }
 
-    // TODO: multi selection
     public void finishSelection() {
         multiSelected = false;
         selectedItems.clear();
@@ -85,8 +88,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
             if (multiSelected) {
                 selectItem(holder, item);
                 callbacks.onMultipleSelect(item);
-            }
-            else {
+            } else {
                 callbacks.onClick(item);
             }
 
@@ -124,9 +126,15 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
+        if (markwon == null){
+            markwon = Markwon.create(parent.getContext());
+        }
+
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         return new ViewHolder(
-                ItemNoteBinding.inflate(layoutInflater, parent, false)
+                ItemNoteBinding.inflate(layoutInflater, parent, false),
+                markwon
         );
     }
 
@@ -168,17 +176,19 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ItemNoteBinding binding;
+        Markwon markwon;
         public String tag;
 
-        public ViewHolder(@NonNull ItemNoteBinding binding) {
+        public ViewHolder(@NonNull ItemNoteBinding binding, Markwon markwon) {
             super(binding.getRoot());
             this.binding = binding;
+            this.markwon = markwon;
         }
 
         public void bindFrom(NoteWithTags note, String tag) {
+            binding.setMarkwon(markwon);
             binding.setNote(note);
             this.tag = tag;
-
         }
     }
 }
