@@ -24,6 +24,7 @@
             android:checked="@{checkListItem.isChecked}"
             android:clickable="false"
             android:focusable="false"
+            android:background="@android:color/transparent"
             android:gravity="center_vertical"
             android:longClickable="false"
             android:textAppearance="?textAppearanceListItem"

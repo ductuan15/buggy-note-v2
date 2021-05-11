@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -9,13 +10,26 @@
             type="com.hcmus.clc18se.buggynote2.data.NoteWithTags" />
     </data>
 
-    <TextView
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:text="@{noteWithTags.note.noteContent}"
-        tools:context=".BuggyNoteActivity"
-        tools:text="@tools:sample/lorem/random">
+        android:layout_marginBottom="16dp"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="1dp"
+        app:hintEnabled="false">
 
-    </TextView>
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:enabled="false"
+            android:focusable="false"
+            android:minHeight="56dp"
+            android:text="@{noteWithTags.note.noteContent}"
+            android:textColor="?colorOnSurface"
+            tools:text="@tools:sample/lorem/random" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 </layout>

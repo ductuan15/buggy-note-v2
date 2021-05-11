@@ -8,6 +8,8 @@ import androidx.room.PrimaryKey;
 
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
+import java.util.Random;
+
 @Entity(tableName = "note")
 public class Note {
 
@@ -48,7 +50,7 @@ public class Note {
     public Integer color = null;
 
     @ColumnInfo(defaultValue = "0")
-    public int type = NOTE_TYPE_PLAIN_TEXT;
+    public int type = new Random().nextInt(3) ;
 
     @Ignore
     public static final int N_REMOVING_DAYS = 30;

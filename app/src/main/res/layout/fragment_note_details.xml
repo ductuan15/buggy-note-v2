@@ -73,7 +73,7 @@
                         style="?textAppearanceHeadline4"
                         noteTitleFormat="@{noteDetailsViewModel.note}"
                         android:layout_width="match_parent"
-                        android:layout_height="90dp"
+                        android:layout_height="wrap_content"
                         android:autofillHints=""
                         android:gravity="start|top"
                         android:hint="@string/title"

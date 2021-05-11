@@ -227,9 +227,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     private final ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
+        Integer previousPos = null;
         @Override
         public void onPageSelected(int position) {
             super.onPageSelected(position);
+            if (previousPos != null && previousPos == MarkdownPagerAdapter.PAGE_EDITOR) {
+                saveNote(false);
+            }
+            previousPos = position;
         }
     };
 
@@ -238,7 +243,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         if (noteWithTags.note.isMarkdown()) {
             binding.markdownViewPager.unregisterOnPageChangeCallback(callback);
 
-            binding.markdownViewPager.setAdapter(new MarkdownPagerAdapter(this));
+            binding.markdownViewPager.setAdapter(new MarkdownPagerAdapter(this, noteWithTags));
             new TabLayoutMediator(binding.tabs, binding.markdownViewPager, (tab, page) -> {
                 tab.setText(getTabText(page));
             }).attach();
@@ -249,8 +254,10 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     private String getTabText(int position) {
         switch (position) {
-            case MarkdownPagerAdapter.PAGE_PREVIEW: return getString(R.string.preview);
-            case MarkdownPagerAdapter.PAGE_EDITOR: return getString(R.string.editor);
+            case MarkdownPagerAdapter.PAGE_PREVIEW:
+                return getString(R.string.preview);
+            case MarkdownPagerAdapter.PAGE_EDITOR:
+                return getString(R.string.editor);
         }
         return "";
     }
@@ -275,12 +282,22 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
         String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
+
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
+
+        if (noteWithTags.note.isMarkdown()) {
+            MarkdownPagerAdapter adapter = (MarkdownPagerAdapter) binding.markdownViewPager.getAdapter();
+            try {
+                content = adapter.getEditTextContent().toString();
+            } catch (NullPointerException ignore) {
+            }
+        }
 
         checkListAdapter.saveFocusedView();
 
         if (noteWithTags != null) {
 
+            String finalContent = content;
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
 
                 String encodedCheckListContent = "";
@@ -289,14 +306,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 }
 
                 if (!title.equals(noteWithTags.note.title) ||
-                        (noteWithTags.note.isPlainText() && !content.equals(noteWithTags.note.noteContent)) ||
+                        (!noteWithTags.note.isCheckList() && !finalContent.equals(noteWithTags.note.noteContent)) ||
                         (noteWithTags.note.isCheckList() && !noteWithTags.note.noteContent.equals(encodedCheckListContent)) ||
                         require) {
                     noteWithTags.note.title = title;
 
-                    if (noteWithTags.note.isPlainText()) {
-                        noteWithTags.note.noteContent = content;
-                    } else if (noteWithTags.note.isCheckList()) {
+                    if (!noteWithTags.note.isCheckList()) {
+                        noteWithTags.note.noteContent = finalContent;
+                    } else {
                         noteWithTags.note.noteContent = encodedCheckListContent;
                     }
 

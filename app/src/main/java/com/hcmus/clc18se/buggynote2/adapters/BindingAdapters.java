@@ -245,6 +245,16 @@ public class BindingAdapters {
 
     }
 
+    @BindingAdapter("visibleWhenNoteIsNotCheckList")
+    public static void setVisibleWhenNoteIsNotCheckList(@NonNull View view,
+                                                        @Nullable Note note) {
+        setVisibilityBasedOnNoteType(view,
+                note,
+                n -> !n.isCheckList()
+        );
+
+    }
+
     @BindingAdapter("visibleWhenNoteIsPlainText")
     public static void setVisibleWhenNoteIsPlainText(@NonNull View view,
                                                      @Nullable Note note) {
