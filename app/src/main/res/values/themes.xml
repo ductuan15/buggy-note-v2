@@ -21,7 +21,6 @@
         <item name="colorOnSecondary">@color/white</item>
         <item name="android:textColor">?colorOnSurface</item>
         <item name="colorPrimaryLight">@color/pink_100</item>
-        <item name="tint">?colorOnSurface</item>
     </style>
 
     <style name="Theme.BuggyNote2.Popup" parent="">

@@ -1,9 +1,11 @@
 package com.hcmus.clc18se.buggynote2.adapters;
 
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
@@ -13,14 +15,15 @@ import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.TagChipBinding;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
@@ -270,7 +273,7 @@ public class BindingAdapters {
 
     @BindingAdapter("visibleWhenNoteIsNotMarkdown")
     public static void setVisibleWhenNoteIsNotMarkdown(@NonNull View view,
-                                                    @Nullable Note note) {
+                                                       @Nullable Note note) {
         setVisibilityBasedOnNoteType(view, note, n -> !n.isMarkdown());
     }
 
@@ -318,4 +321,38 @@ public class BindingAdapters {
             textView.setText(noteContent);
         }
     }
+
+    @BindingAdapter("visibleWhenNotEmptyOrNull")
+    public static void visibleWhenNotEmptyOrNull(@NonNull View view,
+                                                 List<?> list) {
+
+        if (list == null || list.isEmpty()) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @BindingAdapter("loadPhoto")
+    public static void loadPhoto(@NonNull ImageView imageView, @Nullable Photo photo) {
+        if (photo != null) {
+
+            Glide.with(imageView.getContext())
+                    .load(Uri.parse(photo.uri))
+                    .into(imageView);
+//            imageView.setImageURI(Uri.parse(photo.uri));
+        }
+    }
+
+    @BindingAdapter("loadPhotoList")
+    public static void loadPhotoList(@NonNull RecyclerView recyclerView,
+                                     @Nullable List<Photo> photos) {
+        if (photos != null) {
+            RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
+            if (adapter instanceof PhotoListAdapter) {
+                ((PhotoListAdapter) adapter).submitList(photos);
+            }
+        }
+    }
+
 }

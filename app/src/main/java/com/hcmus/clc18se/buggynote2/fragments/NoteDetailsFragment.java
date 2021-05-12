@@ -44,6 +44,7 @@ import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.adapters.BindingAdapters;
 import com.hcmus.clc18se.buggynote2.adapters.CheckListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.MarkdownPagerAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
@@ -278,6 +279,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     private void initRecyclerViews() {
         //RecyclerView checkListRecyclerView = binding.scrollLayout.findViewById()
         binding.checkListRecyclerView.setAdapter(checkListAdapter);
+        binding.photoList.setAdapter(new PhotoListAdapter());
     }
 
     @Override

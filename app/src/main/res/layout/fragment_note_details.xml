@@ -45,6 +45,18 @@
                 android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/photo_list"
+                    loadPhotoList="@{noteDetailsViewModel.note.photos}"
+                    visibleWhenNotEmptyOrNull="@{noteDetailsViewModel.note.photos}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:scrollbarAlwaysDrawHorizontalTrack="true"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="10"
+                    tools:listitem="@layout/item_photo" />
+
                 <!--                Message when the note in Trash-->
                 <TextView
                     removeDateWarning="@{noteDetailsViewModel.note.note.removingDate}"
