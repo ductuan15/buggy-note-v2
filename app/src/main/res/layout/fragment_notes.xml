@@ -87,7 +87,7 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_normal_note"
             style="@style/fab_small"
-            android:src="@drawable/ic_baseline_mode_edit_24"
+            android:src="@drawable/ic_note"
             app:fabSize="mini"
             app:hideOnScroll="true"
             app:layout_anchor="@id/fab"
@@ -101,7 +101,7 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_check_list_note"
             style="@style/fab_small"
-            android:src="@drawable/ic_baseline_mode_edit_24"
+            android:src="@drawable/ic_baseline_list_alt_24"
             app:fabSize="mini"
             app:hideOnScroll="true"
             app:layout_anchor="@id/fab_add_normal_note"
@@ -115,7 +115,7 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_markdown_note"
             style="@style/fab_small"
-            android:src="@drawable/ic_baseline_mode_edit_24"
+            android:src="@drawable/ic_markdown_mark"
             app:fabSize="mini"
             app:hideOnScroll="true"
             app:layout_anchor="@id/fab_add_check_list_note"
