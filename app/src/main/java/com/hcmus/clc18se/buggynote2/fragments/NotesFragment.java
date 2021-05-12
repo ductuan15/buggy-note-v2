@@ -198,10 +198,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         binding.setLifecycleOwner(this);
 
-        binding.fab.setOnClickListener(view -> {
-            long newId = notesViewModel.insertNewNote(Note.emptyInstance());
-            notesViewModel.startNavigatingToNoteDetails(newId);
-        });
+
 
         binding.setNoteViewModel(notesViewModel);
         binding.setTagViewModel(tagsViewModel);
@@ -448,20 +445,41 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         for (FloatingActionButton i : fabs) {
             viewAnimation.init(i);
         }
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                isFabRotate = ViewAnimation.rotateFab(binding.fab, !isFabRotate);
-                if (isFabRotate) {
-                    for (FloatingActionButton i : fabs) {
-                        viewAnimation.showIn(i);
-                    }
-                } else {
-                    for (FloatingActionButton i : fabs) {
-                        viewAnimation.showOut(i);
-                    }
+        binding.fab.setOnClickListener(v -> {
+            isFabRotate = ViewAnimation.rotateFab(binding.fab, !isFabRotate);
+            if (isFabRotate) {
+                for (FloatingActionButton i : fabs) {
+                    viewAnimation.showIn(i);
+                }
+            } else {
+                for (FloatingActionButton i : fabs) {
+                    viewAnimation.showOut(i);
                 }
             }
+        });
+
+        binding.fabAddCheckListNote.setOnClickListener(view -> {
+            Note note = Note.emptyInstance();
+            note.type = Note.NOTE_TYPE_CHECK_LIST;
+            long newId = notesViewModel.insertNewNote(note);
+            isFabRotate = false;
+            notesViewModel.startNavigatingToNoteDetails(newId);
+        });
+
+        binding.fabAddNormalNote.setOnClickListener(view -> {
+            Note note = Note.emptyInstance();
+            note.type = Note.NOTE_TYPE_PLAIN_TEXT;
+            long newId = notesViewModel.insertNewNote(note);
+            isFabRotate = false;
+            notesViewModel.startNavigatingToNoteDetails(newId);
+        });
+
+        binding.fabAddMarkdownNote.setOnClickListener(view -> {
+            Note note = Note.emptyInstance();
+            note.type = Note.NOTE_TYPE_MARKDOWN;
+            long newId = notesViewModel.insertNewNote(note);
+            isFabRotate = false;
+            notesViewModel.startNavigatingToNoteDetails(newId);
         });
     }
 
