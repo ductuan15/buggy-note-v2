@@ -20,9 +20,23 @@ public class NoteWithTags {
     @Relation(
             parentColumn = "note_id",
             entityColumn = "tag_id",
-            associateBy =  @Junction(NoteCrossRef.class)
+            associateBy = @Junction(NoteCrossRef.class)
     )
     public List<Tag> tags;
+
+    @Relation(
+            parentColumn = "note_id",
+            entityColumn = "note_id",
+            entity = Photo.class
+    )
+    public List<Photo> photos;
+
+    @Relation(
+            parentColumn = "note_id",
+            entityColumn = "note_id",
+            entity = Photo.class
+    )
+    public List<Photo> audios;
 
     public TextFormatter getTitleFormat() {
         if (this.note.titleFormat.isEmpty()) {
@@ -55,8 +69,10 @@ public class NoteWithTags {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NoteWithTags that = (NoteWithTags) o;
-        return Objects.equals(note, that.note) &&
-                Objects.equals(tags, that.tags);
+        return note.equals(that.note) &&
+                Objects.equals(tags, that.tags) &&
+                Objects.equals(photos, that.photos) &&
+                Objects.equals(audios, that.audios);
     }
 
     @Override
