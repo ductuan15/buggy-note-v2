@@ -249,30 +249,29 @@ public class BindingAdapters {
     @BindingAdapter("visibleWhenNoteIsNotCheckList")
     public static void setVisibleWhenNoteIsNotCheckList(@NonNull View view,
                                                         @Nullable Note note) {
-        setVisibilityBasedOnNoteType(view,
-                note,
-                n -> !n.isCheckList()
-        );
 
+        setVisibilityBasedOnNoteType(view, note, n -> !n.isCheckList());
     }
 
     @BindingAdapter("visibleWhenNoteIsPlainText")
     public static void setVisibleWhenNoteIsPlainText(@NonNull View view,
                                                      @Nullable Note note) {
-        setVisibilityBasedOnNoteType(view,
-                note,
-                Note::isPlainText
-        );
+
+        setVisibilityBasedOnNoteType(view, note, Note::isPlainText);
 
     }
 
     @BindingAdapter("visibleWhenNoteIsMarkdown")
     public static void setVisibleWhenNoteIsMarkdown(@NonNull View view,
                                                     @Nullable Note note) {
-        setVisibilityBasedOnNoteType(view,
-                note,
-                Note::isMarkdown
-        );
+
+        setVisibilityBasedOnNoteType(view, note, Note::isMarkdown);
+    }
+
+    @BindingAdapter("visibleWhenNoteIsNotMarkdown")
+    public static void setVisibleWhenNoteIsNotMarkdown(@NonNull View view,
+                                                    @Nullable Note note) {
+        setVisibilityBasedOnNoteType(view, note, n -> !n.isMarkdown());
     }
 
     public interface NoteValidationSAM {

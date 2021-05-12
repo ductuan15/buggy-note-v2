@@ -74,6 +74,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="10"
+                android:paddingVertical="12dp"
                 android:textAlignment="gravity"
                 android:textAppearance="?textAppearanceBody2"
                 tools:text="@tools:sample/lorem/random" />

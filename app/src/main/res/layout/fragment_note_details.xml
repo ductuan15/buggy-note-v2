@@ -62,6 +62,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/title_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    visibleWhenNoteIsNotMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:boxStrokeWidth="0dp"
@@ -88,6 +89,7 @@
                 <!--                CHECK LIST-->
                 <LinearLayout
                     android:id="@+id/add_check_list_layout"
+                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
                     visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -97,9 +99,9 @@
 
                     <ImageButton
                         android:id="@+id/add_tag_icon"
+                        backgroundColor="@{noteDetailsViewModel.note.note.color}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?colorSurface"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_add_24"
                         tools:ignore="ContentDescription" />
@@ -130,9 +132,9 @@
 
                     <ImageButton
                         android:id="@+id/add_check_list_done"
+                        backgroundColor="@{noteDetailsViewModel.note.note.color}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?colorSurface"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_done_24"
                         tools:ignore="ContentDescription" />
@@ -154,6 +156,7 @@
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabs"
                     style="@style/Widget.MaterialComponents.TabLayout"
+                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -164,6 +167,7 @@
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/markdown_view_pager"
+                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
