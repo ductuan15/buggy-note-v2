@@ -1,18 +1,27 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,8 +58,13 @@ import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import timber.log.Timber;
 
@@ -389,10 +403,113 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 onActionShare();
                 return true;
             }
-
+            case R.id.action_add_notification: {
+                onActionNotification();
+                return true;
+            }
         }
         return false;
     };
+
+    private void onActionNotification(){
+        final boolean[] onDialogDatePicker = {false};
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(R.string.add_new_notification);
+        LayoutInflater li = LayoutInflater.from(requireContext());
+        View promptsView = li.inflate(R.layout.dialog_add_notification, null);
+        Spinner dateSpinner = promptsView.findViewById(R.id.spinner_choose_day);
+        List<String> listDateChoose = new ArrayList<>();
+        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatterTime = new SimpleDateFormat("hh:mm");
+        Date date = new Date(System.currentTimeMillis());
+        listDateChoose.add(formatterDate.format(date));
+        ArrayAdapter<String> arrayAdapterChooseDate = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listDateChoose);
+        arrayAdapterChooseDate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dateSpinner.setAdapter(arrayAdapterChooseDate);
+
+        dateSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (onDialogDatePicker[0])
+                    return false;
+                onDialogDatePicker[0] = true;
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                LayoutInflater li = LayoutInflater.from(requireContext());
+                View promptsView = li.inflate(R.layout.dialog_date_picker, null);
+                DatePicker datePicker =  promptsView.findViewById(R.id.date_picker);
+                datePicker.setMinDate(System.currentTimeMillis());
+                builder.setCancelable(false);
+                builder.setView(promptsView);
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        date.setDate(datePicker.getDayOfMonth());
+                        date.setMonth(datePicker.getMonth());
+                        date.setYear(datePicker.getYear() - 1900);
+                        arrayAdapterChooseDate.clear();
+                        arrayAdapterChooseDate.add(formatterDate .format(date));
+                        dateSpinner.setAdapter(arrayAdapterChooseDate);
+                        onDialogDatePicker[0] = false;
+                        dialog.cancel();
+                    }
+                });
+                builder.create().show();
+                return true;
+            }
+        });
+
+        Spinner timeSpinner = promptsView.findViewById(R.id.spinner_choose_time);
+        List<String> listTimeChoose = new ArrayList<>();
+        listTimeChoose.add(formatterTime.format(date));
+        ArrayAdapter<String> arrayAdapterChooseTime = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listTimeChoose);
+        arrayAdapterChooseTime.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        timeSpinner.setAdapter(arrayAdapterChooseTime);
+
+        timeSpinner.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (onDialogDatePicker[0])
+                    return false;
+                onDialogDatePicker[0] = true;
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+                LayoutInflater li = LayoutInflater.from(requireContext());
+                View promptsView = li.inflate(R.layout.dialog_time_picker, null);
+                TimePicker timePicker = promptsView.findViewById(R.id.time_picker);
+
+                builder.setCancelable(false);
+                builder.setView(promptsView);
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        date.setHours(timePicker.getCurrentHour());
+                        date.setMinutes(timePicker.getCurrentMinute());
+                        arrayAdapterChooseTime.clear();
+                        arrayAdapterChooseTime.add(formatterTime .format(date));
+                        timeSpinner.setAdapter(arrayAdapterChooseTime);
+                        onDialogDatePicker[0] = false;
+                        dialog.cancel();
+                    }
+                });
+                builder.create().show();
+                return true;
+            }
+        });
+
+        Spinner typeSpinner = promptsView.findViewById(R.id.spinner_choose_relay_mode);
+        List<String> listModeChoose = new ArrayList<>();
+        listModeChoose.add("Day");
+        listModeChoose.add("Week");
+        listModeChoose.add("Month");
+        listModeChoose.add("Year");
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listModeChoose);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeSpinner.setAdapter(arrayAdapter);
+        builder.setView(promptsView);
+        builder.setPositiveButton(getString(R.string.save),null);
+        builder.setNegativeButton(getString(R.string.cancel),null);
+        AlertDialog addNotification =  builder.create();
+        addNotification.show();
+    }
 
     private void onActionShare() {
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
