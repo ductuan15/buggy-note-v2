@@ -81,7 +81,50 @@
             android:layout_margin="@dimen/fab_margin"
             app:layout_anchorGravity="bottom|end"
             app:srcCompat="@drawable/ic_baseline_mode_edit_24"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            app:useCompatPadding="true"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_normal_note"
+            style="@style/fab_small"
+            android:src="@drawable/ic_baseline_mode_edit_24"
+            app:fabSize="mini"
+            app:hideOnScroll="true"
+            app:layout_anchor="@id/fab"
+            app:layout_anchorGravity="top|center"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:rippleColor="@color/white"
+            app:useCompatPadding="true"
+            tools:ignore="ContentDescription,OnClick"
+            tools:translationY="-30dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_check_list_note"
+            style="@style/fab_small"
+            android:src="@drawable/ic_baseline_mode_edit_24"
+            app:fabSize="mini"
+            app:hideOnScroll="true"
+            app:layout_anchor="@id/fab_add_normal_note"
+            app:layout_anchorGravity="top|center"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:rippleColor="@color/white"
+            app:useCompatPadding="true"
+            tools:ignore="ContentDescription,OnClick"
+            tools:translationY="-30dp" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_markdown_note"
+            style="@style/fab_small"
+            android:src="@drawable/ic_baseline_mode_edit_24"
+            app:fabSize="mini"
+            app:hideOnScroll="true"
+            app:layout_anchor="@id/fab_add_check_list_note"
+            app:layout_anchorGravity="top|center"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            app:rippleColor="@color/white"
+            app:useCompatPadding="true"
+            tools:ignore="ContentDescription,OnClick"
+            tools:translationY="-30dp" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

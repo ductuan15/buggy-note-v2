@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
@@ -47,6 +48,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
+import com.hcmus.clc18se.buggynote2.utils.ViewAnimation;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
@@ -54,7 +56,10 @@ import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import timber.log.Timber;
 
@@ -64,6 +69,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
     private FragmentNotesBinding binding = null;
 
     private NotesViewModel notesViewModel;
+    private boolean isFabRotate = false;
 
     private final NoteListActionMode actionModeCallback = new NoteListActionMode();
 
@@ -172,6 +178,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 unpinnedNotesAdapter
         );
 
+
         NoteItemTouchHelperCallback callback = new NoteItemTouchHelperCallback(
                 pinnedNotesAdapter,
                 unpinnedNotesAdapter
@@ -198,6 +205,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         binding.setNoteViewModel(notesViewModel);
         binding.setTagViewModel(tagsViewModel);
+        setUpNavigationBar();
 
         initRecyclerViews();
         initObservers();
@@ -431,6 +439,32 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     }
 
+    void setUpNavigationBar(){
+        List<FloatingActionButton> fabs = new ArrayList<FloatingActionButton>();
+        fabs.add(binding.fabAddNormalNote);
+        fabs.add(binding.fabAddCheckListNote);
+        fabs.add(binding.fabAddMarkdownNote);
+        ViewAnimation viewAnimation = new ViewAnimation();
+        for (FloatingActionButton i : fabs) {
+            viewAnimation.init(i);
+        }
+        binding.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isFabRotate = ViewAnimation.rotateFab(binding.fab, !isFabRotate);
+                if (isFabRotate) {
+                    for (FloatingActionButton i : fabs) {
+                        viewAnimation.showIn(i);
+                    }
+                } else {
+                    for (FloatingActionButton i : fabs) {
+                        viewAnimation.showOut(i);
+                    }
+                }
+            }
+        });
+    }
+
     class NoteListActionMode implements ActionMode.Callback {
         public ActionMode actionMode;
 
@@ -603,6 +637,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 actionMode.finish();
             }
         }
+
     }
 }
 
