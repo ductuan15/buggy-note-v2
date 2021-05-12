@@ -5,7 +5,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -143,6 +145,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         viewModel = new ViewModelProvider(
                 backStackEntry,
                 new NoteDetailsViewModelFactory(
+                        requireActivity().getApplication(),
                         arguments.getNoteId(),
                         db
                 ))
@@ -606,20 +609,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         switch (item.getItemId()) {
 
             case R.id.action_pin: {
-                NoteWithTags note = viewModel.getNote().getValue();
-                if (note != null) {
-                    int pinIcon;
-                    if (note.note.isPinned) {
-                        pinIcon = R.drawable.ic_baseline_push_pin_24;
-                    } else {
-                        pinIcon = R.drawable.ic_outline_push_pin_24;
-                    }
-                    item.setIcon(pinIcon);
-
-                    viewModel.togglePin();
-                    saveNote(true);
-                    return true;
-                }
+                if (onActionPin(item)) return true;
             }
             case R.id.action_share: {
                 onActionShare();
@@ -629,6 +619,37 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 onActionNotification();
                 return true;
             }
+            case R.id.action_add_photo: {
+                onActionAddPhoto();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static final int PICK_IMAGE_REQUEST_CODE = 0x6969;
+    private void onActionAddPhoto() {
+        Intent intent = new Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        );
+        startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+    }
+
+    private boolean onActionPin(@NonNull MenuItem item) {
+        NoteWithTags note = viewModel.getNote().getValue();
+        if (note != null) {
+            int pinIcon;
+            if (note.note.isPinned) {
+                pinIcon = R.drawable.ic_baseline_push_pin_24;
+            } else {
+                pinIcon = R.drawable.ic_outline_push_pin_24;
+            }
+            item.setIcon(pinIcon);
+
+            viewModel.togglePin();
+            saveNote(true);
+            return true;
         }
         return false;
     }
@@ -645,5 +666,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         binding.coordinatorLayout.findViewById(R.id.coordinator_layout).setBackgroundColor(colorCode);
         currentColor = colorCode;
         saveNote(true);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            viewModel.addPhoto(uri);
+        }
     }
 }

@@ -14,4 +14,10 @@ public class Photo {
 
     @ColumnInfo(name = "note_id")
     public long noteId = 0L;
+
+    public Photo(long id, String uri, long noteId) {
+        this.id = id;
+        this.uri = uri;
+        this.noteId = noteId;
+    }
 }

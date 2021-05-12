@@ -1,24 +1,41 @@
 package com.hcmus.clc18se.buggynote2.viewmodels;
 
+import android.app.Application;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.net.Uri;
+
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 import timber.log.Timber;
 
-public class NoteDetailsViewModel extends ViewModel {
+public class NoteDetailsViewModel extends AndroidViewModel {
 
     private final long id;
     private final BuggyNoteDao database;
 
-    public NoteDetailsViewModel(long id, BuggyNoteDao database) {
+    public NoteDetailsViewModel(
+            Application application,
+            long id,
+            BuggyNoteDao database
+    ) {
+        super(application);
         this.id = id;
         this.database = database;
     }
@@ -105,6 +122,52 @@ public class NoteDetailsViewModel extends ViewModel {
     public void togglePin() {
         if (note.getValue() != null) {
             note.getValue().note.isPinned = !note.getValue().note.isPinned;
+        }
+    }
+
+    public void addPhoto(Uri uri) {
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            FileOutputStream outputStream = null;
+            FileInputStream inputStream = null;
+
+            ContextWrapper cw = new ContextWrapper(getApplication().getApplicationContext());
+            File directory = cw.getDir("photos", Context.MODE_PRIVATE);
+
+            StringBuilder fileName = new StringBuilder(String.valueOf(System.currentTimeMillis()));
+            File fileDest = new File(directory, fileName.toString());
+
+            while (fileDest.exists()) {
+                fileName.append("0");
+                fileDest = new File(directory, fileName.toString());
+            }
+
+            try {
+                copy(uri, fileDest);
+                File[] files = directory.listFiles((dir, name) -> name.equals(fileName.toString()));
+
+                Photo photo = new Photo(0L, Uri.fromFile(files[0]).toString(), note.getValue().note.id);
+                database.addPhoto(photo);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+
+    }
+
+    public void copy(Uri uri, File dst) throws IOException {
+
+        try (InputStream in = getApplication().getContentResolver().openInputStream(uri)) {
+            try (OutputStream out = new FileOutputStream(dst)) {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+            }
         }
     }
 }

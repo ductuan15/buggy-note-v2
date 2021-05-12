@@ -12,6 +12,7 @@ import androidx.room.Update;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteCrossRef;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 
 import java.util.List;
@@ -75,4 +76,7 @@ public interface BuggyNoteDao {
                     ") order by " + DEFAULT_SORT_ORDER
     )
     List<NoteWithTags> filterNoteByTagList(List<Long> tagIds);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void addPhoto(Photo... photos);
 }

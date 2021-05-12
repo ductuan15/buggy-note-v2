@@ -67,7 +67,11 @@ public class TagSelectionFragment extends Fragment {
 
         noteDetailsViewModel = new ViewModelProvider(
                 backStackEntry,
-                new NoteDetailsViewModelFactory(args.getNoteId(), database)
+                new NoteDetailsViewModelFactory(
+                        requireActivity().getApplication(),
+                        args.getNoteId(),
+                        database
+                )
         ).get(NoteDetailsViewModel.class);
     }
 

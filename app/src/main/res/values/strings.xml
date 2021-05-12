@@ -49,4 +49,5 @@
     <string name="preview">Preview</string>
     <string name="editor">Editor</string>
     <string name="add_new_notification">Add new notification</string>
+    <string name="action_add_photo">Add photo</string>
 </resources>

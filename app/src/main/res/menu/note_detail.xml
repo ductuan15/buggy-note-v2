@@ -2,11 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_share"
-        android:icon="@drawable/ic_baseline_share_24"
-        android:title="@string/share"
-        app:showAsAction="always" />
 
     <item
         android:id="@+id/action_add_notification"
@@ -18,5 +13,17 @@
         android:id="@+id/action_pin"
         android:icon="@drawable/ic_baseline_push_pin_24"
         android:title="@string/action_pin"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_add_photo"
+        android:icon="@drawable/ic_baseline_add_photo_alternate_24"
+        android:title="@string/action_add_photo"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_baseline_share_24"
+        android:title="@string/share"
         app:showAsAction="ifRoom" />
 </menu>
