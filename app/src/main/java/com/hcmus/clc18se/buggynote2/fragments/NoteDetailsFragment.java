@@ -295,7 +295,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
 
-        if (noteWithTags.note.isMarkdown()) {
+        if (noteWithTags != null && noteWithTags.note.isMarkdown()) {
             MarkdownPagerAdapter adapter = (MarkdownPagerAdapter) binding.markdownViewPager.getAdapter();
             try {
                 content = adapter.getEditTextContent().toString();
