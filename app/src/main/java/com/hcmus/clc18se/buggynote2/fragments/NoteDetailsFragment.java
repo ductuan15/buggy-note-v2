@@ -233,17 +233,16 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
                 });
 
-        viewModel.getNavigateToPhotoView().observe(getViewLifecycleOwner(),
-                id -> {
-                    if (id != null) {
-                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
-                                NoteDetailsFragmentDirections.actionNavNoteDetailsToPhotoViewFragment(
-                                        arguments.getNoteId()
-                                )
-                        );
-                        viewModel.doneNavigatingToPhotoView();
-                    }
-                });
+        viewModel.getNavigateToPhotoView().observe(getViewLifecycleOwner(), id -> {
+            if (id != null) {
+                Navigation.findNavController(requireActivity().findViewById(R.id.nav_host_fragment)).navigate(
+                        NoteDetailsFragmentDirections.actionNavNoteDetailsToPhotoViewFragment(
+                                arguments.getNoteId()
+                        )
+                );
+                viewModel.doneNavigatingToPhotoView();
+            }
+        });
 
         viewModel.getDeleteRequest().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state) {
@@ -402,8 +401,9 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             case R.id.action_remove_note: {
                 new MaterialAlertDialogBuilder(requireContext())
                         .setTitle(getString(R.string.remove_from_device))
-                        .setMessage(getString(R.string.remove_confirmation)).setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
-                })
+                        .setMessage(getString(R.string.remove_confirmation))
+                        .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
+                        })
                         .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
                             viewModel.deleteMe();
                         })
@@ -580,7 +580,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             sendIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.share_note));
             sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
             sendIntent.setType(mimeType);
-            startActivity(Intent.createChooser(sendIntent,  getString(R.string.share_to)));
+            startActivity(Intent.createChooser(sendIntent, getString(R.string.share_to)));
         }
     }
 

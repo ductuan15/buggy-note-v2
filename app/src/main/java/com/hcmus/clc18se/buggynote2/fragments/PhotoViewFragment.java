@@ -3,6 +3,9 @@ package com.hcmus.clc18se.buggynote2.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +22,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
@@ -26,7 +30,6 @@ import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentPhotoViewBinding;
-import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 
@@ -46,6 +49,8 @@ public class PhotoViewFragment extends Fragment {
             currentPos = position;
         }
     };
+
+    private ScreenSlidePagerAdapter screenSlidePagerAdapter;
 
     public PhotoViewFragment() {
         super();
@@ -86,8 +91,9 @@ public class PhotoViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
 
+        screenSlidePagerAdapter = new ScreenSlidePagerAdapter(this);
         binding.viewPager.registerOnPageChangeCallback(callback);
-        binding.viewPager.setAdapter(new ScreenSlidePagerAdapter(this));
+        binding.viewPager.setAdapter(screenSlidePagerAdapter);
 
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_CURRENT_POS)) {
             currentPos = savedInstanceState.getInt(BUNDLE_CURRENT_POS);
@@ -96,7 +102,67 @@ public class PhotoViewFragment extends Fragment {
 
     }
 
-    private void initObservers() { }
+    private void initObservers() {
+        viewModel.getPhotoRemovedState().observe(getViewLifecycleOwner(), state -> {
+            if (state) {
+                NoteWithTags note = viewModel.getNote().getValue();
+
+                if (note != null) {
+
+                    List<Photo> photos = note.photos;
+
+                    if (photos != null) {
+                        if (photos.isEmpty()) {
+                            requireActivity().onBackPressed();
+                        }
+                        if (currentPos >= photos.size()) {
+                            currentPos = photos.size() - 1;
+                        }
+                        screenSlidePagerAdapter.notifyItemRemoved(currentPos);
+                    }
+                }
+                else {
+                    requireActivity().onBackPressed();
+                }
+
+                viewModel.doneHandlingPhotoRemove();
+            }
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.photo, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_remove_photo) {
+            onActionRemovePhoto();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void onActionRemovePhoto() {
+        NoteWithTags note = viewModel.getNote().getValue();
+        if (note != null) {
+            List<Photo> photos = note.photos;
+            Photo photo = photos.get(currentPos);
+
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.remove_from_device))
+                    .setMessage(getString(R.string.remove_confirmation))
+                    .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
+                    })
+                    .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
+                        viewModel.removePhoto(photo);
+
+                    })
+                    .show();
+        }
+    }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
 
@@ -126,6 +192,29 @@ public class PhotoViewFragment extends Fragment {
             }
             return 0;
         }
+
+        @Override
+        public long getItemId(int position) {
+            NoteWithTags note = viewModel.getNote().getValue();
+            if (note != null) {
+                return note.photos.get(position).id;
+            }
+            return super.getItemId(position);
+        }
+
+        @Override
+        public boolean containsItem(long itemId) {
+            NoteWithTags note = viewModel.getNote().getValue();
+            if (note != null) {
+                List<Photo> photos = note.photos;
+                for (Photo photo: photos) {
+                    if (photo.id == itemId) {
+                        return true;
+                    }
+                }
+            }
+            return super.containsItem(itemId);
+        }
     }
 
     private static final String BUNDLE_CURRENT_POS = "CURRENT_POS";
@@ -145,6 +234,8 @@ public class PhotoViewFragment extends Fragment {
     private void setUpNavigation() {
         MaterialToolbar toolbar = binding.appBar.toolbar;
         Activity parentActivity = requireActivity();
+
+        setHasOptionsMenu(true);
 
         if (parentActivity instanceof BuggyNoteActivity) {
             ((BuggyNoteActivity) parentActivity).setSupportActionBar(toolbar);

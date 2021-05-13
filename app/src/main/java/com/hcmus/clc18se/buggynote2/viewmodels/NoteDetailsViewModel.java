@@ -167,6 +167,39 @@ public class NoteDetailsViewModel extends AndroidViewModel {
         });
     }
 
+    public void removePhoto(Photo photo) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                File file = new File(Uri.parse(photo.uri).getPath());
+
+                if (file.exists() && (file.delete())) {
+                    database.deletePhoto(photo);
+                    photoRemoved.postValue(true);
+
+                    NoteWithTags note = getNote().getValue();
+                    if (note != null){
+                        List<Photo> photos = note.photos;
+                        photos.remove(photo);
+                    }
+
+                }
+
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private final MutableLiveData<Boolean> photoRemoved = new MutableLiveData<>(false);
+
+    public final LiveData<Boolean> getPhotoRemovedState() {
+        return photoRemoved;
+    }
+
+    public void doneHandlingPhotoRemove() {
+        photoRemoved.postValue(false);
+    }
+
     public void copy(Uri uri, File dst) throws IOException {
 
         try (InputStream in = getApplication().getContentResolver().openInputStream(uri)) {

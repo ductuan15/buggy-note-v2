@@ -106,4 +106,22 @@ public class CheckListItem {
 
         return builder.toString();
     }
+
+    public static final char BALLOT_BOX = '☐';
+    public static final char CHECK_BOX = '☑';
+
+    public static String toReadableString(List<CheckListItem> items) {
+        if (items == null) return "";
+
+        StringBuilder builder = new StringBuilder();
+        for (CheckListItem item :
+                items) {
+            builder.append(item.isChecked ? CHECK_BOX: BALLOT_BOX)
+                    .append('\t')
+                    .append(item.content.replaceAll("\n", ""))
+                    .append('\n');
+        }
+
+        return builder.toString();
+    }
 }

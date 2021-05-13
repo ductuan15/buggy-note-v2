@@ -79,4 +79,7 @@ public interface BuggyNoteDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void addPhoto(Photo... photos);
+
+    @Delete
+    void deletePhoto(Photo... photos);
 }
