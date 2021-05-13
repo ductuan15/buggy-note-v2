@@ -5,8 +5,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
@@ -48,6 +53,7 @@ import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
@@ -59,6 +65,9 @@ import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -515,17 +524,47 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     private void onActionShare() {
-        String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
-        String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
-        String contentShare = title + "\n" + content;
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
-//                sendIntent.setData(contentUri);
-//                sendIntent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
-        sendIntent.setType("*/*");
-        startActivity(Intent.createChooser(sendIntent, "Share to"));
+        String[] items = {"Text", "Image"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle("Choose an item");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0: {
+                        String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
+                        String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
+                        String contentShare = title + "\n" + content;
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
+                        sendIntent.setType("*/*");
+                        startActivity(Intent.createChooser(sendIntent, "Share to"));
+                        break;
+                    }
+                    case 1: {
+                        NoteWithTags noteWithTags = viewModel.getNote().getValue();
+                        if(noteWithTags != null) {
+                            List<Photo> photos = noteWithTags.photos;
+                            ArrayList<Uri> files = new ArrayList<Uri>();
+                            for(Photo image: photos) {
+                                files.add(Uri.parse(image.getUri().replace("file://", "content://")));
+                            }
+                            Intent shareMultiImageIntent = new Intent();
+                            shareMultiImageIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
+                            shareMultiImageIntent.putExtra(Intent.EXTRA_TITLE, "Here are some files.");
+                            shareMultiImageIntent.setType("*/*");
+                            shareMultiImageIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+                            startActivity(Intent.createChooser(shareMultiImageIntent, "Share to:"));
+                        }
+                        break;
+                    }
+                }
+            }
+        });
+
+        builder.create().show();
     }
 
     private void actionFormat(int itemId) {

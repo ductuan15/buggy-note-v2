@@ -51,4 +51,8 @@ public class Photo {
     public int hashCode() {
         return Objects.hash(id, uri, noteId);
     }
+
+    public String getUri() {
+        return uri;
+    }
 }
