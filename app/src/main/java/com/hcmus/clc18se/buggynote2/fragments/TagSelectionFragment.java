@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -35,6 +36,8 @@ public class TagSelectionFragment extends Fragment {
     private TagSelectionViewModel viewModel;
     private NoteDetailsViewModel noteDetailsViewModel;
 
+    BuggyNoteDao database;
+    TagSelectionFragmentArgs args;
 
     private final TagSelectionAdapterCallbacks callbacks = (itemView, isChecked, tag) -> {
         if (tag.isSelectedState() == isChecked) {
@@ -54,11 +57,13 @@ public class TagSelectionFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        NavBackStackEntry backStackEntry = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
-                .getBackStackEntry(R.id.nav_note_details);
 
-        BuggyNoteDao database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
-        TagSelectionFragmentArgs args = TagSelectionFragmentArgs.fromBundle(requireArguments());
+        database = BuggyNoteDatabase.getInstance(requireContext()).buggyNoteDatabaseDao();
+        args = TagSelectionFragmentArgs.fromBundle(requireArguments());
+
+        NavBackStackEntry backStackEntry = Navigation.findNavController(
+                requireActivity().findViewById(R.id.nav_host_fragment))
+                .getBackStackEntry(R.id.nav_note_details);
 
         viewModel = new ViewModelProvider(
                 backStackEntry,
@@ -73,6 +78,7 @@ public class TagSelectionFragment extends Fragment {
                         database
                 )
         ).get(NoteDetailsViewModel.class);
+
     }
 
     @Nullable
@@ -86,10 +92,10 @@ public class TagSelectionFragment extends Fragment {
         binding.setViewModel(viewModel);
 
         viewModel.getChangesOccurred().observe(getViewLifecycleOwner(), isChanged -> {
-                if (isChanged) {
-                    noteDetailsViewModel.requestReloadingData();
+                    if (isChanged) {
+                        noteDetailsViewModel.requestReloadingData();
+                    }
                 }
-            }
         );
 
         binding.tagList.setAdapter(adapter);
@@ -113,6 +119,11 @@ public class TagSelectionFragment extends Fragment {
                     Navigation.findNavController(binding.getRoot()),
                     ((BuggyNoteActivity) parentActivity).getAppBarConfiguration()
             );
+
+            ActionBar actionBar = ((BuggyNoteActivity) requireActivity()).getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setTitle("");
+            }
         }
     }
 }

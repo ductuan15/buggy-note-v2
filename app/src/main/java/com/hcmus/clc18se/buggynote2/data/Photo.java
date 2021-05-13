@@ -6,10 +6,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity(tableName = "photo")
-public class Photo {
+public class Photo implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     public long id = 0L;

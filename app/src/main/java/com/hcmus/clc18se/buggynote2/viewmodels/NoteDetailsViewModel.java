@@ -16,7 +16,6 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,14 +45,14 @@ public class NoteDetailsViewModel extends AndroidViewModel {
         if (note == null) {
             note = database.getNoteFromId(id);
             note.observeForever((note) -> {
-                if (note != null) {
-                    if (note.note.isCheckList()) {
-                        BuggyNoteDatabase.databaseWriteExecutor.execute(() ->
-                                checkListItems.postValue(
-                                        CheckListItem.compileFromNoteContent(note.note.noteContent)
-                                )
-                        );
-                    }
+                if (note != null && note.note.isCheckList()) {
+
+                    BuggyNoteDatabase.databaseWriteExecutor.execute(() ->
+                            checkListItems.postValue(
+                                    CheckListItem.compileFromNoteContent(note.note.noteContent)
+                            )
+                    );
+
                 }
             });
         }
@@ -63,7 +62,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> reloadDataRequest = new MutableLiveData<>(false);
 
     public final LiveData<Boolean> getReloadDataRequestState() {
-        return (LiveData<Boolean>) reloadDataRequest;
+        return reloadDataRequest;
     }
 
     public void requestReloadingData() {
@@ -77,7 +76,13 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     private final MutableLiveData<Long> navigateToTagSelection = new MutableLiveData<>(null);
 
     public final LiveData<Long> getNavigateToTagSelection() {
-        return (LiveData<Long>) navigateToTagSelection;
+        return navigateToTagSelection;
+    }
+
+    private final MutableLiveData<Long> navigateToPhotoView = new MutableLiveData<>(null);
+
+    public final LiveData<Long> getNavigateToPhotoView() {
+        return navigateToPhotoView;
     }
 
     private final MutableLiveData<List<CheckListItem>> checkListItems = new MutableLiveData<>(null);
@@ -92,6 +97,14 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
     public void doneNavigatingToTagSelection() {
         navigateToTagSelection.setValue(null);
+    }
+
+    public void navigateToPhotoView() {
+        navigateToPhotoView.setValue(id);
+    }
+
+    public void doneNavigatingToPhotoView() {
+        navigateToPhotoView.setValue(null);
     }
 
     private final MutableLiveData<Boolean> deleteRequest = new MutableLiveData<>(false);
@@ -128,8 +141,6 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     public void addPhoto(Uri uri) {
 
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
-            FileOutputStream outputStream = null;
-            FileInputStream inputStream = null;
 
             ContextWrapper cw = new ContextWrapper(getApplication().getApplicationContext());
             File directory = cw.getDir("photos", Context.MODE_PRIVATE);
@@ -154,7 +165,6 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             }
 
         });
-
     }
 
     public void copy(Uri uri, File dst) throws IOException {

@@ -5,12 +5,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
@@ -51,6 +46,7 @@ import com.hcmus.clc18se.buggynote2.adapters.CheckListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.MarkdownPagerAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.PhotoListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Photo;
@@ -65,9 +61,6 @@ import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,6 +126,12 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     private final CheckListAdapter checkListAdapter = new CheckListAdapter(checkListAdapterCallbacks);
 
+    private final PhotoListAdapterCallback photoListAdapterCallback = photo -> {
+        viewModel.navigateToPhotoView();
+    };
+
+    private final PhotoListAdapter photoListAdapter = new PhotoListAdapter(photoListAdapterCallback);
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,6 +180,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         initRecyclerViews();
         initObservers();
 
+        binding.executePendingBindings();
         return binding.getRoot();
     }
 
@@ -230,6 +230,18 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                                 )
                         );
                         viewModel.doneNavigatingToTagSelection();
+                    }
+                });
+
+        viewModel.getNavigateToPhotoView().observe(getViewLifecycleOwner(),
+                id -> {
+                    if (id != null) {
+                        Navigation.findNavController(requireActivity(), R.id.nav_host_fragment).navigate(
+                                NoteDetailsFragmentDirections.actionNavNoteDetailsToPhotoViewFragment(
+                                        arguments.getNoteId()
+                                )
+                        );
+                        viewModel.doneNavigatingToPhotoView();
                     }
                 });
 
@@ -288,7 +300,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     private void initRecyclerViews() {
         //RecyclerView checkListRecyclerView = binding.scrollLayout.findViewById()
         binding.checkListRecyclerView.setAdapter(checkListAdapter);
-        binding.photoList.setAdapter(new PhotoListAdapter());
+        binding.photoList.setAdapter(photoListAdapter);
     }
 
     @Override
@@ -562,9 +574,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
                 }
             }
-        });
 
-        builder.create().show();
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TITLE, getString(R.string.share_note));
+            sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
+            sendIntent.setType(mimeType);
+            startActivity(Intent.createChooser(sendIntent,  getString(R.string.share_to)));
+        }
     }
 
     private void actionFormat(int itemId) {
@@ -669,6 +686,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     public static final int PICK_IMAGE_REQUEST_CODE = 0x6969;
+
     private void onActionAddPhoto() {
         Intent intent = new Intent(
                 Intent.ACTION_PICK,

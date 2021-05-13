@@ -198,8 +198,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         binding.setLifecycleOwner(this);
 
-
-
         binding.setNoteViewModel(notesViewModel);
         binding.setTagViewModel(tagsViewModel);
         setUpNavigationBar();
@@ -207,6 +205,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         initRecyclerViews();
         initObservers();
 
+        binding.executePendingBindings();
         return binding.getRoot();
     }
 
