@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
@@ -54,6 +55,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
+import com.hcmus.clc18se.buggynote2.utils.FileUtils;
 import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
@@ -61,12 +63,17 @@ import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import timber.log.Timber;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 
 public class NoteDetailsFragment extends Fragment implements PropertiesBSFragment.Properties {
 
@@ -538,41 +545,89 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     private void onActionShare() {
         String[] items = {"Text", "Image"};
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Choose an item");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0: {
-                        String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
-                        String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
-                        String contentShare = title + "\n" + content;
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        sendIntent.putExtra(Intent.EXTRA_TITLE, "Share note");
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
-                        sendIntent.setType("*/*");
-                        startActivity(Intent.createChooser(sendIntent, "Share to"));
-                        break;
-                    }
-                    case 1: {
-                        NoteWithTags noteWithTags = viewModel.getNote().getValue();
-                        if(noteWithTags != null) {
-                            List<Photo> photos = noteWithTags.photos;
-                            ArrayList<Uri> files = new ArrayList<Uri>();
-                            for(Photo image: photos) {
-                                files.add(Uri.parse(image.getUri().replace("file://", "content://")));
-                            }
-                            Intent shareMultiImageIntent = new Intent();
-                            shareMultiImageIntent.setAction(Intent.ACTION_SEND_MULTIPLE);
-                            shareMultiImageIntent.putExtra(Intent.EXTRA_TITLE, "Here are some files.");
-                            shareMultiImageIntent.setType("*/*");
-                            shareMultiImageIntent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
-                            startActivity(Intent.createChooser(shareMultiImageIntent, "Share to:"));
-                        }
-                        break;
+        builder.setTitle(R.string.choose_an_item);
+        builder.setItems(items, (dialog, which) -> {
+            switch (which) {
+                case 0: {
+                    shareText();
+                    break;
+                }
+                case 1: {
+                    sharePhotos();
+                    break;
+                }
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private void sharePhotos() {
+        NoteWithTags noteWithTags = viewModel.getNote().getValue();
+        if (noteWithTags != null) {
+
+            List<Photo> photos = noteWithTags.photos;
+//            ArrayList<Uri> files = new ArrayList<Uri>();
+//            for (Photo image : photos) {
+//                files.add(Uri.parse(image.getUri().replace("file://", "content://")));
+//            }
+            File filesDir = requireContext().getFilesDir();
+            File shareDir = new File(filesDir, "share");
+            shareDir.mkdir();
+
+            Timber.d(filesDir.toString());
+
+            ArrayList<Uri> uris = new ArrayList<>();
+            for (Photo image : photos) {
+                File fileInPrivate = new File(Uri.parse(image.uri).getPath());
+                File shareFile = new File(shareDir, fileInPrivate.getName());
+
+                if (!shareFile.exists()) {
+                    try {
+                        FileUtils.copy(fileInPrivate, shareFile);
+                        Uri uri = FileProvider.getUriForFile(requireContext(), requireActivity().getPackageName(), shareFile);
+                        uris.add(uri);
+
+                    } catch (Exception ie) {
+                        Timber.d(ie);
                     }
                 }
+                else {
+                    Uri uri = FileProvider.getUriForFile(requireContext(), requireActivity().getPackageName(), shareFile);
+                    uris.add(uri);
+                }
+            }
+
+            if (!uris.isEmpty()) {
+                Intent shareMultiImageIntent = new Intent()
+                        .setAction(Intent.ACTION_SEND_MULTIPLE)
+                        .putExtra(Intent.EXTRA_TITLE, "Here are some files.")
+                        .setType("image/*")
+                        .setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION)
+                        .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                startActivity(Intent.createChooser(shareMultiImageIntent, getString(R.string.share_to)));
+            }
+
+        }
+    }
+
+    private void shareText() {
+        String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
+        String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
+        String contentShare = title + "\n" + content;
+
+        NoteWithTags noteWithTags = viewModel.getNote().getValue();
+        String mimeType = "text/plain";
+
+        if (noteWithTags != null) {
+
+            if (noteWithTags.note.isCheckList()) {
+                // mimeType = "text/*";
+                contentShare = title + "\n" + CheckListItem.toReadableString(
+                        CheckListItem.compileFromNoteContent(content)
+                );
+            } else if (noteWithTags.note.isMarkdown()) {
+                // mimeType = "text/plain";
             }
 
             Intent sendIntent = new Intent();

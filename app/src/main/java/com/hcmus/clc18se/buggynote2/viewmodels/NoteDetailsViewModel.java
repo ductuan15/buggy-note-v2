@@ -1,9 +1,11 @@
 package com.hcmus.clc18se.buggynote2.viewmodels;
 
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
+import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -20,6 +22,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
@@ -122,7 +127,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
                 int nCol = database.removeNote(note.getValue().note);
                 Timber.d("Remove note" + nCol + " affected");
-
+                removePhoto(note.getValue().photos);
                 deleteRequest.postValue(true);
             });
         }
@@ -146,6 +151,19 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             File directory = cw.getDir("photos", Context.MODE_PRIVATE);
 
             StringBuilder fileName = new StringBuilder(String.valueOf(System.currentTimeMillis()));
+
+            ContentResolver cR = getApplication().getContentResolver();
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            String type = mime.getExtensionFromMimeType(cR.getType(uri));
+
+            if (type != null && !type.isEmpty()) {
+                fileName.append('.')
+                        .append(type);
+            }
+
+            //int extensionIdx = uri.getPath().lastIndexOf('.');
+            // int extensionIdx = fileUri.getPath().lastIndexOf('.');
+
             File fileDest = new File(directory, fileName.toString());
 
             while (fileDest.exists()) {
@@ -177,12 +195,44 @@ public class NoteDetailsViewModel extends AndroidViewModel {
                     photoRemoved.postValue(true);
 
                     NoteWithTags note = getNote().getValue();
-                    if (note != null){
+                    if (note != null) {
                         List<Photo> photos = note.photos;
                         photos.remove(photo);
                     }
 
                 }
+
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void removePhoto(List<Photo> photos) {
+        if (photos != null) {
+            return;
+        }
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                List<File> files = new ArrayList<>();
+                for (Photo photo : photos) {
+                    File file = new File(Uri.parse(photo.uri).getPath());
+                    files.add(file);
+                }
+
+                for (File file : files) {
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+                NoteWithTags note = getNote().getValue();
+                if (note != null) {
+                    List<Photo> allPhotos = note.photos;
+                    allPhotos.removeAll(photos);
+                }
+
+                database.deletePhoto(photos.toArray(new Photo[]{}));
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
