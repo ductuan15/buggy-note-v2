@@ -64,6 +64,7 @@ import com.hcmus.clc18se.buggynote2.utils.FileUtils;
 import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.utils.Utils;
+import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
@@ -402,6 +403,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     Navigation.findNavController(binding.getRoot()),
                     ((BuggyNoteActivity) parentActivity).getAppBarConfiguration()
             );
+
         }
     }
 
@@ -826,6 +828,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     public void onColorChanged(int colorCode) {
         binding.coordinatorLayout.findViewById(R.id.coordinator_layout).setBackgroundColor(colorCode);
         currentColor = colorCode;
+        requireActivity().getWindow().setStatusBarColor(colorCode);
         saveNote(true);
     }
 
