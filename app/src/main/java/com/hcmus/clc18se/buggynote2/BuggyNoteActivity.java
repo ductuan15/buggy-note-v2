@@ -11,7 +11,6 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +20,6 @@ import android.view.View;
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;
 import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
-import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 
 public class BuggyNoteActivity extends AppCompatActivity {
 
@@ -40,17 +38,6 @@ public class BuggyNoteActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.getWindow().setStatusBarColor(ViewUtils.getColorAttr(
-                this, R.attr.colorPrimaryVariant
-        ));
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
-                    this, R.attr.colorPrimaryLight
-            ));
-        }
-
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
 
