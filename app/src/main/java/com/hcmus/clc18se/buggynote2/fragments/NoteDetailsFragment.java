@@ -1,11 +1,14 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -22,6 +25,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,18 +59,20 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
+import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 import com.hcmus.clc18se.buggynote2.utils.FileUtils;
 import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
+import com.hcmus.clc18se.buggynote2.utils.Utils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -327,6 +333,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
 
+
         if (noteWithTags != null && noteWithTags.note.isMarkdown()) {
             MarkdownPagerAdapter adapter = (MarkdownPagerAdapter) binding.markdownViewPager.getAdapter();
             try {
@@ -366,7 +373,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     db.updateNote(noteWithTags.note);
                     notesViewModel.requestReloadingData();
                 }
-
             });
         }
 
@@ -536,7 +542,49 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(arrayAdapter);
         builder.setView(promptsView);
-        builder.setPositiveButton(getString(R.string.save), null);
+        builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+
+
+
+                // get save time
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                calendar.setTime(date);
+
+                // set intent to call alarm action
+                AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(requireActivity(), ReminderReceiver.class);
+                Bundle sendData = new Bundle();
+                NoteWithTags noteWithTags = viewModel.getNote().getValue();
+
+                // get note title
+                String noteTitle = "";
+                if(noteWithTags != null)
+                    noteTitle =  noteWithTags.note.title;
+
+                //get time reminder
+                String reminderDateTimeString = Utils.getDateTimeStringFromCalender(calendar);
+
+                // put data into Intent
+                intent.setAction("note_alarm");
+                sendData.putLong("note_id", arguments.getNoteId());
+                sendData.putSerializable("calendar",calendar);
+                sendData.putString("note_title",noteTitle);
+                intent.putExtras(sendData);
+
+                // set up AlarmManager
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), ReminderReceiver.REQUIRE_CODE, intent, PendingIntent.FLAG_ONE_SHOT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                } else {
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+                }
+                Toast.makeText(requireContext(),"Set reminder at:" + reminderDateTimeString,Toast.LENGTH_SHORT).show();
+            }
+        });
         builder.setNegativeButton(getString(R.string.cancel), null);
         AlertDialog addNotification = builder.create();
         addNotification.show();
@@ -591,8 +639,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     } catch (Exception ie) {
                         Timber.d(ie);
                     }
-                }
-                else {
+                } else {
                     Uri uri = FileProvider.getUriForFile(requireContext(), requireActivity().getPackageName(), shareFile);
                     uris.add(uri);
                 }

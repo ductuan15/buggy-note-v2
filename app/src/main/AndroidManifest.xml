@@ -30,6 +30,14 @@
                 android:resource="@xml/provider_path"/>
         </provider>
 
+        <activity android:name=".AlarmActivity" />
+
+        <receiver
+            android:name=".utils.ReminderReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote"
+            android:permission="TODO" />
     </application>
 
 </manifest>
