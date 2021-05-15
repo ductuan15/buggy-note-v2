@@ -22,22 +22,27 @@ import java.util.Calendar;
 
 
 public class ReminderReceiver extends BroadcastReceiver {
-    // TODO: Fix this line
-    public static final int REQUIRE_CODE = 1;
-    Long noteID;
+    long noteID;
     String noteTitle;
     String reminderDateTimeString;
     NotificationManagerCompat notificationManager;
-    String CHANNEL_ID = "1";
+    String CHANNEL_ID = "Note_reminder_id";
+    static String ACTION_REMINDER = "note_alarm";
+
+
+    NotificationCompat.Action snoozeAction;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().compareTo("note_alarm") == 0) {
+        if (intent.getAction().compareTo(ACTION_REMINDER) == 0) {
             Bundle receivedData = intent.getExtras();
             getReceivedData(receivedData);
 
             notificationManager = NotificationManagerCompat.from(context);
+
+            setUpNotificationActions(context);
             setUpNotification(context);
+            ReminderMusicControl.getInstance(context).playMusic(context);
 
         }
     }
@@ -53,12 +58,24 @@ public class ReminderReceiver extends BroadcastReceiver {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             CharSequence name = "Note notification";
             String description = "Note notification";
-            int importance = 0;
-            importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name,NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(description);
+            channel.enableLights(true);
+            channel.setShowBadge(true);
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    public void setUpNotificationActions(Context context) {
+        Intent snoozeIntent = new Intent(context, SnoozeReceiver.class);
+        snoozeIntent.setAction(SnoozeReceiver.ACTION_SNOOZE);
+        snoozeIntent.putExtra("note_id",noteID);
+        PendingIntent snoozePendingIntent =
+                PendingIntent.getBroadcast(context, (int) noteID, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        snoozeAction = new NotificationCompat.Action.Builder(R.drawable.ic_archive,
+                "Snooze", snoozePendingIntent)
+                .build();
     }
 
     public void setUpNotification(Context context) {
@@ -66,17 +83,20 @@ public class ReminderReceiver extends BroadcastReceiver {
         Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
                 fullScreenIntent, PendingIntent.FLAG_ONE_SHOT);
+
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_archive)
                 .setContentTitle(noteTitle)
                 .setContentText(reminderDateTimeString)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setSound(alarmSound, AudioManager.STREAM_ALARM)
-                .setFullScreenIntent(fullScreenPendingIntent, true);
+                .setFullScreenIntent(fullScreenPendingIntent, true)
+                .setVibrate(new long[0])
+                .addAction(snoozeAction);
         setChannel();
         builder.setSound(alarmSound);
-        notificationManager.notify(2, builder.build());
+        notificationManager.notify((int) noteID, builder.build());
     }
 
 }
