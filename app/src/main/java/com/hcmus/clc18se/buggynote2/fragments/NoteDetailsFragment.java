@@ -578,7 +578,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 intent.putExtras(sendData);
 
                 // set up AlarmManager
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), ReminderReceiver.REQUIRE_CODE, intent, PendingIntent.FLAG_ONE_SHOT);
+                // TODO: bug here if ID is to large
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), (int) arguments.getNoteId(),intent, PendingIntent.FLAG_ONE_SHOT);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 } else {

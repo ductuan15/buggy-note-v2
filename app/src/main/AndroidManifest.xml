@@ -10,6 +10,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BuggyNote2">
+
         <activity
             android:name=".BuggyNoteActivity"
             android:theme="@style/Theme.BuggyNote2.NoActionBar">
@@ -21,13 +22,13 @@
         </activity>
 
         <provider
-            android:authorities="com.hcmus.clc18se.buggynote2.debug"
             android:name="androidx.core.content.FileProvider"
-            android:grantUriPermissions="true"
-            android:exported="false">
+            android:authorities="com.hcmus.clc18se.buggynote2.debug"
+            android:exported="false"
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_path"/>
+                android:resource="@xml/provider_path" />
         </provider>
 
         <activity android:name=".AlarmActivity" />
@@ -36,8 +37,14 @@
             android:name=".utils.ReminderReceiver"
             android:enabled="true"
             android:exported="true"
-            android:process=":remote"
-            android:permission="TODO" />
+            android:permission="TODO"
+            android:process=":remote" />
+        <receiver
+            android:name=".utils.SnoozeReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote" />
+
     </application>
 
 </manifest>
