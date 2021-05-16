@@ -102,7 +102,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     private Menu menu;
 
     private PropertiesBSFragment propertiesBSFragment;
-    int currentColorIdx;
+    Integer currentColorIdx = null;
 
     private final CheckListAdapterCallbacks checkListAdapterCallbacks = new CheckListAdapterCallbacks() {
         @Override
@@ -410,7 +410,10 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
 
                     noteWithTags.note.lastModify = System.currentTimeMillis();
-                    noteWithTags.note.colorIdx = currentColorIdx;
+
+                    if (currentColorIdx != null) {
+                        noteWithTags.note.colorIdx = currentColorIdx;
+                    }
 
                     Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
