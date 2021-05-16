@@ -33,7 +33,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
@@ -103,7 +102,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     private Menu menu;
 
     private PropertiesBSFragment propertiesBSFragment;
-    int currentColor;
+    int currentColorIdx;
 
     private final CheckListAdapterCallbacks checkListAdapterCallbacks = new CheckListAdapterCallbacks() {
         @Override
@@ -412,8 +411,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
 
                     noteWithTags.note.lastModify = System.currentTimeMillis();
-                    // TODO: save color
-                    // noteWithTags.note.color = currentColor;
+                    noteWithTags.note.colorIdx = currentColorIdx;
 
                     Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
@@ -454,29 +452,38 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     private final Toolbar.OnMenuItemClickListener bottomAppBarClickListener = item -> {
         int itemId = item.getItemId();
-        if (itemId == R.id.action_add_tag) {
-            viewModel.navigateToTagSelection();
-            return true;
-        } else if (itemId == R.id.action_remove_note) {
-            new MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.remove_from_device))
-                    .setMessage(getString(R.string.remove_confirmation))
-                    .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
-                    })
-                    .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
-                        viewModel.deleteMe();
-                    })
-                    .show();
-            return true;
-        } else if (itemId == R.id.action_set_bold || itemId == R.id.action_set_italic || itemId == R.id.action_set_font_type || itemId == R.id.action_alignment) {
-            actionFormat(item.getItemId());
-            return true;
-        } else if (itemId == R.id.action_set_color) {
-            showBottomSheetDialogFragment(propertiesBSFragment);
-            return true;
-        } else if (itemId == R.id.action_share) {
-            onActionShare();
-            return true;
+        switch (itemId) {
+            case R.id.action_add_tag: {
+                viewModel.navigateToTagSelection();
+                return true;
+            }
+            case R.id.action_remove_note: {
+                new MaterialAlertDialogBuilder(requireContext())
+                        .setTitle(getString(R.string.remove_from_device))
+                        .setMessage(getString(R.string.remove_confirmation))
+                        .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
+                        })
+                        .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
+                            viewModel.deleteMe();
+                        })
+                        .show();
+                return true;
+            }
+            case R.id.action_set_bold:
+            case R.id.action_set_italic:
+            case R.id.action_set_font_type:
+            case R.id.action_alignment: {
+                actionFormat(item.getItemId());
+                return true;
+            }
+            case R.id.action_set_color: {
+                showBottomSheetDialogFragment(propertiesBSFragment);
+                return true;
+            }
+            case R.id.action_share: {
+                onActionShare();
+                return true;
+            }
         }
         return false;
     };
@@ -652,10 +659,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         if (noteWithTags != null) {
 
             List<Photo> photos = noteWithTags.photos;
-//            ArrayList<Uri> files = new ArrayList<Uri>();
-//            for (Photo image : photos) {
-//                files.add(Uri.parse(image.getUri().replace("file://", "content://")));
-//            }
             File filesDir = requireContext().getFilesDir();
             File shareDir = new File(filesDir, "share");
             shareDir.mkdir();
@@ -710,8 +713,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 contentShare = title + "\n" + CheckListItem.toReadableString(
                         CheckListItem.compileFromNoteContent(content)
                 );
-            } else if (noteWithTags.note.isMarkdown()) {
-                // mimeType = "text/plain";
+            } else {
+                noteWithTags.note.isMarkdown();// mimeType = "text/plain";
             }
 
             Intent sendIntent = new Intent();
@@ -819,11 +822,10 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     != PackageManager.PERMISSION_GRANTED) {
                 if (shouldShowRequestPermissionRationale(
                         Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_READ_PERMISSION_FROM_PICK_SOUND);
+                    return true;
                 }
-
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        REQUEST_READ_PERMISSION_FROM_PICK_SOUND);
-                return true;
             }
             onActionAddSound();
             return true;
@@ -843,7 +845,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     public static final int PICK_AUDIO_REQUEST_CODE = 0x4949;
 
-    private void onActionAddSound(){
+    private void onActionAddSound() {
         Intent intent = new Intent(
                 Intent.ACTION_PICK,
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
@@ -878,10 +880,15 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     @Override
     public void onColorChanged(int colorCode) {
-        binding.coordinatorLayout.findViewById(R.id.coordinator_layout).setBackgroundColor(colorCode);
-        currentColor = colorCode;
-        requireActivity().getWindow().setStatusBarColor(colorCode);
-        saveNote(true);
+        int[] colors = getResources().getIntArray(R.array.note_color);
+
+        for (int i = 0; i < colors.length; i++) {
+            if (colors[i] == colorCode) {
+                currentColorIdx = i;
+                saveNote(true);
+                return;
+            }
+        }
     }
 
     @Override
@@ -906,4 +913,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             }
         }
     }
+
+
 }

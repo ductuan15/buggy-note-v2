@@ -8,4 +8,11 @@
         <item>@color/note_dark_white</item>
     </array>
 
+    <array name="note_title_color">
+        <item>@color/note_title_blue</item>
+        <item>@color/note_title_green</item>
+        <item>@color/note_title_yellow</item>
+        <item>@color/note_title_red</item>
+        <item>@color/white_A80</item>
+    </array>
 </resources>

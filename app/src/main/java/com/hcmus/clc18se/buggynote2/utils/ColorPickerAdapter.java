@@ -107,27 +107,13 @@ public class ColorPickerAdapter extends RecyclerView.Adapter<ColorPickerAdapter.
     }
 
     public static List<Integer> getDefaultColors(Context context) {
-        ArrayList<Integer> colorPickerColors = new ArrayList<>();
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.red_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.pink_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.purple_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.dark_purple_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.indigo_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.blue_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.light_blue_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.cyan_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.teal_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.green_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.light_green_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.lime_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.yellow_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.amber_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.orange_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.deep_orange_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.brown_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.grey_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.blue_grey_500));
-        colorPickerColors.add(ContextCompat.getColor(context, R.color.white));
-        return colorPickerColors;
+        int[] colors = context.getResources().getIntArray(R.array.note_color);
+
+        List<Integer> colorList = new ArrayList<>(colors.length);
+        for (int color : colors) {
+            colorList.add(color);
+        }
+
+        return colorList;
     }
 }
