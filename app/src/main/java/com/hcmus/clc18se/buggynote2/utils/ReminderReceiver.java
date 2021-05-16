@@ -6,12 +6,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -27,8 +23,11 @@ public class ReminderReceiver extends BroadcastReceiver {
     String noteTitle;
     String reminderDateTimeString;
 
-    static String CHANNEL_ID = "Note_reminder_id";
-    static String ACTION_REMINDER = "note_alarm";
+    public final static String NOTE_TITLE_KEY = "note_title";
+    public final static String NOTE_DATE_TIME_KEY = "note_datetime";
+
+    final static String CHANNEL_ID = "Note_reminder_id";
+    final static String ACTION_REMINDER = "note_alarm";
 
     NotificationManagerCompat notificationManager;
     NotificationCompat.Builder builder;
@@ -41,12 +40,6 @@ public class ReminderReceiver extends BroadcastReceiver {
             getReceivedData(receivedData);
 
             notificationManager = NotificationManagerCompat.from(context);
-
-
-//            if(!isLockedScreen){
-//                PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"BuggyNote_2:note_alarm");
-//                wl.acquire(5000);
-//            }
 
             builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
@@ -91,10 +84,6 @@ public class ReminderReceiver extends BroadcastReceiver {
     }
 
     public void setUpNotification(Context context) {
-        Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
-        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
-                fullScreenIntent, PendingIntent.FLAG_ONE_SHOT);
-
 
         builder.setSmallIcon(R.drawable.ic_archive)
                 .setContentTitle(noteTitle)
@@ -115,6 +104,10 @@ public class ReminderReceiver extends BroadcastReceiver {
 
     public void setFullScreenIntent(Context context) {
         Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(NOTE_TITLE_KEY,noteTitle);
+        bundle.putString(NOTE_DATE_TIME_KEY,reminderDateTimeString);
+        fullScreenIntent.putExtras(bundle);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, (int) noteID, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setFullScreenIntent(fullScreenPendingIntent, true);
     }

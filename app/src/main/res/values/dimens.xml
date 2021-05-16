@@ -6,4 +6,7 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <dimen name="item_note_margin">2dp</dimen>
+    <dimen name="snooze_dismiss_button_size">20sp</dimen>
+    <dimen name="dismiss_chip_minHeight">30dp</dimen>
+    <dimen name="dismiss_chip_horizontal_padding">12dp</dimen>
 </resources>
