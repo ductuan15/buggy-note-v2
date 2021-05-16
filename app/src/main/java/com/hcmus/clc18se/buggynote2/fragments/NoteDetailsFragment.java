@@ -417,7 +417,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
                     Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
-                    notesViewModel.requestReloadingData();
+                    notesViewModel.requestReloadingItem(noteWithTags.note.id);
                 }
             });
         }

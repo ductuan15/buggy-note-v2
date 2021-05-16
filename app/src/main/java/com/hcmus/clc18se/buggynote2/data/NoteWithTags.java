@@ -83,4 +83,10 @@ public class NoteWithTags {
     private long getId() {
         return note.id;
     }
+
+    public void shallowCopy(NoteWithTags src) {
+        note = src.note;
+        photos = src.photos;
+        audios = src.audios;
+    }
 }

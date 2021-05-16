@@ -62,6 +62,25 @@ public class NotesViewModel extends AndroidViewModel {
         loadNotesFromDatabase();
     }
 
+    public void loadNoteId(Long id) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            List<NoteWithTags> noteListValue = noteList.getValue();
+
+            if (noteListValue != null) {
+
+                for (int i = 0; i < noteListValue.size(); ++i) {
+
+                    if (noteListValue.get(i).note.getId() == id) {
+                        NoteWithTags note = database.getNoteFromId(id);
+                        if (note != null) {
+                            noteListValue.get(i).shallowCopy(note);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private void loadNotesFromDatabase() {
 
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
@@ -177,6 +196,20 @@ public class NotesViewModel extends AndroidViewModel {
 
     public void doneRequestingLoadData() {
         reloadDataRequest.setValue(false);
+    }
+
+    private final MutableLiveData<Long> reloadItemRequest = new MutableLiveData<>(null);
+
+    public final LiveData<Long> getReloadItemRequest() {
+        return reloadItemRequest;
+    }
+
+    public void requestReloadingItem(Long id) {
+        reloadItemRequest.postValue(id);
+    }
+
+    public void doneRequestReloadingItem() {
+        reloadItemRequest.setValue(null);
     }
 
     private final MutableLiveData<Boolean> orderChanged = new MutableLiveData<>(false);

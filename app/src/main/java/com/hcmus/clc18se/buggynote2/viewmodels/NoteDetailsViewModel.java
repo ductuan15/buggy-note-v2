@@ -23,8 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,7 +47,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
     public LiveData<NoteWithTags> getNote() {
         if (note == null) {
-            note = database.getNoteFromId(id);
+            note = database.getNoteLiveDataFromId(id);
             note.observeForever((note) -> {
                 if (note != null && note.note.isCheckList()) {
 
@@ -147,7 +145,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     }
 
     public void reloadNote() {
-        note = database.getNoteFromId(id);
+        note = database.getNoteLiveDataFromId(id);
     }
 
     public void togglePin() {

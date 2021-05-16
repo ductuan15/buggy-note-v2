@@ -249,11 +249,22 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                     notesViewModel.loadNotes();
                 }
 
-                notesViewModel.doneRequestingLoadData();
-
                 binding.noteList.invalidate();
                 binding.noteList.requestLayout();
 
+                notesViewModel.doneRequestingLoadData();
+            }
+        });
+
+        notesViewModel.getReloadItemRequest().observe(getViewLifecycleOwner(), id -> {
+            if (id != null) {
+                // get the adapter position of the note
+                notesViewModel.loadNoteId(id);
+
+                findItemToNotifyChange(id, pinnedNotesAdapter);
+                findItemToNotifyChange(id, unpinnedNotesAdapter);
+
+                notesViewModel.doneRequestReloadingItem();
             }
         });
 
@@ -280,6 +291,17 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 notesViewModel.doneNavigatingToNoteDetails();
             }
         });
+    }
+
+    private void findItemToNotifyChange(Long id, NoteAdapter adapter) {
+        List<NoteWithTags> noteList = adapter.getCurrentList();
+
+        for (int i = 0; i < noteList.size(); ++i) {
+            if (noteList.get(i).note.getId() == id) {
+                adapter.notifyItemChanged(i);
+                return;
+            }
+        }
     }
 
     @Override
