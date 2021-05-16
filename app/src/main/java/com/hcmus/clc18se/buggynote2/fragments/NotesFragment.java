@@ -517,7 +517,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                     requireContext(), R.attr.colorPrimaryVariant
             ));
 
-            ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+            ViewUtils.setLightStatusBarFlagFromColor(requireActivity().getWindow().getDecorView(), requireActivity());
             return true;
         }
 
@@ -634,7 +634,11 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
 
-            ViewUtils.setLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+            requireActivity().getWindow().setStatusBarColor(
+                    ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+            );
+
+            ViewUtils.setLightStatusBarFlagFromColor(requireActivity().getWindow().getDecorView(), requireActivity());
 
             requireActivity().getWindow().setStatusBarColor(
                     ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)

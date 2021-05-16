@@ -395,7 +395,7 @@ public class ArchivedFragment extends Fragment {
 
             binding.getRoot().setBackgroundResource(R.drawable.multi_selection_background);
 
-            ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
+            ViewUtils.setLightStatusBarFlagFromColor(requireActivity().getWindow().getDecorView(), requireActivity());
 
             actionMode = mode;
             requireActivity().getMenuInflater().inflate(R.menu.archive_context, menu);
@@ -468,11 +468,11 @@ public class ArchivedFragment extends Fragment {
         public void onDestroyActionMode(ActionMode mode) {
             archivedNoteAdapter.finishSelection();
 
-            ViewUtils.setLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
-
             requireActivity().getWindow().setStatusBarColor(
                     ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
             );
+
+            ViewUtils.setLightStatusBarFlagFromColor(requireActivity().getWindow().getDecorView(), requireActivity());
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
