@@ -28,6 +28,7 @@ import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.TagChipBinding;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
+import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -236,6 +237,32 @@ public class BindingAdapters {
                                           @Nullable @ColorInt Integer color) {
         if (color != null) {
             view.setBackgroundColor(color);
+        } else {
+            int colorSurface = ViewUtils.getColorAttr(view.getContext(), R.attr.colorSurface);
+            view.setBackgroundColor(colorSurface);
+        }
+    }
+
+    @BindingAdapter("noteColor")
+    public static void setBackgroundColorFromNote(@NonNull View view,
+                                                  @Nullable Note note) {
+        if (note != null) {
+            setBackgroundColor(view, note.getColor(view.getContext()));
+        }
+    }
+
+    @BindingAdapter("textColorFromNote")
+    public static void setTextColorFromNote(@NonNull TextView view,
+                                            @Nullable Note note) {
+        if (note != null) {
+
+            Integer titleColor = note.getTitleColor(view.getContext());
+            if (titleColor != null) {
+                view.setTextColor(titleColor);
+            }  else {
+                int colorSurface = ViewUtils.getColorAttr(view.getContext(), R.attr.colorOnSurface);
+                view.setTextColor(colorSurface);
+            }
         }
     }
 
@@ -352,8 +379,7 @@ public class BindingAdapters {
             int index = uri.getPath().lastIndexOf("/");
             if (index != -1) {
                 textView.setText(uri.getPath().substring(index));
-            }
-            else{
+            } else {
                 textView.setText(uri.getPath());
             }
         }

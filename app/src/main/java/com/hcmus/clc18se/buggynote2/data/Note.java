@@ -51,29 +51,16 @@ public class Note {
 
     /**
      * Prior to database schema version 6:
-     *   - Color value of the note.
+     * - Color value of the note.
      * From version 6:
-     *   - Indicate the index of the color from `R.array.note_color` to support dark mode.
-     *   - When the value is `null`, the color of the note is control by R.attr.colorSurface.
-     *
+     * - Indicate the index of the color from `R.array.note_color` to support dark mode.
+     * - When the value is `null`, the color of the note is control by R.attr.colorSurface.
      */
     @ColumnInfo(name = "color", defaultValue = "null")
     public Integer colorIdx = new Random().nextInt(4);
 
     @ColumnInfo(defaultValue = "0")
     public int type = 0;
-
-    /**
-     * Color of the note
-     */
-    @Ignore
-    private Integer color = null;
-
-    /**
-     * title color of the note
-     */
-    @Ignore
-    private Integer titleColor = null;
 
     @Ignore
     public static final int N_REMOVING_DAYS = 30;
@@ -104,30 +91,21 @@ public class Note {
 
     public Integer getColor(Context context) {
         if (colorIdx == null) return null;
-        if (color == null) {
-            int[] colorArr = context.getResources().getIntArray(R.array.note_color);
-            int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
-            if (colorIdx > 0 && colorIdx < colorArr.length) {
-                color = colorArr[colorIdx];
-                titleColor = titleColorArr[colorIdx];
-                return color;
-            }
+        int[] colorArr = context.getResources().getIntArray(R.array.note_color);
+        if (colorIdx > 0 && colorIdx < colorArr.length) {
+            return colorArr[colorIdx];
         }
-        return color;
+
+        return null;
     }
 
     public Integer getTitleColor(Context context) {
         if (colorIdx == null) return null;
-        if (titleColor == null) {
-            int[] colorArr = context.getResources().getIntArray(R.array.note_color);
-            int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
-            if (colorIdx > 0 && colorIdx < colorArr.length) {
-                color = colorArr[colorIdx];
-                titleColor = titleColorArr[colorIdx];
-                return titleColor;
-            }
+        int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
+        if (colorIdx > 0 && colorIdx < titleColorArr.length) {
+            return titleColorArr[colorIdx];
         }
-        return titleColor;
+        return null;
     }
 
     public long getId() {

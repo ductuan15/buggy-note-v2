@@ -10,12 +10,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
-import android.app.Activity;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
 
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;

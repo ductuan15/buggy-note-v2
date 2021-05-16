@@ -18,14 +18,15 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator_layout"
-        backgroundColor="@{noteDetailsViewModel.note.note.color}"
+        noteColor="@{noteDetailsViewModel.note.note}"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?colorSurface">
 
         <include
             android:id="@+id/app_bar"
-            layout="@layout/app_bar_main" />
+            layout="@layout/app_bar_main"
+            app:note="@{noteDetailsViewModel.note}" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scroll_layout"
@@ -97,6 +98,7 @@
                         android:id="@+id/text_view_title"
                         style="?textAppearanceHeadline4"
                         noteTitleFormat="@{noteDetailsViewModel.note}"
+                        textColorFromNote="@{noteDetailsViewModel.note.note}"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:autofillHints=""
@@ -113,7 +115,7 @@
                 <!--                CHECK LIST-->
                 <LinearLayout
                     android:id="@+id/add_check_list_layout"
-                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
+                    noteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -123,9 +125,10 @@
 
                     <ImageButton
                         android:id="@+id/add_tag_icon"
-                        backgroundColor="@{noteDetailsViewModel.note.note.color}"
+                        noteColor="@{noteDetailsViewModel.note.note}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:background="?colorSurface"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_add_24"
                         tools:ignore="ContentDescription" />
@@ -156,9 +159,10 @@
 
                     <ImageButton
                         android:id="@+id/add_check_list_done"
-                        backgroundColor="@{noteDetailsViewModel.note.note.color}"
+                        noteColor="@{noteDetailsViewModel.note.note}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:background="?colorSurface"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_done_24"
                         tools:ignore="ContentDescription" />
@@ -180,7 +184,7 @@
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabs"
                     style="@style/Widget.MaterialComponents.TabLayout"
-                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
+                    noteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -191,7 +195,7 @@
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/markdown_view_pager"
-                    backgroundColor="@{noteDetailsViewModel.note.note.color}"
+                    noteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -267,7 +271,7 @@
 
         <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_bar"
-            backgroundColor="@{noteDetailsViewModel.note.note.color}"
+            noteColor="@{noteDetailsViewModel.note.note}"
             android:layout_width="match_parent"
             android:layout_height="?actionBarSize"
             android:layout_gravity="bottom"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. -->
+    <style name="Theme.Base.BuggyNote2" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+<!--        <item name="actionBarItemBackground">?colorOnPrimary</item>-->
+        <item name="actionModeBackground">?colorPrimary</item>
+        <item name="actionModeStyle">@style/Theme.BuggyNote2.ActionModeOverlay</item>
+    </style>
+</resources>

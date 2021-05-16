@@ -65,9 +65,9 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
-import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 import com.hcmus.clc18se.buggynote2.utils.FileUtils;
 import com.hcmus.clc18se.buggynote2.utils.PropertiesBSFragment;
+import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.utils.Utils;
 import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
@@ -235,6 +235,11 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             if (noteWithTags != null) {
                 updateMenu();
                 setUpViewPagerWhenNoteIsMarkDown(noteWithTags);
+
+                Integer color = noteWithTags.note.getColor(requireContext());
+                if (color != null) {
+                    requireActivity().getWindow().setStatusBarColor(color);
+                }
             }
         });
 
@@ -272,7 +277,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
         viewModel.getNavigateToAudioView().observe(getViewLifecycleOwner(), id -> {
             if (id != null) {
-                // TODO: NAVIGATE đến Màn Hình PLAYAUDIO
                 Navigation.findNavController(requireActivity().findViewById(R.id.nav_host_fragment)).navigate(
                         NoteDetailsFragmentDirections.actionNavNoteDetailsToAudioViewFragment(
                                 arguments.getNoteId()
@@ -352,6 +356,21 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         saveNote(false);
     }
 
+    @Override
+    public void onDestroy() {
+        NoteWithTags noteWithTags = viewModel.getNote().getValue();
+        if (noteWithTags != null) {
+            Integer color = noteWithTags.note.getColor(requireContext());
+            if (color != null) {
+                requireActivity().getWindow().setStatusBarColor(
+                        ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+                );
+            }
+        }
+
+        super.onDestroy();
+    }
+
     void saveNote(boolean require) {
 
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
@@ -393,7 +412,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                     }
 
                     noteWithTags.note.lastModify = System.currentTimeMillis();
-                    noteWithTags.note.color = currentColor;
+                    // TODO: save color
+                    // noteWithTags.note.color = currentColor;
 
                     Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
@@ -433,39 +453,30 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     private final Toolbar.OnMenuItemClickListener bottomAppBarClickListener = item -> {
-        switch (item.getItemId()) {
-            case R.id.action_add_tag: {
-                viewModel.navigateToTagSelection();
-                return true;
-            }
-            case R.id.action_remove_note: {
-                new MaterialAlertDialogBuilder(requireContext())
-                        .setTitle(getString(R.string.remove_from_device))
-                        .setMessage(getString(R.string.remove_confirmation))
-                        .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
-                        })
-                        .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
-                            viewModel.deleteMe();
-                        })
-                        .show();
-                return true;
-            }
-            case R.id.action_set_bold:
-            case R.id.action_set_italic:
-            case R.id.action_set_font_type:
-            case R.id.action_alignment: {
-                actionFormat(item.getItemId());
-                return true;
-            }
-            case R.id.action_set_color: {
-                showBottomSheetDialogFragment(propertiesBSFragment);
-                return true;
-            }
-            case R.id.action_share: {
-                onActionShare();
-                return true;
-            }
-
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_add_tag) {
+            viewModel.navigateToTagSelection();
+            return true;
+        } else if (itemId == R.id.action_remove_note) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.remove_from_device))
+                    .setMessage(getString(R.string.remove_confirmation))
+                    .setNegativeButton(getResources().getString(R.string.cancel), (dialog, which) -> {
+                    })
+                    .setPositiveButton(getResources().getString(R.string.remove), (dialog, which) -> {
+                        viewModel.deleteMe();
+                    })
+                    .show();
+            return true;
+        } else if (itemId == R.id.action_set_bold || itemId == R.id.action_set_italic || itemId == R.id.action_set_font_type || itemId == R.id.action_alignment) {
+            actionFormat(item.getItemId());
+            return true;
+        } else if (itemId == R.id.action_set_color) {
+            showBottomSheetDialogFragment(propertiesBSFragment);
+            return true;
+        } else if (itemId == R.id.action_share) {
+            onActionShare();
+            return true;
         }
         return false;
     };
@@ -574,8 +585,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             public void onClick(DialogInterface dialog, int which) {
 
 
-
-
                 // get save time
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTimeInMillis(System.currentTimeMillis());
@@ -589,8 +598,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
                 // get note title
                 String noteTitle = "";
-                if(noteWithTags != null)
-                    noteTitle =  noteWithTags.note.title;
+                if (noteWithTags != null)
+                    noteTitle = noteWithTags.note.title;
 
                 //get time reminder
                 String reminderDateTimeString = Utils.getDateTimeStringFromCalender(calendar);
@@ -598,19 +607,19 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 // put data into Intent
                 intent.setAction("note_alarm");
                 sendData.putLong("note_id", arguments.getNoteId());
-                sendData.putSerializable("calendar",calendar);
-                sendData.putString("note_title",noteTitle);
+                sendData.putSerializable("calendar", calendar);
+                sendData.putString("note_title", noteTitle);
                 intent.putExtras(sendData);
 
                 // set up AlarmManager
                 // TODO: bug here if ID is to large
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), (int) arguments.getNoteId(),intent, PendingIntent.FLAG_ONE_SHOT);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), (int) arguments.getNoteId(), intent, PendingIntent.FLAG_ONE_SHOT);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 } else {
                     alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
                 }
-                Toast.makeText(requireContext(),"Set reminder at:" + reminderDateTimeString,Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Set reminder at:" + reminderDateTimeString, Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
@@ -725,19 +734,14 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 formatter = noteWithTags.getContentFormat();
             }
 
-            switch (itemId) {
-                case R.id.action_set_bold:
-                    formatter.toggleBold();
-                    break;
-                case R.id.action_set_italic:
-                    formatter.toggleItalic();
-                    break;
-                case R.id.action_set_font_type:
-                    formatter.toggleFontType();
-                    break;
-                case R.id.action_alignment:
-                    formatter.toggleAlignment();
-                    break;
+            if (itemId == R.id.action_set_bold) {
+                formatter.toggleBold();
+            } else if (itemId == R.id.action_set_italic) {
+                formatter.toggleItalic();
+            } else if (itemId == R.id.action_set_font_type) {
+                formatter.toggleFontType();
+            } else if (itemId == R.id.action_alignment) {
+                formatter.toggleAlignment();
             }
 
             if (targetId == R.id.text_view_title) {
@@ -796,37 +800,33 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-
-            case R.id.action_pin: {
-                if (onActionPin(item)) return true;
-            }
-            case R.id.action_share: {
-                onActionShare();
-                return true;
-            }
-            case R.id.action_add_notification: {
-                onActionNotification();
-                return true;
-            }
-            case R.id.action_add_photo: {
-                onActionAddPhoto();
-                return true;
-            }
-            case R.id.action_add_sound: {
-                if (ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.READ_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-                    if (shouldShowRequestPermissionRationale(
-                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    }
-
-                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            REQUEST_READ_PERMISSION_FROM_PICK_SOUND);
-                    return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.action_pin) {
+            if (onActionPin(item)) return true;
+            onActionShare();
+            return true;
+        } else if (itemId == R.id.action_share) {
+            onActionShare();
+            return true;
+        } else if (itemId == R.id.action_add_notification) {
+            onActionNotification();
+            return true;
+        } else if (itemId == R.id.action_add_photo) {
+            onActionAddPhoto();
+            return true;
+        } else if (itemId == R.id.action_add_sound) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 }
-                onActionAddSound();
+
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        REQUEST_READ_PERMISSION_FROM_PICK_SOUND);
                 return true;
             }
+            onActionAddSound();
+            return true;
         }
         return false;
     }

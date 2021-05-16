@@ -24,6 +24,7 @@
             android:id="@+id/note_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:typeface="monospace"
             android:layout_marginTop="8dp"
             android:autofillHints=""
             android:focusable="true"

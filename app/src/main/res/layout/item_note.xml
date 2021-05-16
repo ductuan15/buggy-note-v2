@@ -32,7 +32,7 @@
         app:strokeWidth="1dp">
 
         <LinearLayout
-            backgroundColor="@{note.note.color}"
+            noteColor="@{note.note}"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -41,6 +41,7 @@
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/title"
                 noteTitleFormat="@{note}"
+                textColorFromNote="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
@@ -54,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:itemCount="2"
+                tools:itemCount="0"
                 tools:listitem="@layout/item_check_list_preview" />
 
             <TextView
