@@ -377,7 +377,6 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
 
-
         if (noteWithTags != null && noteWithTags.note.isMarkdown()) {
             MarkdownPagerAdapter adapter = (MarkdownPagerAdapter) binding.markdownViewPager.getAdapter();
             try {
@@ -885,6 +884,16 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         for (int i = 0; i < colors.length; i++) {
             if (colors[i] == colorCode) {
                 currentColorIdx = i;
+
+                // Change the checkbox tint
+                NoteWithTags noteWithTags = viewModel.getNote().getValue();
+                if (noteWithTags != null && noteWithTags.note.isCheckList()) {
+                    noteWithTags.note.colorIdx = currentColorIdx;
+                    BindingAdapters.setCheckboxTintColorForAdapter(binding.checkListRecyclerView, noteWithTags.note);
+                    checkListAdapter.notifyDataSetChanged();
+
+                }
+
                 saveNote(true);
                 return;
             }

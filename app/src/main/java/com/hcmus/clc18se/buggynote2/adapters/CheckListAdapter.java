@@ -1,12 +1,9 @@
 package com.hcmus.clc18se.buggynote2.adapters;
 
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,6 +22,8 @@ public class CheckListAdapter extends ListAdapter<CheckListItem, CheckListAdapte
 
     private ItemCheckListBinding currentFocusedView = null;
     private CheckListItem currentFocusedItem = null;
+    // The tint color of compound button view
+    private Integer buttonTintColor;
 
     public void setCurrentFocusedView(
             ItemCheckListBinding currentFocusedView,
@@ -64,7 +63,12 @@ public class CheckListAdapter extends ListAdapter<CheckListItem, CheckListAdapte
         holder.binding.listContent.setOnFocusChangeListener((v, hasFocus) -> callbacks.onFocus(holder.binding, hasFocus, item));
         holder.binding.checkbox.setOnCheckedChangeListener((v, isChecked) -> callbacks.onCheckedChanged(v, isChecked, item));
 
-        holder.bind(item);
+        holder.bind(item, buttonTintColor);
+    }
+
+
+    public void setButtonTint(Integer buttonTint) {
+        this.buttonTintColor = buttonTint;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -75,8 +79,10 @@ public class CheckListAdapter extends ListAdapter<CheckListItem, CheckListAdapte
             this.binding = binding;
         }
 
-        public void bind(CheckListItem item) {
+        public void bind(CheckListItem item, Integer checkboxColor) {
             binding.setCheckListItem(item);
+            binding.setColor(checkboxColor);
+            binding.executePendingBindings();
         }
 
         public static ViewHolder from(ViewGroup parent) {

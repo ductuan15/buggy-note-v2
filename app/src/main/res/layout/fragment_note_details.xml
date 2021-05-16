@@ -87,6 +87,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/title_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                    boxStrokeFromNoteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsNotMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -115,7 +116,7 @@
                 <!--                CHECK LIST-->
                 <LinearLayout
                     android:id="@+id/add_check_list_layout"
-                    noteColor="@{noteDetailsViewModel.note.note}"
+                    android:background="@android:color/transparent"
                     visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -125,10 +126,9 @@
 
                     <ImageButton
                         android:id="@+id/add_tag_icon"
-                        noteColor="@{noteDetailsViewModel.note.note}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?colorSurface"
+                        android:background="@android:color/transparent"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_add_24"
                         tools:ignore="ContentDescription" />
@@ -136,12 +136,13 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/add_check_list_text_layout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        boxStrokeFromNoteColor="@{noteDetailsViewModel.note.note}"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:background="@android:color/transparent"
                         android:orientation="horizontal"
                         app:boxStrokeWidth="0dp"
-                        app:errorContentDescription="@string/exist_tag"
                         app:errorEnabled="false"
                         app:hintEnabled="false">
 
@@ -149,6 +150,7 @@
                             android:id="@+id/add_check_list_content"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
                             android:hint="@string/add_a_check_list_item"
                             android:inputType="text"
                             android:labelFor="@id/add_tag_layout"
@@ -159,10 +161,9 @@
 
                     <ImageButton
                         android:id="@+id/add_check_list_done"
-                        noteColor="@{noteDetailsViewModel.note.note}"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:background="?colorSurface"
+                        android:background="@android:color/transparent"
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_done_24"
                         tools:ignore="ContentDescription" />
@@ -170,6 +171,7 @@
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/check_list_recycler_view"
+                    checkboxTintForAdapter="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -206,6 +208,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/content_layout"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    boxStrokeFromNoteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsPlainText="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

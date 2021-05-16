@@ -1,10 +1,12 @@
 package com.hcmus.clc18se.buggynote2.adapters;
 
+import android.content.res.ColorStateList;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
@@ -99,9 +102,6 @@ public class BindingAdapters {
 
             Typeface typeface;
             switch (formatter.getTypefaceType()) {
-                case TextFormatter.TYPEFACE_SERIF:
-                    typeface = Typeface.SERIF;
-                    break;
                 case TextFormatter.TYPEFACE_SANS_SERIF:
                     typeface = Typeface.SANS_SERIF;
                     break;
@@ -259,9 +259,45 @@ public class BindingAdapters {
             Integer titleColor = note.getTitleColor(view.getContext());
             if (titleColor != null) {
                 view.setTextColor(titleColor);
-            }  else {
+            } else {
                 int colorSurface = ViewUtils.getColorAttr(view.getContext(), R.attr.colorOnSurface);
                 view.setTextColor(colorSurface);
+            }
+        }
+    }
+
+    @BindingAdapter("buttonTintFromColorRes")
+    public static void setButtonTintColor(@NonNull CompoundButton btn,
+                                          @Nullable @ColorInt Integer color) {
+        if (color != null) {
+            btn.setButtonTintList(ColorStateList.valueOf(color));
+        }
+    }
+
+    @BindingAdapter("boxStrokeFromNoteColor")
+    public static void setBoxStrokeColor(@NonNull TextInputLayout inputLayout,
+                                         @Nullable Note note) {
+        if (note != null) {
+            Integer color = note.getTitleColor(inputLayout.getContext());
+            if (color != null) {
+                inputLayout.setBoxStrokeColor(color);
+            }
+        }
+    }
+
+    @BindingAdapter("checkboxTintForAdapter")
+    public static void setCheckboxTintColorForAdapter(@NonNull RecyclerView recyclerView,
+                                                      @Nullable Note note) {
+        if (note != null) {
+            RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
+            if (adapter instanceof CheckListAdapter) {
+                ((CheckListAdapter) adapter).setButtonTint(
+                        note.getTitleColor(recyclerView.getContext())
+                );
+            } else if (adapter instanceof CheckListPreviewAdapter) {
+                ((CheckListPreviewAdapter) adapter).setButtonTint(
+                        note.getTitleColor(recyclerView.getContext())
+                );
             }
         }
     }

@@ -50,8 +50,10 @@
                 tools:text="Title" />
 
             <androidx.recyclerview.widget.RecyclerView
-                displayCheckList="@{note.note}"
+                android:visibility="gone"
                 visibleWhenNoteIsCheckList="@{note.note}"
+                displayCheckList="@{note.note}"
+                checkboxTintForAdapter="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

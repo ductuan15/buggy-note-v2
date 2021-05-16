@@ -92,7 +92,7 @@ public class Note {
     public Integer getColor(Context context) {
         if (colorIdx == null) return null;
         int[] colorArr = context.getResources().getIntArray(R.array.note_color);
-        if (colorIdx > 0 && colorIdx < colorArr.length) {
+        if (colorIdx >= 0 && colorIdx < colorArr.length) {
             return colorArr[colorIdx];
         }
 

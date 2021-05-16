@@ -14,6 +14,10 @@ import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListPreviewBinding;
 public class CheckListPreviewAdapter extends ListAdapter<CheckListItem, CheckListPreviewAdapter.ViewHolder> {
 
     public static final int MAX_ITEM = 5;
+    private Integer buttonTintColor;
+    public void setButtonTint(Integer buttonTint) {
+        this.buttonTintColor = buttonTint;
+    }
 
     public CheckListPreviewAdapter() {
         super(CheckListItem.diffCallback);
@@ -38,7 +42,7 @@ public class CheckListPreviewAdapter extends ListAdapter<CheckListItem, CheckLis
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CheckListItem item = getItem(position);
-        holder.bind(item);
+        holder.bind(item, buttonTintColor);
     }
 
 
@@ -50,8 +54,10 @@ public class CheckListPreviewAdapter extends ListAdapter<CheckListItem, CheckLis
             this.binding = binding;
         }
 
-        public void bind(CheckListItem item) {
+        public void bind(CheckListItem item, Integer checkboxColor) {
             binding.setCheckListItem(item);
+            binding.setColor(checkboxColor);
+            binding.executePendingBindings();
         }
 
         public static ViewHolder from(ViewGroup parent) {

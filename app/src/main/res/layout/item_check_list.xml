@@ -8,6 +8,10 @@
         <variable
             name="checkListItem"
             type="com.hcmus.clc18se.buggynote2.data.CheckListItem" />
+
+        <variable
+            name="color"
+            type="Integer" />
     </data>
 
     <LinearLayout
@@ -17,7 +21,8 @@
         android:paddingStart="8dp"
         android:paddingEnd="0dp">
 
-        <CheckBox
+        <com.google.android.material.checkbox.MaterialCheckBox
+            buttonTintFromColorRes="@{color}"
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -31,7 +36,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="?colorSurface"
+            android:background="@android:color/transparent"
             android:focusable="true"
             android:inputType="text|textLongMessage|textMultiLine|textImeMultiLine"
             android:labelFor="@id/add_tag_layout"
@@ -46,7 +51,7 @@
             android:id="@+id/remove_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="?colorSurface"
+            android:background="@android:color/transparent"
             android:paddingHorizontal="16dp"
             android:src="@drawable/ic_baseline_delete_24"
             android:visibility="invisible"
