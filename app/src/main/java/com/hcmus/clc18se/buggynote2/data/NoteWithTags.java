@@ -34,9 +34,9 @@ public class NoteWithTags {
     @Relation(
             parentColumn = "note_id",
             entityColumn = "note_id",
-            entity = Photo.class
+            entity = Audio.class
     )
-    public List<Photo> audios;
+    public List<Audio> audios;
 
     public TextFormatter getTitleFormat() {
         if (this.note.titleFormat.isEmpty()) {

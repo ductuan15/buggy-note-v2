@@ -22,6 +22,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_add_sound"
+        android:icon="@drawable/ic_baseline_audiotrack_24"
+        android:title="@string/add_sound"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_baseline_share_24"
         android:title="@string/share"

@@ -11,6 +11,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Photo;
@@ -86,8 +87,14 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Long> navigateToPhotoView = new MutableLiveData<>(null);
 
+    private final MutableLiveData<Long> navigateToAudioView = new MutableLiveData<>(null);
+
     public final LiveData<Long> getNavigateToPhotoView() {
         return navigateToPhotoView;
+    }
+
+    public final LiveData<Long> getNavigateToAudioView() {
+        return navigateToAudioView;
     }
 
     private final MutableLiveData<List<CheckListItem>> checkListItems = new MutableLiveData<>(null);
@@ -108,8 +115,14 @@ public class NoteDetailsViewModel extends AndroidViewModel {
         navigateToPhotoView.setValue(id);
     }
 
+    public void navigateToAudioView() { navigateToAudioView.setValue(id); }
+
     public void doneNavigatingToPhotoView() {
         navigateToPhotoView.setValue(null);
+    }
+
+    public void doneNavigatingToAudioView() {
+        navigateToAudioView.setValue(null);
     }
 
     private final MutableLiveData<Boolean> deleteRequest = new MutableLiveData<>(false);
@@ -208,6 +221,71 @@ public class NoteDetailsViewModel extends AndroidViewModel {
         });
     }
 
+    public void addAudio(Uri uri) {
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+
+            ContextWrapper cw = new ContextWrapper(getApplication().getApplicationContext());
+            File directory = cw.getDir("audios", Context.MODE_PRIVATE);
+
+            StringBuilder fileName = new StringBuilder(String.valueOf(System.currentTimeMillis()));
+
+            ContentResolver cR = getApplication().getContentResolver();
+            MimeTypeMap mime = MimeTypeMap.getSingleton();
+            String type = mime.getExtensionFromMimeType(cR.getType(uri));
+
+            if (type != null && !type.isEmpty()) {
+                fileName.append('.')
+                        .append(type);
+            }
+
+            //int extensionIdx = uri.getPath().lastIndexOf('.');
+            // int extensionIdx = fileUri.getPath().lastIndexOf('.');
+
+            File fileDest = new File(directory, fileName.toString());
+
+            while (fileDest.exists()) {
+                fileName.append("0");
+                fileDest = new File(directory, fileName.toString());
+            }
+
+            try {
+                copy(uri, fileDest);
+                File[] files = directory.listFiles((dir, name) -> name.equals(fileName.toString()));
+
+                Audio audio = new Audio(0L, Uri.fromFile(files[0]).toString(), note.getValue().note.id);
+                database.addAudio(audio);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
+    }
+
+    public void removeAudio(Audio audio) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                File file = new File(Uri.parse(audio.uri).getPath());
+
+                if (file.exists() && (file.delete())) {
+                    database.deleteAudio(audio);
+                    photoRemoved.postValue(true);
+
+                    NoteWithTags note = getNote().getValue();
+                    if (note != null) {
+                        List<Audio> audios = note.audios;
+                        audios.remove(audio);
+                    }
+
+                }
+
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     public void removePhoto(List<Photo> photos) {
         if (photos != null) {
             return;
@@ -242,12 +320,22 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
     private final MutableLiveData<Boolean> photoRemoved = new MutableLiveData<>(false);
 
+    private final MutableLiveData<Boolean> audioRemoved = new MutableLiveData<>(false);
+
     public final LiveData<Boolean> getPhotoRemovedState() {
         return photoRemoved;
     }
 
+    public final LiveData<Boolean> getAudioRemovedState() {
+        return audioRemoved;
+    }
+
     public void doneHandlingPhotoRemove() {
         photoRemoved.postValue(false);
+    }
+
+    public void doneHandlingAudioRemove() {
+        audioRemoved.postValue(false);
     }
 
     public void copy(Uri uri, File dst) throws IOException {
