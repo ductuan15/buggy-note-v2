@@ -13,25 +13,27 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.hcmus.clc18se.buggynote2.utils.ReminderMusicControl;
+
 
 public class AlarmActivity extends AppCompatActivity implements View.OnClickListener {
     Button button;
     Ringtone r;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alarm);
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-        r.play();
-       button = findViewById(R.id.stop_alarm);
+        ReminderMusicControl.getInstance(this).playMusic(this);
+        button = findViewById(R.id.stop_alarm);
         button.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if(v == button){
-            r.stop();
+        if (v == button) {
+            ReminderMusicControl.getInstance(this).stopMusic();
+            finish();
         }
     }
 }

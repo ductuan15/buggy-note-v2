@@ -3,6 +3,7 @@ package com.hcmus.clc18se.buggynote2.utils;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
+import android.os.PowerManager;
 
 import com.hcmus.clc18se.buggynote2.R;
 
@@ -19,7 +20,11 @@ public class ReminderMusicControl {
     }
 
     public void playMusic(Context context) {
-        mMediaPlayer = MediaPlayer.create(context, R.raw.renai);
+        if(mMediaPlayer == null){
+            mMediaPlayer = MediaPlayer.create(context, R.raw.renai);
+        }
+        if(mMediaPlayer.isPlaying())
+            mMediaPlayer.stop();
         mMediaPlayer.start();
     }
 

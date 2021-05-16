@@ -10,6 +10,7 @@ import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
@@ -25,11 +26,12 @@ public class ReminderReceiver extends BroadcastReceiver {
     long noteID;
     String noteTitle;
     String reminderDateTimeString;
-    NotificationManagerCompat notificationManager;
-    String CHANNEL_ID = "Note_reminder_id";
+
+    static String CHANNEL_ID = "Note_reminder_id";
     static String ACTION_REMINDER = "note_alarm";
 
-
+    NotificationManagerCompat notificationManager;
+    NotificationCompat.Builder builder;
     NotificationCompat.Action snoozeAction;
 
     @Override
@@ -40,9 +42,18 @@ public class ReminderReceiver extends BroadcastReceiver {
 
             notificationManager = NotificationManagerCompat.from(context);
 
+
+//            if(!isLockedScreen){
+//                PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"BuggyNote_2:note_alarm");
+//                wl.acquire(5000);
+//            }
+
+            builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+
+            setFullScreenIntent(context);
             setUpNotificationActions(context);
             setUpNotification(context);
-            ReminderMusicControl.getInstance(context).playMusic(context);
+
 
         }
     }
@@ -58,10 +69,11 @@ public class ReminderReceiver extends BroadcastReceiver {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             CharSequence name = "Note notification";
             String description = "Note notification";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name,NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(description);
             channel.enableLights(true);
             channel.setShowBadge(true);
+            channel.setVibrationPattern(new long[5]);
             notificationManager.createNotificationChannel(channel);
         }
     }
@@ -69,7 +81,7 @@ public class ReminderReceiver extends BroadcastReceiver {
     public void setUpNotificationActions(Context context) {
         Intent snoozeIntent = new Intent(context, SnoozeReceiver.class);
         snoozeIntent.setAction(SnoozeReceiver.ACTION_SNOOZE);
-        snoozeIntent.putExtra("note_id",noteID);
+        snoozeIntent.putExtra("note_id", noteID);
         PendingIntent snoozePendingIntent =
                 PendingIntent.getBroadcast(context, (int) noteID, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -79,24 +91,32 @@ public class ReminderReceiver extends BroadcastReceiver {
     }
 
     public void setUpNotification(Context context) {
-        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
                 fullScreenIntent, PendingIntent.FLAG_ONE_SHOT);
 
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_archive)
+        builder.setSmallIcon(R.drawable.ic_archive)
                 .setContentTitle(noteTitle)
                 .setContentText(reminderDateTimeString)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .setFullScreenIntent(fullScreenPendingIntent, true)
-                .setVibrate(new long[0])
                 .addAction(snoozeAction);
         setChannel();
-        builder.setSound(alarmSound);
+        builder.setAutoCancel(true);
+        builder.setOngoing(true);
         notificationManager.notify((int) noteID, builder.build());
+
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        boolean isScreenOn = pm.isInteractive();
+        if(isScreenOn)
+            ReminderMusicControl.getInstance(context).playMusic(context);
+    }
+
+    public void setFullScreenIntent(Context context) {
+        Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
+        PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, (int) noteID, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setFullScreenIntent(fullScreenPendingIntent, true);
     }
 
 }
