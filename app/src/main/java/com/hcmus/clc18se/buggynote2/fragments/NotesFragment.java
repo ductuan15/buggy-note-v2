@@ -495,16 +495,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                     requireContext(), R.attr.colorPrimaryVariant
             ));
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().getWindow().setNavigationBarColor(ViewUtils.getColorAttr(
-                        requireContext(), R.attr.colorPrimaryLight
-                ));
-            }
-
-            binding.outer.setBackgroundColor(ViewUtils.getColorAttr(
-                    requireContext(), R.attr.colorPrimaryLight
-            ));
-
             ViewUtils.unsetLightStatusBar(requireActivity().getWindow().getDecorView(), requireActivity());
             return true;
         }

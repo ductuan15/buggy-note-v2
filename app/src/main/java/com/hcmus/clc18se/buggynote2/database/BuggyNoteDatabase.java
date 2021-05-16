@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
             NoteCrossRef.class,
             Photo.class,
             Audio.class},
-        version = 5)
+        version = 6)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
@@ -43,6 +43,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_2_3)
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
+                            .addMigrations(MIGRATION_5_6)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -77,6 +78,13 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE IF NOT EXISTS `photo` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT, `note_id` INTEGER NOT NULL)");
             database.execSQL("CREATE TABLE IF NOT EXISTS `audio` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT, `note_id` INTEGER NOT NULL)");
+        }
+    };
+
+    public static Migration MIGRATION_5_6 = new Migration(5, 6) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("UPDATE `note` SET `color` = NULL");
         }
     };
 
