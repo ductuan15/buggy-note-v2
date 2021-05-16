@@ -1,4 +1,4 @@
-package com.hcmus.clc18se.buggynote2.utils;
+package com.hcmus.clc18se.buggynote2.utils.views;
 
 import android.animation.Animator;
 import android.view.View;

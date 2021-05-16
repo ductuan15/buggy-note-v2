@@ -1,12 +1,5 @@
 package com.hcmus.clc18se.buggynote2.utils;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
-
-import androidx.loader.content.CursorLoader;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

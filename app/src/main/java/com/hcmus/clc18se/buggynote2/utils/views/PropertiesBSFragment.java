@@ -1,4 +1,4 @@
-package com.hcmus.clc18se.buggynote2.utils;
+package com.hcmus.clc18se.buggynote2.utils.views;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.utils.views.ColorPickerAdapter;
 
 public class PropertiesBSFragment extends BottomSheetDialogFragment {
 

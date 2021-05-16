@@ -1,4 +1,4 @@
-package com.hcmus.clc18se.buggynote2.utils;
+package com.hcmus.clc18se.buggynote2.utils.views;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.utils.ContextUtils;
 
 public class ViewUtils {
 

@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
@@ -46,20 +45,18 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
-import com.hcmus.clc18se.buggynote2.utils.OnBackPressed;
+import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
+import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
-import com.hcmus.clc18se.buggynote2.utils.ViewAnimation;
-import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
+import com.hcmus.clc18se.buggynote2.utils.views.ViewAnimation;
+import com.hcmus.clc18se.buggynote2.utils.views.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.TagsViewModelFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import timber.log.Timber;
 
@@ -81,7 +78,9 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public boolean onMultipleSelect(NoteWithTags note) {
-            // TODO: lock the drawer
+            if (requireActivity() instanceof ControllableDrawerActivity) {
+                ((ControllableDrawerActivity) requireActivity()).lockTheDrawer();
+            }
             invalidateCab();
             return false;
         }
@@ -657,10 +656,9 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             pinnedNotesAdapter.finishSelection();
             unpinnedNotesAdapter.finishSelection();
 
-//            Activity parentActivity = requireActivity();
-//            if (parentActivity instanceof ControllableDrawerActivity) {
-//                parentActivity.unlockTheDrawer();
-//            }
+            if (requireActivity() instanceof ControllableDrawerActivity) {
+                ((ControllableDrawerActivity) requireActivity()).unlockTheDrawer();
+            }
 
             actionMode = null;
         }

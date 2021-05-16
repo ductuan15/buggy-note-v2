@@ -36,12 +36,12 @@ import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteItemTouchHelperCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
-import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentTrashBinding;
 import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
-import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
+import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
+import com.hcmus.clc18se.buggynote2.utils.views.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.TagsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
@@ -69,7 +69,9 @@ public class TrashFragment extends Fragment {
 
         @Override
         public boolean onMultipleSelect(NoteWithTags note) {
-            // TODO: lock the drawer
+            if (requireActivity() instanceof ControllableDrawerActivity) {
+                ((ControllableDrawerActivity) requireActivity()).lockTheDrawer();
+            }
             invalidateCab();
             return false;
         }
@@ -435,10 +437,9 @@ public class TrashFragment extends Fragment {
                     requireContext(), R.attr.colorSurface
             ));
 
-//            Activity parentActivity = requireActivity();
-//            if (parentActivity instanceof ControllableDrawerActivity) {
-//                parentActivity.unlockTheDrawer();
-//            }
+            if (requireActivity() instanceof ControllableDrawerActivity) {
+                ((ControllableDrawerActivity) requireActivity()).unlockTheDrawer();
+            }
 
             actionMode = null;
         }

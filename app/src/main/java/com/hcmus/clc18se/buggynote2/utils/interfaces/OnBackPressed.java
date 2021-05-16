@@ -1,4 +1,4 @@
-package com.hcmus.clc18se.buggynote2.utils;
+package com.hcmus.clc18se.buggynote2.utils.interfaces;
 
 public interface OnBackPressed {
     boolean onBackPressed();

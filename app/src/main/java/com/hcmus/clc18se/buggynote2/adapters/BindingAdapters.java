@@ -32,7 +32,7 @@ import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.databinding.TagChipBinding;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
-import com.hcmus.clc18se.buggynote2.utils.ViewUtils;
+import com.hcmus.clc18se.buggynote2.utils.views.ViewUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
