@@ -9,6 +9,7 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteCrossRef;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
@@ -82,4 +83,10 @@ public interface BuggyNoteDao {
 
     @Delete
     void deletePhoto(Photo... photos);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void addAudio(Audio... audios);
+
+    @Delete
+    void deleteAudio(Audio... audios);
 }

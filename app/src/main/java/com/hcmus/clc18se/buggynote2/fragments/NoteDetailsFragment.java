@@ -1,5 +1,6 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -7,6 +8,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +33,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -46,10 +50,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.adapters.AudioListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.BindingAdapters;
 import com.hcmus.clc18se.buggynote2.adapters.CheckListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.MarkdownPagerAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.AudioListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.PhotoListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
@@ -145,6 +151,12 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     };
 
     private final PhotoListAdapter photoListAdapter = new PhotoListAdapter(photoListAdapterCallback);
+
+    private final AudioListAdapterCallback audioListAdapterCallback = audio -> {
+        viewModel.navigateToAudioView();
+    };
+
+    private final AudioListAdapter audioListAdapter = new AudioListAdapter(audioListAdapterCallback);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -258,6 +270,18 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             }
         });
 
+        viewModel.getNavigateToAudioView().observe(getViewLifecycleOwner(), id -> {
+            if (id != null) {
+                // TODO: NAVIGATE đến Màn Hình PLAYAUDIO
+                Navigation.findNavController(requireActivity().findViewById(R.id.nav_host_fragment)).navigate(
+                        NoteDetailsFragmentDirections.actionNavNoteDetailsToAudioViewFragment(
+                                arguments.getNoteId()
+                        )
+                );
+                viewModel.doneNavigatingToAudioView();
+            }
+        });
+
         viewModel.getDeleteRequest().observe(getViewLifecycleOwner(), state -> {
             if (state != null && state) {
                 notesViewModel.requestReloadingData();
@@ -314,6 +338,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         //RecyclerView checkListRecyclerView = binding.scrollLayout.findViewById()
         binding.checkListRecyclerView.setAdapter(checkListAdapter);
         binding.photoList.setAdapter(photoListAdapter);
+        binding.audioList.setAdapter(audioListAdapter);
     }
 
     @Override
@@ -767,6 +792,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         }
     }
 
+    public static final int REQUEST_READ_PERMISSION_FROM_PICK_SOUND = 0x4545;
+
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -786,6 +813,20 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 onActionAddPhoto();
                 return true;
             }
+            case R.id.action_add_sound: {
+                if (ContextCompat.checkSelfPermission(requireContext(),Manifest.permission.READ_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    if (shouldShowRequestPermissionRationale(
+                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    }
+
+                    requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            REQUEST_READ_PERMISSION_FROM_PICK_SOUND);
+                    return true;
+                }
+                onActionAddSound();
+                return true;
+            }
         }
         return false;
     }
@@ -798,6 +839,16 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         );
         startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+    }
+
+    public static final int PICK_AUDIO_REQUEST_CODE = 0x4949;
+
+    private void onActionAddSound(){
+        Intent intent = new Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+        );
+        startActivityForResult(intent, PICK_AUDIO_REQUEST_CODE);
     }
 
     private boolean onActionPin(@NonNull MenuItem item) {
@@ -839,6 +890,20 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             viewModel.addPhoto(uri);
+        }
+        if (requestCode == PICK_AUDIO_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            Uri uri = data.getData();
+            viewModel.addAudio(uri);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, @NonNull final String[] permissions, @NonNull final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_READ_PERMISSION_FROM_PICK_SOUND) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                onActionAddSound();
+            }
         }
     }
 }

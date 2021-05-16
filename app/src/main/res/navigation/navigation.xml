@@ -55,6 +55,10 @@
                 android:id="@+id/action_nav_note_details_to_photoViewFragment"
                 app:destination="@id/photoViewFragment"
                 app:popUpTo="@id/nav_note_details" />
+            <action
+                android:id="@+id/action_nav_note_details_to_audioViewFragment"
+                app:destination="@id/audioViewFragment"
+                app:popUpTo="@id/nav_note_details" />
         </fragment>
 
         <fragment
@@ -70,6 +74,14 @@
             android:id="@+id/photoViewFragment"
             android:name="com.hcmus.clc18se.buggynote2.fragments.PhotoViewFragment"
             android:label="PhotoViewFragment">
+            <argument
+                android:name="noteId"
+                app:argType="long" />
+        </fragment>
+        <fragment
+            android:id="@+id/audioViewFragment"
+            android:name="com.hcmus.clc18se.buggynote2.fragments.AudioViewFragment"
+            android:label="AudioViewFragment">
             <argument
                 android:name="noteId"
                 app:argType="long" />

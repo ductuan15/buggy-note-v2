@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
@@ -344,6 +345,20 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("loadNameAudio")
+    public static void loadNameAudio(@NonNull TextView textView, @Nullable Audio audio) {
+        if (audio != null) {
+            Uri uri = Uri.parse(audio.uri);
+            int index = uri.getPath().lastIndexOf("/");
+            if (index != -1) {
+                textView.setText(uri.getPath().substring(index));
+            }
+            else{
+                textView.setText(uri.getPath());
+            }
+        }
+    }
+
     @BindingAdapter("loadPhotoList")
     public static void loadPhotoList(@NonNull RecyclerView recyclerView,
                                      @Nullable List<Photo> photos) {
@@ -351,6 +366,17 @@ public class BindingAdapters {
             RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
             if (adapter instanceof PhotoListAdapter) {
                 ((PhotoListAdapter) adapter).submitList(photos);
+            }
+        }
+    }
+
+    @BindingAdapter("loadAudioList")
+    public static void loadAudioList(@NonNull RecyclerView recyclerView,
+                                     @Nullable List<Audio> audios) {
+        if (audios != null) {
+            RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
+            if (adapter instanceof AudioListAdapter) {
+                ((AudioListAdapter) adapter).submitList(audios);
             }
         }
     }
