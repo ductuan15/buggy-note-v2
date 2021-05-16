@@ -1,6 +1,7 @@
 package com.hcmus.clc18se.buggynote2.adapters;
 
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -13,12 +14,14 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.databinding.BindingAdapter;
 import androidx.recyclerview.widget.ConcatAdapter;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.tabs.TabLayout;
@@ -459,4 +462,56 @@ public class BindingAdapters {
         }
     }
 
+    @BindingAdapter("colorFromNoteColor")
+    public static void setColorFromNoteColor(@NonNull MaterialCardView cardView,
+                                             @Nullable NoteWithTags note) {
+        if (note != null) {
+            Integer titleColor = note.note.getTitleColor(cardView.getContext());
+            Integer color = note.note.getColor(cardView.getContext());
+
+            if (titleColor != null) {
+                int[][] foreGroundStates = new int[][]{
+                        new int[]{android.R.attr.state_checked},
+                        new int[]{R.attr.state_dragged},
+                        new int[]{-android.R.attr.state_checked, -R.attr.state_dragged},
+                };
+
+                int[][] rippleColorStates = new int[][]{
+                        new int[]{android.R.attr.state_checked},
+                        new int[]{R.attr.state_dragged},
+                        new int[]{-android.R.attr.state_checked},
+                };
+
+                int[][] strokeColorStates = new int[][]{
+                        new int[]{-android.R.attr.state_checked},
+                        new int[]{R.attr.state_dragged},
+                        new int[]{android.R.attr.state_checked},
+                };
+
+                int blackA08 = ColorUtils.setAlphaComponent(Color.BLACK, 21);
+                int[] foreGroundColors = new int[]{blackA08,
+                        color,
+                        Color.TRANSPARENT
+                };
+
+                int colorOnSurfaceA20 = ColorUtils.setAlphaComponent(color, 51);
+                int colorSurfaceA20 = ColorUtils.setAlphaComponent(titleColor, 51);
+                int[] rippleColors = new int[]{ colorSurfaceA20,
+                        Color.TRANSPARENT,
+                        colorOnSurfaceA20,
+                };
+
+                int[] strokeColors = new int[]{blackA08,
+                        colorOnSurfaceA20,
+                        titleColor,
+                        titleColor
+                };
+                cardView.setCheckedIconTint(ColorStateList.valueOf(titleColor));
+                cardView.setCardForegroundColor(new ColorStateList(foreGroundStates, foreGroundColors));
+                cardView.setRippleColor(new ColorStateList(rippleColorStates, rippleColors));
+                cardView.setStrokeColor(new ColorStateList(strokeColorStates, strokeColors));
+
+            }
+        }
+    }
 }

@@ -21,6 +21,7 @@
     </data>
 
     <com.hcmus.clc18se.buggynote2.utils.InterceptTouchCardView
+        colorFromNoteColor="@{note}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/item_note_margin"
@@ -28,7 +29,6 @@
         android:clickable="true"
         android:focusable="true"
         app:cardElevation="0dp"
-        app:strokeColor="@drawable/stroke_color"
         app:strokeWidth="1dp">
 
         <LinearLayout
