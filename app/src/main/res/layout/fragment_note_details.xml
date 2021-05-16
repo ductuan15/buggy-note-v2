@@ -116,11 +116,11 @@
                 <!--                CHECK LIST-->
                 <LinearLayout
                     android:id="@+id/add_check_list_layout"
-                    android:background="@android:color/transparent"
                     visibleWhenNoteIsCheckList="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
                     android:orientation="horizontal"
                     tools:visibility="gone">
 
@@ -186,21 +186,21 @@
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/tabs"
                     style="@style/Widget.MaterialComponents.TabLayout"
-                    noteColor="@{noteDetailsViewModel.note.note}"
+                    tabSelectedTextColorFromNote="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
                     app:tabInlineLabel="true"
-                    app:tabSelectedTextColor="?colorPrimary"
                     app:tabTextColor="?colorOnSurface"
                     tools:visibility="gone" />
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/markdown_view_pager"
-                    noteColor="@{noteDetailsViewModel.note.note}"
                     visibleWhenNoteIsMarkdown="@{noteDetailsViewModel.note.note}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
                     tools:visibility="visible" />
 
                 <!--                PLAIN TEXT-->
@@ -246,6 +246,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:background="@android:color/transparent"
                     android:clickable="false"
                     android:focusable="false"
                     android:padding="0dp"

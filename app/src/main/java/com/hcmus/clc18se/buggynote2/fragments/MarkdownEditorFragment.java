@@ -39,6 +39,7 @@ public class MarkdownEditorFragment extends Fragment {
         markwon = Markwon.create(requireContext());
         editor = MarkwonEditor.create(markwon);
 
+        binding.executePendingBindings();
         return binding.getRoot();
     }
 

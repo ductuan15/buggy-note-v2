@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.Audio;
@@ -281,6 +282,21 @@ public class BindingAdapters {
             Integer color = note.getTitleColor(inputLayout.getContext());
             if (color != null) {
                 inputLayout.setBoxStrokeColor(color);
+            }
+        }
+    }
+
+    @BindingAdapter("tabSelectedTextColorFromNote")
+    public static void setTabSelectedTextColor(@NonNull TabLayout tabLayout,
+                                               @Nullable Note note) {
+        if (note != null) {
+            Integer color = note.getTitleColor(tabLayout.getContext());
+            if (color != null) {
+                tabLayout.setSelectedTabIndicatorColor(color);
+                tabLayout.setTabTextColors(
+                        ViewUtils.getColorAttr(tabLayout.getContext(), R.attr.colorOnSurface),
+                        color
+                );
             }
         }
     }

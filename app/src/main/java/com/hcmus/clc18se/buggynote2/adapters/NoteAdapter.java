@@ -17,7 +17,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.noties.markwon.AbstractMarkwonPlugin;
 import io.noties.markwon.Markwon;
+import io.noties.markwon.core.MarkwonTheme;
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
+import io.noties.markwon.ext.tables.TablePlugin;
 
 public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolder> {
 
@@ -31,8 +35,6 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static final String UNPIN_TAG = "UNPIN";
     public static final String ARCHIVE_TAG = "ARCHIVE";
     public static final String TRASH_TAG = "TRASH";
-
-    private Markwon markwon;
 
     public NoteAdapter(NoteAdapterCallbacks callbacks, String tag) {
         super(NoteWithTags.diffCallBacks);
@@ -127,14 +129,9 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-        if (markwon == null){
-            markwon = Markwon.create(parent.getContext());
-        }
-
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         return new ViewHolder(
-                ItemNoteBinding.inflate(layoutInflater, parent, false),
-                markwon
+                ItemNoteBinding.inflate(layoutInflater, parent, false)
         );
     }
 
@@ -176,17 +173,35 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ItemNoteBinding binding;
-        Markwon markwon;
         public String tag;
 
-        public ViewHolder(@NonNull ItemNoteBinding binding, Markwon markwon) {
+        public ViewHolder(@NonNull ItemNoteBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-            this.markwon = markwon;
         }
 
         public void bindFrom(NoteWithTags note, String tag) {
-            binding.setMarkwon(markwon);
+            if (note.note.isMarkdown()) {
+                Markwon markwon =
+                        Markwon.builder(itemView.getContext())
+                                .usePlugin(StrikethroughPlugin.create())
+                                .usePlugin(TablePlugin.create(itemView.getContext()))
+                                .usePlugin(
+                        new AbstractMarkwonPlugin() {
+                            @Override
+                            public void configureTheme(@NonNull MarkwonTheme.Builder builder) {
+                                Integer titleColor = note.note.getTitleColor(itemView.getContext());
+                                if (titleColor != null) {
+                                    builder.linkColor(titleColor)
+                                            .codeTextColor(titleColor)
+                                            .codeBlockTextColor(titleColor);
+                                }
+                            }
+                        })
+                        .build();
+
+                binding.setMarkwon(markwon);
+            }
             binding.setNote(note);
             this.tag = tag;
         }

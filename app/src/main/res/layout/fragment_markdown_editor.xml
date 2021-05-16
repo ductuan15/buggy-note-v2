@@ -16,6 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
         app:boxStrokeWidth="0dp"
         app:boxStrokeWidthFocused="1dp"
         app:hintEnabled="false">
@@ -24,7 +25,6 @@
             android:id="@+id/note_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:typeface="monospace"
             android:layout_marginTop="8dp"
             android:autofillHints=""
             android:focusable="true"
@@ -35,6 +35,7 @@
             android:labelFor="@id/content_layout"
             android:text="@{noteWithTags.note.noteContent}"
             android:textAlignment="gravity"
+            android:typeface="monospace"
             tools:text="@tools:sample/lorem/random" />
 
     </com.google.android.material.textfield.TextInputLayout>

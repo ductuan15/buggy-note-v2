@@ -14,6 +14,8 @@
         android:ellipsize="end"
         android:minWidth="0dp"
         android:textAppearance="?textAppearanceCaption"
+        app:chipBackgroundColor="@android:color/transparent"
+        app:chipSurfaceColor="@android:color/transparent"
         app:ensureMinTouchTargetSize="false"
         tools:text="@tools:sample/cities">
 

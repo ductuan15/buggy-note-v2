@@ -56,8 +56,8 @@ public class Note {
      * - Indicate the index of the color from `R.array.note_color` to support dark mode.
      * - When the value is `null`, the color of the note is control by R.attr.colorSurface.
      */
-    @ColumnInfo(name = "color", defaultValue = "null")
-    public Integer colorIdx = new Random().nextInt(4);
+    @ColumnInfo(name = "color", defaultValue = "0")
+    public Integer colorIdx = 0;
 
     @ColumnInfo(defaultValue = "0")
     public int type = 0;
@@ -102,7 +102,7 @@ public class Note {
     public Integer getTitleColor(Context context) {
         if (colorIdx == null) return null;
         int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
-        if (colorIdx > 0 && colorIdx < titleColorArr.length) {
+        if (colorIdx >= 0 && colorIdx < titleColorArr.length) {
             return titleColorArr[colorIdx];
         }
         return null;

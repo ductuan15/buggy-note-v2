@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
             NoteCrossRef.class,
             Photo.class,
             Audio.class},
-        version = 6)
+        version = 7)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
@@ -44,6 +44,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_3_4)
                             .addMigrations(MIGRATION_4_5)
                             .addMigrations(MIGRATION_5_6)
+                            .addMigrations(MIGRATION_6_7)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -85,6 +86,35 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("UPDATE `note` SET `color` = NULL");
+        }
+    };
+    public static Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `note_new` " +
+                    "(`note_id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "`name` TEXT," +
+                    " `title` TEXT, " +
+                    "`note_content` TEXT, " +
+                    "`last_modify` INTEGER NOT NULL, " +
+                    "`title_format` TEXT DEFAULT '8388611|0|0', " +
+                    "`content_format` TEXT DEFAULT '8388611|0|0', " +
+                    "`order` INTEGER NOT NULL DEFAULT 0, " +
+                    "`is_pinned` INTEGER NOT NULL DEFAULT 0, " +
+                    "`is_archived` INTEGER NOT NULL DEFAULT 0, " +
+                    "`removing_date` INTEGER DEFAULT null, " +
+                    "`color` INTEGER DEFAULT 0, " +
+                    "`type` INTEGER NOT NULL DEFAULT 0)");
+
+            database.execSQL("INSERT INTO `note_new` SELECT * from `note`");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_note_note_id_new` ON `note_new` (`note_id`)");
+
+            database.execSQL("DROP TABLE IF EXISTS `note`");
+            database.execSQL("DROP TABLE IF EXISTS `index_note_note_id`");
+
+            database.execSQL("ALTER TABLE `note_new` RENAME TO `note`");
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_note_note_id` ON `note` (`note_id`)");
+
         }
     };
 
