@@ -21,7 +21,7 @@ public class ReminderMusicControl {
 
     public void playMusic(Context context) {
         if(mMediaPlayer == null){
-            mMediaPlayer = MediaPlayer.create(context, R.raw.renai);
+            mMediaPlayer = MediaPlayer.create(context, R.raw.rick_roll);
         }
         if(mMediaPlayer.isPlaying())
             mMediaPlayer.stop();

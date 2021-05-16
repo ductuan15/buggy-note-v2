@@ -4,13 +4,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/blue_pink_gradient"
     tools:context=".AlarmActivity">
 
-    <Button
-        android:id="@+id/stop_alarm"
+        <TextView
+            android:id="@+id/app_name_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.5"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/app_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:drawableLeftCompat="@drawable/ic_baseline_mode_edit_24" />
+
+
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/ic_baseline_event_note_24"
+        app:layout_constraintBottom_toTopOf="@+id/datetime_reminder"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/white_A80" />
+
+    <TextView
+        android:id="@+id/datetime_reminder"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="00:00"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:textColor="@color/white_A80"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/title_reminder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Note titleeee"
+        android:textSize="30sp"
+        android:textColor="@color/white_A80"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/datetime_reminder" />
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/stop_alarm"
+        android:background="?android:attr/selectableItemBackground"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="48dp"
+        android:text="@string/dismiss"
+        android:textSize="@dimen/snooze_dismiss_button_size"
+        app:chipIcon="@drawable/ic_baseline_cancel_24"
+        app:chipIconTint="@color/red_400"
+        app:chipIconSize="@dimen/snooze_dismiss_button_size"
+        app:chipMinHeight="@dimen/dismiss_chip_minHeight"
+        app:chipStartPadding="@dimen/dismiss_chip_horizontal_padding"
+        app:chipEndPadding="@dimen/dismiss_chip_horizontal_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

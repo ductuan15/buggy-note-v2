@@ -33,7 +33,9 @@
                 android:resource="@xml/provider_path" />
         </provider>
 
-        <activity android:name=".AlarmActivity" />
+        <activity android:name=".AlarmActivity"
+            android:theme="@style/Theme.BuggyNote2.NoActionBar">
+        </activity>
 
         <receiver
             android:name=".utils.ReminderReceiver"
