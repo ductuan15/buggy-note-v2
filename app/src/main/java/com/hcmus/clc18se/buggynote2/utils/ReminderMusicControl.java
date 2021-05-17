@@ -4,13 +4,13 @@ import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.os.PowerManager;
+import android.widget.Toast;
 
 import com.hcmus.clc18se.buggynote2.R;
 
 public class ReminderMusicControl {
     private static ReminderMusicControl sInstance;
-    private MediaPlayer mMediaPlayer;
-
+    private  MediaPlayer mMediaPlayer;
 
     public static ReminderMusicControl getInstance(Context context) {
         if(sInstance == null){
@@ -23,15 +23,12 @@ public class ReminderMusicControl {
         if(mMediaPlayer == null){
             mMediaPlayer = MediaPlayer.create(context, R.raw.rick_roll);
         }
-        if(mMediaPlayer.isPlaying())
-            mMediaPlayer.stop();
         mMediaPlayer.start();
     }
 
     public void stopMusic() {
         if(mMediaPlayer != null) {
             mMediaPlayer.stop();
-            mMediaPlayer.seekTo(0);
         }
     }
 }

@@ -6,8 +6,10 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -23,6 +25,7 @@ public class ReminderReceiver extends BroadcastReceiver {
     String noteTitle;
     String reminderDateTimeString;
 
+    public final static String NOTE_ID_TIME_KEY = "note_id";
     public final static String NOTE_TITLE_KEY = "note_title";
     public final static String NOTE_DATE_TIME_KEY = "note_datetime";
 
@@ -79,7 +82,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 PendingIntent.getBroadcast(context, (int) noteID, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         snoozeAction = new NotificationCompat.Action.Builder(R.drawable.ic_archive,
-                "Snooze", snoozePendingIntent)
+                "Dismiss", snoozePendingIntent)
                 .build();
     }
 
@@ -96,17 +99,25 @@ public class ReminderReceiver extends BroadcastReceiver {
         builder.setOngoing(true);
         notificationManager.notify((int) noteID, builder.build());
 
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        boolean isScreenOn = pm.isInteractive();
-        if(isScreenOn)
+
+        DisplayManager dm = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+        boolean screenOn = false;
+        for (Display display : dm.getDisplays()) {
+            if (display.getState() != Display.STATE_OFF) {
+                screenOn = true;
+            }
+        }
+        if (screenOn)
             ReminderMusicControl.getInstance(context).playMusic(context);
     }
 
     public void setFullScreenIntent(Context context) {
         Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(NOTE_TITLE_KEY,noteTitle);
-        bundle.putString(NOTE_DATE_TIME_KEY,reminderDateTimeString);
+        bundle.putString(NOTE_TITLE_KEY, noteTitle);
+        bundle.putString(NOTE_DATE_TIME_KEY, reminderDateTimeString);
+        bundle.putLong(NOTE_ID_TIME_KEY, noteID);
+
         fullScreenIntent.putExtras(bundle);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, (int) noteID, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setFullScreenIntent(fullScreenPendingIntent, true);

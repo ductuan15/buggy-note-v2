@@ -13,11 +13,11 @@ public class SnoozeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().compareTo(ACTION_SNOOZE) == 0){
-            long noteID = intent.getLongExtra("note_id",0);
+            long noteID = intent.getLongExtra(ReminderReceiver.NOTE_ID_TIME_KEY,0);
             ReminderMusicControl.getInstance(context).stopMusic();
             NotificationManagerCompat  notificationManager =  NotificationManagerCompat.from(context);
             notificationManager.cancel((int)noteID);
-            Toast.makeText(context,"Snoozed",Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"Dismiss",Toast.LENGTH_LONG).show();
         }
     }
 }
