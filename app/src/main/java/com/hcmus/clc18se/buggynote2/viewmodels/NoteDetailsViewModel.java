@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.AndroidViewModel;
@@ -225,20 +227,16 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
             ContextWrapper cw = new ContextWrapper(getApplication().getApplicationContext());
             File directory = cw.getDir("audios", Context.MODE_PRIVATE);
-
-            StringBuilder fileName = new StringBuilder(String.valueOf(System.currentTimeMillis()));
+            StringBuilder fileName = new StringBuilder(getFileName(uri));
 
             ContentResolver cR = getApplication().getContentResolver();
             MimeTypeMap mime = MimeTypeMap.getSingleton();
             String type = mime.getExtensionFromMimeType(cR.getType(uri));
 
-            if (type != null && !type.isEmpty()) {
+            if (type != null && !type.isEmpty() && getFileName(uri).lastIndexOf('.') == -1) {
                 fileName.append('.')
                         .append(type);
             }
-
-            //int extensionIdx = uri.getPath().lastIndexOf('.');
-            // int extensionIdx = fileUri.getPath().lastIndexOf('.');
 
             File fileDest = new File(directory, fileName.toString());
 
@@ -259,6 +257,29 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             }
 
         });
+    }
+
+    public String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = getApplication().getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                assert cursor != null;
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 
     public void removeAudio(Audio audio) {
