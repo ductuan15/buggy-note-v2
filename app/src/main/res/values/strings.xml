@@ -20,7 +20,7 @@
     <string name="format_italic">Format italic</string>
     <string name="text_alignment">Text Alignment</string>
     <string name="set_font_type">Set font type</string>
-    <string name="display">Display</string>
+    <string name="appearance">Appearance</string>
     <string name="show_note_list_as">Show note list as</string>
     <string name="note_list_view_type_key" translatable="false">note_list_view_type_key</string>
     <string name="remove_from_device">Remove from device</string>
@@ -57,4 +57,8 @@
     <string name="dismiss">Dismiss</string>
     <string name="add_sound">Add sound</string>
     <string name="pick_color">Pick a color</string>
+    <string name="app_theme_key" translatable="false">app_theme_key</string>
+    <string name="theme_title">Theme</string>
+    <string name="app_color_key" translatable="false">app_color_key</string>
+    <string name="color_title">Color</string>
 </resources>

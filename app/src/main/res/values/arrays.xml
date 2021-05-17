@@ -25,4 +25,38 @@
         <item>@color/note_title_yellow</item>
         <item>@color/note_title_red</item>
     </array>
+
+    <string-array name="theme_entries">
+        <item>Use system default</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="theme_summaries">
+        <item>Default\nTurn on dark theme when your devices\'s dark theme or Battery Saver is on</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+
+    <string-array name="color_entries">
+        <item>Pink</item>
+        <item>Indigo</item>
+        <item>Blue</item>
+        <item>Green</item>
+        <item>Grey</item>
+    </string-array>
+
+    <array name="color_choices">
+        <item>@color/pink_500</item>
+        <item>@color/indigo_500</item>
+        <item>@color/blue_500</item>
+        <item>@color/green2_primary</item>
+        <item>@color/blue_grey_500</item>
+    </array>
 </resources>
