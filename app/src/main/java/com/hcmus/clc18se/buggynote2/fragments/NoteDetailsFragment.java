@@ -55,6 +55,7 @@ import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.AudioListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.PhotoListAdapterCallback;
+import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.data.Photo;
@@ -615,7 +616,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
     }
 
     private void onActionShare() {
-        String[] items = {"Text", "Image"};
+        String[] items = {"Text", "Image", "Audio"};
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(R.string.choose_an_item);
         builder.setItems(items, (dialog, which) -> {
@@ -626,6 +627,10 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 }
                 case 1: {
                     sharePhotos();
+                    break;
+                }
+                case 2: {
+                    shareAudios();
                     break;
                 }
             }
@@ -703,6 +708,48 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             sendIntent.putExtra(Intent.EXTRA_TEXT, contentShare);
             sendIntent.setType(mimeType);
             startActivity(Intent.createChooser(sendIntent, getString(R.string.share_to)));
+        }
+    }
+    private void shareAudios() {
+        NoteWithTags noteWithTags = viewModel.getNote().getValue();
+        if (noteWithTags != null) {
+            List<Audio> audios = noteWithTags.audios;
+            File filesDir = requireContext().getFilesDir();
+            File shareDir = new File(filesDir, "share");
+            shareDir.mkdir();
+
+            Timber.d(filesDir.toString());
+
+            ArrayList<Uri> uris = new ArrayList<>();
+            for (Audio audio : audios) {
+                File fileInPrivate = new File(Uri.parse(audio.uri).getPath());
+                File shareFile = new File(shareDir, fileInPrivate.getName());
+
+                if (!shareFile.exists()) {
+                    try {
+                        FileUtils.copy(fileInPrivate, shareFile);
+                        Uri uri = FileProvider.getUriForFile(requireContext(), requireActivity().getPackageName(), shareFile);
+                        uris.add(uri);
+
+                    } catch (Exception ie) {
+                        Timber.d(ie);
+                    }
+                } else {
+                    Uri uri = FileProvider.getUriForFile(requireContext(), requireActivity().getPackageName(), shareFile);
+                    uris.add(uri);
+                }
+            }
+
+            if (!uris.isEmpty()) {
+                Intent shareMultiAudioIntent = new Intent()
+                        .setAction(Intent.ACTION_SEND_MULTIPLE)
+                        .putExtra(Intent.EXTRA_TITLE, "Here are some files.")
+                        .setType("audio/*")
+                        .setFlags(FLAG_GRANT_READ_URI_PERMISSION | FLAG_GRANT_WRITE_URI_PERMISSION)
+                        .putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris);
+                startActivity(Intent.createChooser(shareMultiAudioIntent, getString(R.string.share_to)));
+            }
+
         }
     }
 
