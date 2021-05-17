@@ -4,21 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/blue_pink_gradient"
+    android:background="@drawable/clearsky"
     tools:context=".AlarmActivity">
 
-        <TextView
-            android:id="@+id/app_name_textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="0.5"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="32dp"
-            android:text="@string/app_name"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:drawableLeftCompat="@drawable/ic_baseline_mode_edit_24" />
-
+    <TextView
+        android:id="@+id/app_name_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:alpha="0.5"
+        android:text="@string/app_name"
+        app:drawableLeftCompat="@drawable/ic_baseline_mode_edit_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <ImageView
@@ -35,9 +34,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="00:00"
-        android:textSize="40sp"
-        android:textStyle="bold"
         android:textColor="@color/white_A80"
+        android:textSize="24sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,29 +48,54 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:text="Note titleeee"
-        android:textSize="30sp"
         android:textColor="@color/white_A80"
+        android:textSize="28sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/datetime_reminder" />
 
     <com.google.android.material.chip.Chip
         android:id="@+id/stop_alarm"
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginBottom="48dp"
+        android:background="?android:attr/selectableItemBackground"
         android:text="@string/dismiss"
+        android:textAlignment="center"
         android:textSize="@dimen/snooze_dismiss_button_size"
+        app:chipEndPadding="@dimen/dismiss_chip_horizontal_padding"
         app:chipIcon="@drawable/ic_baseline_cancel_24"
-        app:chipIconTint="@color/red_400"
         app:chipIconSize="@dimen/snooze_dismiss_button_size"
+        app:chipIconTint="@color/red_400"
         app:chipMinHeight="@dimen/dismiss_chip_minHeight"
         app:chipStartPadding="@dimen/dismiss_chip_horizontal_padding"
-        app:chipEndPadding="@dimen/dismiss_chip_horizontal_padding"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/detail_alarm"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <com.google.android.material.chip.Chip
+        android:id="@+id/detail_alarm"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="48dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:text="@string/detail"
+        android:textAlignment="center"
+        android:textSize="@dimen/snooze_dismiss_button_size"
+        app:chipEndPadding="@dimen/dismiss_chip_horizontal_padding"
+        app:chipIcon="@drawable/ic_baseline_sticky_note_2_24"
+        app:chipIconSize="@dimen/snooze_dismiss_button_size"
+        app:chipIconTint="@color/blue_600"
+        app:chipMinHeight="@dimen/dismiss_chip_minHeight"
+        app:chipStartPadding="@dimen/dismiss_chip_horizontal_padding"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/stop_alarm" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

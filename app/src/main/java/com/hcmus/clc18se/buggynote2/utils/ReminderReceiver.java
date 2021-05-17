@@ -6,10 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.display.DisplayManager;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.view.Display;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -25,7 +22,7 @@ public class ReminderReceiver extends BroadcastReceiver {
     String noteTitle;
     String reminderDateTimeString;
 
-    public final static String NOTE_ID_TIME_KEY = "note_id";
+    public final static String NOTE_ID_KEY = "note_id";
     public final static String NOTE_TITLE_KEY = "note_title";
     public final static String NOTE_DATE_TIME_KEY = "note_datetime";
 
@@ -34,7 +31,10 @@ public class ReminderReceiver extends BroadcastReceiver {
 
     NotificationManagerCompat notificationManager;
     NotificationCompat.Builder builder;
-    NotificationCompat.Action snoozeAction;
+
+    NotificationCompat.Action dismissAction;
+    NotificationCompat.Action noteDetailAction;
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -75,40 +75,44 @@ public class ReminderReceiver extends BroadcastReceiver {
     }
 
     public void setUpNotificationActions(Context context) {
-        Intent snoozeIntent = new Intent(context, SnoozeReceiver.class);
-        snoozeIntent.setAction(SnoozeReceiver.ACTION_SNOOZE);
-        snoozeIntent.putExtra("note_id", noteID);
-        PendingIntent snoozePendingIntent =
-                PendingIntent.getBroadcast(context, (int) noteID, snoozeIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        Intent dismissIntent = new Intent(context, ReminderActionReceiver.class);
+        dismissIntent.setAction(ReminderActionReceiver.ACTION_DISMISS);
+        dismissIntent.putExtra("note_id", noteID);
+        PendingIntent dismissPendingIntent =
+                PendingIntent.getBroadcast(context, (int) noteID, dismissIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
-        snoozeAction = new NotificationCompat.Action.Builder(R.drawable.ic_archive,
-                "Dismiss", snoozePendingIntent)
+        dismissAction = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_cancel_24,
+                "Dismiss", dismissPendingIntent)
                 .build();
+
+        Intent noteDetailIntent = new Intent(context, ReminderActionReceiver.class);
+        noteDetailIntent.setAction(ReminderActionReceiver.ACTION_DETAIL);
+        noteDetailIntent.putExtra("note_id", noteID);
+        PendingIntent noteDetailPendingIntent =
+                PendingIntent.getBroadcast(context, (int) noteID, noteDetailIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        noteDetailAction = new NotificationCompat.Action.Builder(R.drawable.ic_baseline_sticky_note_2_24,
+                "Detail", noteDetailPendingIntent)
+                .build();
+
     }
 
     public void setUpNotification(Context context) {
 
-        builder.setSmallIcon(R.drawable.ic_archive)
+        builder.setSmallIcon(R.drawable.ic_baseline_mode_edit_24)
                 .setContentTitle(noteTitle)
                 .setContentText(reminderDateTimeString)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .addAction(snoozeAction);
+                .addAction(dismissAction)
+                .addAction(noteDetailAction);
         setChannel();
         builder.setAutoCancel(true);
         builder.setOngoing(true);
         notificationManager.notify((int) noteID, builder.build());
 
 
-        DisplayManager dm = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-        boolean screenOn = false;
-        for (Display display : dm.getDisplays()) {
-            if (display.getState() != Display.STATE_OFF) {
-                screenOn = true;
-            }
-        }
-        if (screenOn)
-            ReminderMusicControl.getInstance(context).playMusic(context);
+        ReminderMusicControl.getInstance(context).playMusic(context);
     }
 
     public void setFullScreenIntent(Context context) {
@@ -116,7 +120,7 @@ public class ReminderReceiver extends BroadcastReceiver {
         Bundle bundle = new Bundle();
         bundle.putString(NOTE_TITLE_KEY, noteTitle);
         bundle.putString(NOTE_DATE_TIME_KEY, reminderDateTimeString);
-        bundle.putLong(NOTE_ID_TIME_KEY, noteID);
+        bundle.putLong(NOTE_ID_KEY, noteID);
 
         fullScreenIntent.putExtras(bundle);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, (int) noteID, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);

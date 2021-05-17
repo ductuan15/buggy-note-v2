@@ -39,7 +39,7 @@
 
         <activity
             android:name=".AlarmActivity"
-            android:theme="@style/Theme.BuggyNote2"></activity>
+            android:theme="@style/Theme.BuggyNote2" />
 
         <receiver
             android:name=".utils.ReminderReceiver"
@@ -48,7 +48,7 @@
             android:permission="TODO"
             android:process=":remote" />
         <receiver
-            android:name=".utils.SnoozeReceiver"
+            android:name=".utils.ReminderActionReceiver"
             android:enabled="true"
             android:exported="true"
             android:process=":remote" />
