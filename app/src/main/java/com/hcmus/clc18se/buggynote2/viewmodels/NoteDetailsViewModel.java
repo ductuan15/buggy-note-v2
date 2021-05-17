@@ -4,7 +4,9 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import androidx.lifecycle.AndroidViewModel;
