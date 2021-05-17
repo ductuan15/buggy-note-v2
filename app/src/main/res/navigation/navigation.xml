@@ -86,6 +86,9 @@
                 android:name="noteId"
                 app:argType="long" />
         </fragment>
+        <!--        <action-->
+        <!--            android:id="@+id/action_global_nav_note_details"-->
+        <!--            app:destination="@id/nav_note_details" />-->
     </navigation>
 
     <fragment
@@ -134,5 +137,13 @@
         </action>
 
     </fragment>
+
+    <action
+        android:id="@+id/action_global_navigation_note_details"
+        app:destination="@id/navigation_note_details">
+        <argument
+            android:name="noteId"
+            app:argType="long" />
+    </action>
 
 </navigation>

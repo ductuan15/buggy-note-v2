@@ -1,7 +1,5 @@
 package com.hcmus.clc18se.buggynote2;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,9 +7,11 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.chip.Chip;
-import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 import com.hcmus.clc18se.buggynote2.utils.ReminderActionReceiver;
+import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 
 
 public class AlarmActivity extends AppCompatActivity implements View.OnClickListener {
@@ -19,7 +19,7 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
     Chip detailButton;
     String noteTitle = "";
     String noteDateTime = "";
-    Long noteID ;
+    Long noteID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,6 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
                 | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                 | WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON);
 
-
     }
 
     @Override
@@ -43,17 +42,18 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
             intent.setAction(ReminderActionReceiver.ACTION_DISMISS);
 
             Bundle bundle = new Bundle();
-            bundle.putLong(ReminderReceiver.NOTE_ID_KEY,noteID);
+            bundle.putLong(ReminderReceiver.NOTE_ID_KEY, noteID);
 
             sendBroadcast(intent);
             Toast.makeText(getBaseContext(), "Dismissed", Toast.LENGTH_SHORT).show();
             finish();
-        } else if(v == detailButton){
-            Intent intent = new Intent(getBaseContext(), ReminderActionReceiver.class);
-            intent.setAction(ReminderActionReceiver.ACTION_DETAIL);
+        } else if (v == detailButton) {
+            Intent intent = new Intent(getBaseContext(), BuggyNoteActivity.class);
+            intent.setAction(BuggyNoteActivity.ACTION_VIEW_NOTE);
 
             Bundle bundle = new Bundle();
-            bundle.putLong(ReminderReceiver.NOTE_ID_KEY,noteID);
+            bundle.putLong(ReminderReceiver.NOTE_ID_KEY, noteID);
+            bundle.putLong(BuggyNoteActivity.EXTRA_NOTE_ID, noteID);
 
             sendBroadcast(intent);
             finish();

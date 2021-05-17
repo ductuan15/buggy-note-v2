@@ -24,6 +24,8 @@ import com.hcmus.clc18se.buggynote2.utils.PreferenceUtils;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 
+import timber.log.Timber;
+
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
 
     private NavHostFragment navHostFragment = null;
@@ -109,6 +111,22 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.containsKey(EXTRA_NOTE_ID)) {
+            long id = extras.getLong(EXTRA_NOTE_ID, -1);
+            if (id != -1) {
+
+                navController.navigate(
+                    NavigationNoteDetailsDirections.actionGlobalNavigationNoteDetails(id)
+                );
+            }
+        }
+    }
+
+    @Override
     public void onBackPressed() {
         try {
             Fragment currentFragment = navHostFragment.getChildFragmentManager().getFragments().get(0);
@@ -157,5 +175,15 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     @Override
     public void unlockTheDrawer() {
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+    }
+
+    public static final String ACTION_VIEW_NOTE = "com.hcmus.clc18se.buggynote2.ACTION_VIEW_NOTE";
+    public static final String EXTRA_NOTE_ID = "com.hcmus.clc18se.buggynote2.ACTION_VIEW_NOTE";
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+
     }
 }

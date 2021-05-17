@@ -951,5 +951,4 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         }
     }
 
-
 }
