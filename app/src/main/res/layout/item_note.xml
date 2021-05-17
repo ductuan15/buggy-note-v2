@@ -20,7 +20,7 @@
             type="io.noties.markwon.Markwon" />
     </data>
 
-    <com.hcmus.clc18se.buggynote2.utils.InterceptTouchCardView
+    <com.hcmus.clc18se.buggynote2.utils.views.InterceptTouchCardView
         colorFromNoteColor="@{note}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -111,5 +111,5 @@
 
         </LinearLayout>
 
-    </com.hcmus.clc18se.buggynote2.utils.InterceptTouchCardView>
+    </com.hcmus.clc18se.buggynote2.utils.views.InterceptTouchCardView>
 </layout>

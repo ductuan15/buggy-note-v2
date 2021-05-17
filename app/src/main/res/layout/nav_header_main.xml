@@ -25,11 +25,11 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/ic_launcher_background"
+            android:background="?launcherBackground"
             android:scaleType="centerCrop"
             android:scaleX="1.5"
             android:scaleY="1.5"
-            android:src="@drawable/ic_launcher_foreground"
+            android:src="?launcherForeground"
             tools:ignore="ContentDescription" />
 
     </com.google.android.material.card.MaterialCardView>

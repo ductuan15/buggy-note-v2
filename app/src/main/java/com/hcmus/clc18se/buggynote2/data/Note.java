@@ -66,8 +66,7 @@ public class Note {
     public static final int N_REMOVING_DAYS = 30;
 
     @Ignore
-    public Note() {
-    }
+    public Note() {}
 
     public Note(long id,
                 String name,
@@ -90,9 +89,16 @@ public class Note {
     }
 
     public Integer getColor(Context context) {
-        if (colorIdx == null) return null;
+        if (colorIdx == null) {
+            colorIdx = 0;
+        }
         int[] colorArr = context.getResources().getIntArray(R.array.note_color);
         if (colorIdx >= 0 && colorIdx < colorArr.length) {
+            return colorArr[colorIdx];
+        }
+
+        if (colorArr.length > 0) {
+            colorIdx = 0;
             return colorArr[colorIdx];
         }
 
@@ -100,11 +106,18 @@ public class Note {
     }
 
     public Integer getTitleColor(Context context) {
-        if (colorIdx == null) return null;
+        if (colorIdx == null) {
+            colorIdx = 0;
+        };
         int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
         if (colorIdx >= 0 && colorIdx < titleColorArr.length) {
             return titleColorArr[colorIdx];
         }
+        if (titleColorArr.length > 0) {
+            colorIdx = 0;
+            return titleColorArr[colorIdx];
+        }
+
         return null;
     }
 
@@ -137,15 +150,7 @@ public class Note {
     }
 
     public static Note emptyInstance() {
-        return new Note(0L,
-                "",
-                "",
-                System.currentTimeMillis(),
-                "",
-                "",
-                0,
-                false,
-                false);
+        return new Note();
     }
 
     public boolean isPlainText() {

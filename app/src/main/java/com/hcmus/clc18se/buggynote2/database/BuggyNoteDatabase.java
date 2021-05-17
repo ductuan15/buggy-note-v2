@@ -123,7 +123,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
 
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("UPDATE `note` SET `color`= 0 WHERE `color` = NULL");
+            database.execSQL("UPDATE `note` SET `color`= 0 WHERE `color` IS NULL");
         }
     };
 

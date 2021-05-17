@@ -344,6 +344,10 @@
     <color name="note_title_red">#c5221f</color>
     <color name="note_title_white">#6D000000</color>
 
+    <color name="green2_primary">#01a368</color>
+    <color name="green2_light">#53d596</color>
+    <color name="green2_dark">#00733d</color>
+
     <color name="blue_color_picker">#0066FF</color>
     <color name="brown_color_picker">#AF593E</color>
     <color name="green_color_picker">#01A368</color>
