@@ -46,12 +46,15 @@ public class PreferenceUtils {
     }
 
     public static void configDefaultTheme(int uiMode) {
-        switch (uiMode & Configuration.UI_MODE_NIGHT_MASK) {
+        int mask = uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (mask) {
             case Configuration.UI_MODE_NIGHT_NO: {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
             }
             case Configuration.UI_MODE_NIGHT_YES: {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
             }
         }
     }
