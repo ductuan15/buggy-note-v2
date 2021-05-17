@@ -433,7 +433,7 @@ public class BindingAdapters {
             Uri uri = Uri.parse(audio.uri);
             int index = uri.getPath().lastIndexOf("/");
             if (index != -1) {
-                textView.setText(uri.getPath().substring(index));
+                textView.setText(uri.getPath().substring(index + 1));
             } else {
                 textView.setText(uri.getPath());
             }

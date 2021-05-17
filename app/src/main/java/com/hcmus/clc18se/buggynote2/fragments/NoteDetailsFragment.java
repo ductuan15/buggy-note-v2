@@ -236,12 +236,11 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 Integer color = noteWithTags.note.getColor(requireContext());
                 if (color != null) {
                     requireActivity().getWindow().setStatusBarColor(color);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                        requireActivity().getWindow().setNavigationBarColor(color);
+                    }
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                    if(color != null)
-                        requireActivity().getWindow().setNavigationBarColor(color);
-                }
             }
         });
 
