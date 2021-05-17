@@ -1,9 +1,13 @@
 package com.hcmus.clc18se.buggynote2;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -16,6 +20,7 @@ import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;
+import com.hcmus.clc18se.buggynote2.utils.PreferenceUtils;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 
@@ -32,6 +37,8 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
 
     private ActivityBuggyNoteBinding binding = null;
     private DrawerLayout drawerLayout = null;
+
+    private SharedPreferences preferences = null;
 
     int[] topDestinations = new int[]{
             R.id.nav_notes,
@@ -51,11 +58,25 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
                 lockTheDrawer();
             };
 
+    private final SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener = (pref, key) -> {
+        if (key.equals(getString(R.string.app_theme_key))) {
+            PreferenceUtils.configTheme(null, this);
+            startActivity(new Intent(this, BuggyNoteActivity.class));
+            finish();
+        } else if (key.equals(getString(R.string.app_color_key))) {
+            startActivity(new Intent(this, BuggyNoteActivity.class));
+            finish();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        PreferenceUtils.configColor(this);
+        PreferenceUtils.configTheme(null, this);
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         binding = ActivityBuggyNoteBinding.inflate(getLayoutInflater());
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
@@ -83,6 +104,8 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         );
         navController.addOnDestinationChangedListener(onDestinationChangedListener);
         setContentView(binding.getRoot());
+
+        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     @Override
@@ -110,6 +133,21 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     public boolean onSupportNavigateUp() {
         return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
     }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        PreferenceUtils.configTheme(newConfig.uiMode, this);
+        recreate();
+    }
+
+    @Override
+    protected void onDestroy() {
+        preferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
+        super.onDestroy();
+    }
+
 
     @Override
     public void lockTheDrawer() {

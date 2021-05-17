@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
 
     <!-- Base application theme. -->
     <style name="Theme.Base.BuggyNote2" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
@@ -79,9 +79,12 @@
     <style name="Theme.BuggyNote2.Grey" parent="Theme.Base.BuggyNote2">
         <item name="colorPrimary">@color/dark_grey</item>
         <item name="colorPrimaryVariant">@color/dark_grey</item>
+        <item name="colorOnPrimary">@color/white</item>
         <item name="colorSecondary">@color/dark_grey</item>
+        <item name="colorOnSecondary">@color/white</item>
         <item name="colorSecondaryVariant">@color/dark_grey</item>
         <item name="colorPrimaryLight">@color/dark_grey_A50</item>
+        <item name="colorOnSurface">@color/white_A80</item>
 
         <item name="launcherBackground">@drawable/ic_launcher_background_grey</item>
         <item name="launcherForeground">@drawable/ic_launcher_foreground_grey</item>

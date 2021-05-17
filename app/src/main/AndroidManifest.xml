@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:name=".BuggyNoteApplication"
         android:allowBackup="true"
@@ -16,8 +17,9 @@
 
         <activity
             android:name=".BuggyNoteActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:theme="@style/Theme.BuggyNote2">
+            android:configChanges="uiMode"
+            android:theme="@style/Theme.BuggyNote2"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,9 +37,9 @@
                 android:resource="@xml/provider_path" />
         </provider>
 
-        <activity android:name=".AlarmActivity"
-            android:theme="@style/Theme.BuggyNote2">
-        </activity>
+        <activity
+            android:name=".AlarmActivity"
+            android:theme="@style/Theme.BuggyNote2"></activity>
 
         <receiver
             android:name=".utils.ReminderReceiver"
