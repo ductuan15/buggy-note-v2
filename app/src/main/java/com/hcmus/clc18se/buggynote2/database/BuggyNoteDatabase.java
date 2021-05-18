@@ -22,8 +22,9 @@ import java.util.concurrent.Executors;
             Tag.class,
             NoteCrossRef.class,
             Photo.class,
-            Audio.class},
-        version = 8)
+            Audio.class,
+            NoteFTS.class},
+        version = 9)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
@@ -46,6 +47,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_5_6)
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
+                            .addMigrations(MIGRATION_8_9)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -124,6 +126,20 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("UPDATE `note` SET `color`= 0 WHERE `color` IS NULL");
+        }
+    };
+
+    public static Migration MIGRATION_8_9 = new Migration(8, 9) {
+
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase _db) {
+            _db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS note_fts USING FTS4(title TEXT, note_content TEXT, content=`note`)");
+            _db.execSQL("CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_note_fts_BEFORE_UPDATE BEFORE UPDATE ON `note` BEGIN DELETE FROM `note_fts` WHERE `docid`=OLD.`rowid`; END");
+            _db.execSQL("CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_note_fts_BEFORE_DELETE BEFORE DELETE ON `note` BEGIN DELETE FROM `note_fts` WHERE `docid`=OLD.`rowid`; END");
+            _db.execSQL("CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_note_fts_AFTER_UPDATE AFTER UPDATE ON `note` BEGIN INSERT INTO `note_fts`(`docid`, `title`, `note_content`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`note_content`); END");
+            _db.execSQL("CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_note_fts_AFTER_INSERT AFTER INSERT ON `note` BEGIN INSERT INTO `note_fts`(`docid`, `title`, `note_content`) VALUES (NEW.`rowid`, NEW.`title`, NEW.`note_content`); END");
+
+            _db.execSQL("INSERT INTO `note_fts`(`note_fts`) VALUES ('rebuild')");
         }
     };
 

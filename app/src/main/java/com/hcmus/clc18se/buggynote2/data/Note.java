@@ -11,8 +11,6 @@ import androidx.room.PrimaryKey;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
-import java.util.Random;
-
 @Entity(tableName = "note")
 public class Note {
 
@@ -20,6 +18,8 @@ public class Note {
     @ColumnInfo(name = "note_id", index = true)
     public long id = 0L;
 
+    // This attribute is redundant, it will be removed in the future version
+    @Deprecated
     public String name = "";
 
     public String title = "";
