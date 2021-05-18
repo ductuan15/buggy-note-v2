@@ -96,4 +96,11 @@ public interface BuggyNoteDao {
 
     @Delete
     void deleteAudio(Audio... audios);
+
+    @Transaction
+    @Query("select * " +
+            "from note " +
+            "join note_fts on note.rowid = note_fts.rowid " +
+            "where note_fts match :query")
+    List<NoteWithTags> searchNote(String query);
 }

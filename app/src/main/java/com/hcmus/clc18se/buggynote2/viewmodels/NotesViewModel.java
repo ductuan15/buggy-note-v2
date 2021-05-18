@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -360,6 +361,23 @@ public class NotesViewModel extends AndroidViewModel {
             }
             if (!removeForever.isEmpty()) {
                 permanentlyRemoveNote(removeForever);
+            }
+        });
+    }
+
+    public void search(String query) {
+        if (query == null) {
+            return;
+        }
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            String queryStr = query;
+            if (queryStr.isEmpty()) {
+                loadNotesFromDatabase();
+            }
+            else {
+                queryStr = queryStr.replaceAll(Pattern.quote("\""), "\"\"");
+                List<NoteWithTags> results = database.searchNote('*' + queryStr + '*');
+                noteList.postValue(results);
             }
         });
     }

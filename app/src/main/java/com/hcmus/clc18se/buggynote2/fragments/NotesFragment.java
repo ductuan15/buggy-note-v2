@@ -19,6 +19,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -362,7 +363,47 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         inflater.inflate(R.menu.main, menu);
 
         // TODO: handle searching
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
 
+        searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                noteListTouchHelper.attachToRecyclerView(null);
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                if (tagsViewModel.getTags().getValue() != null) {
+                    notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+                }
+                noteListTouchHelper.attachToRecyclerView(binding.noteList);
+                return true;
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (query != null) {
+                    notesViewModel.search(query);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText != null) {
+                    notesViewModel.search(newText);
+                }
+                else if (tagsViewModel.getTags().getValue() != null) {
+                    notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+                }
+                return true;
+            }
+        });
     }
 
     private void onItemTypeOptionClicked() {
