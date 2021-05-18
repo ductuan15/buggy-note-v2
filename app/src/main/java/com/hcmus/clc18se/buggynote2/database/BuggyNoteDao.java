@@ -35,6 +35,9 @@ public interface BuggyNoteDao {
     @Query("select * from note where note_id = :id")
     LiveData<NoteWithTags> getNoteLiveDataFromId(Long id);
 
+    @Query("select * from note where note_id = :id")
+    Note getPlainNoteFromId(Long id);
+
     @Transaction
     @Query("select * from note where note_id = :id")
     NoteWithTags getNoteFromId(Long id);

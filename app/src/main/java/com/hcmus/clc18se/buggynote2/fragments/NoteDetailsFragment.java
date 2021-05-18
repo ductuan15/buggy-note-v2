@@ -607,7 +607,15 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dateReminder = (Date) date.clone();
+                        if(Utils.isAlarmOfNoteExisted(requireContext(), arguments.getNoteId())){
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Note had been set time reminder")
+                                    .setMessage("This note had been set a time reminder at .... \n Do you want to reset this reminder's time?")
+                                    .setPositiveButton("OK", (dialog1, which1) -> dateReminder = (Date) date.clone())
+                                    .setNegativeButton("Cancel", null).create().show();
+                        }
+                        else
+                            dateReminder = (Date) date.clone();
                     }
                 });
         builder.setNegativeButton(getString(R.string.cancel), null);

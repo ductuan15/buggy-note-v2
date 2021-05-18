@@ -19,34 +19,27 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Utils {
-    static String [] DAY_OF_WEEK = {"Mon","Tue","Wes","Thu","Fri","Sat","Sun"};
+    static String[] DAY_OF_WEEK = {"Mon", "Tue", "Wes", "Thu", "Fri", "Sat", "Sun"};
     public static String convertLongToDateString(@NonNull Long systemTime) {
         return new SimpleDateFormat("MMM-dd-yyyy HH:mm", Locale.getDefault())
                 .format(systemTime);
     }
     @SuppressLint("DefaultLocale")
-    public static String getDateTimeStringFromCalender(Calendar calendar){
-        int isAM =  calendar.get(Calendar.AM_PM);
-        String AM_PM = isAM == 0 ? "AM": "PM";
-        return  DAY_OF_WEEK[calendar.get(Calendar.DAY_OF_WEEK) - 2]  + ","
-                + String.format("%02d", calendar.get(Calendar.DATE)) + "/"
-                + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "/"
-                + String.format("%02d", calendar.get(Calendar.YEAR)) + "  "
-                + String.format("%02d", calendar.get(Calendar.HOUR)) + ":"
-                + String.format("%02d", calendar.get(Calendar.MINUTE)) + " "
-                + AM_PM;
+    public static String getDateTimeStringFromCalender(Calendar calendar) {
+        return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm",Locale.getDefault()).format(calendar.getTime());
     }
-    public static String setReminder(Date date, Context context, NoteWithTags noteWithTags, long noteID){
 
+    public static String setReminder(Date date, Context context, NoteWithTags noteWithTags, long noteID) {
         // get save time
         Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.setTime(date);
 
         // set intent to call alarm action
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, ReminderReceiver.class);
+
         Bundle sendData = new Bundle();
+
 
         // get note title
         String noteTitle = "";
@@ -63,14 +56,29 @@ public class Utils {
 
         // set up AlarmManager
         // TODO: bug here if ID is to large
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int)noteID, intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, (int) noteID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
         }
         //get time reminder
-        String reminderDateTimeString = Utils.getDateTimeStringFromCalender(calendar);
-        return reminderDateTimeString;
+
+        return Utils.getDateTimeStringFromCalender(calendar);
+    }
+
+    public static boolean isReminderTimeValid(Date reminderDate) {
+        return reminderDate.getTime() > System.currentTimeMillis();
+    }
+
+    public static boolean isAlarmOfNoteExisted(Context context, long noteID){
+        Intent intent= new Intent(context, ReminderReceiver.class);
+        PendingIntent pendingIntentCheck = PendingIntent.getBroadcast(context, (int) noteID, intent, PendingIntent.FLAG_NO_CREATE);
+
+        Toast.makeText(context,String.valueOf(noteID),Toast.LENGTH_LONG).show();
+        return pendingIntentCheck != null;
+
+
     }
 }

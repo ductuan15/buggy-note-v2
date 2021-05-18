@@ -22,13 +22,13 @@ public class ReminderActionReceiver extends BroadcastReceiver {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
             notificationManager.cancel((int) noteID);
         } else if (intent.getAction().compareTo(ACTION_DETAIL) == 0) {
-            //TODO: cần thận rick_roll không ngừng
             long noteID = intent.getLongExtra(ReminderReceiver.NOTE_ID_KEY, 0);
             Bundle extras = new Bundle();
             extras.putLong(BuggyNoteActivity.EXTRA_NOTE_ID, noteID);
 
             Intent toNoteDetails = new Intent(context, BuggyNoteActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtras(extras);
 
             context.startActivity(toNoteDetails);

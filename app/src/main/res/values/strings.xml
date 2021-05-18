@@ -62,4 +62,5 @@
     <string name="app_color_key" translatable="false">app_color_key</string>
     <string name="color_title">Color</string>
     <string name="detail">Detail</string>
+    <string name="invalid_reminder_time">Invalid reminder time</string>
 </resources>

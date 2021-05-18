@@ -6,20 +6,54 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.BulletSpan;
+import android.text.style.QuoteSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.widget.RemoteViews;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.hcmus.clc18se.buggynote2.AlarmActivity;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.data.CheckListItem;
+import com.hcmus.clc18se.buggynote2.data.Note;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
+
+import org.commonmark.ext.gfm.strikethrough.Strikethrough;
+import org.commonmark.node.BlockQuote;
+import org.commonmark.node.Code;
+import org.commonmark.node.Emphasis;
+import org.commonmark.node.Heading;
+import org.commonmark.node.ListItem;
+import org.commonmark.node.StrongEmphasis;
 
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
+
+import io.noties.markwon.AbstractMarkwonPlugin;
+import io.noties.markwon.Markwon;
+import io.noties.markwon.MarkwonSpansFactory;
+import io.noties.markwon.core.CoreProps;
+import io.noties.markwon.core.MarkwonTheme;
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin;
+import io.noties.markwon.ext.tables.TablePlugin;
 
 
 public class ReminderReceiver extends BroadcastReceiver {
     long noteID;
     String noteTitle;
+    String noteContent;
     String reminderDateTimeString;
 
     public final static String NOTE_ID_KEY = "note_id";
@@ -41,15 +75,23 @@ public class ReminderReceiver extends BroadcastReceiver {
         if (intent.getAction().compareTo(ACTION_REMINDER) == 0) {
             Bundle receivedData = intent.getExtras();
             getReceivedData(receivedData);
+            BuggyNoteDao buggyNoteDao = BuggyNoteDatabase.getInstance(context).buggyNoteDatabaseDao();
+            try {
+                Note note = BuggyNoteDatabase.databaseWriteExecutor.submit(() -> {
+                    return buggyNoteDao.getPlainNoteFromId(noteID);
+                }).get();
 
-            notificationManager = NotificationManagerCompat.from(context);
+                notificationManager = NotificationManagerCompat.from(context);
+                builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
-            builder = new NotificationCompat.Builder(context, CHANNEL_ID);
+                setFullScreenIntent(context);
+                setUpNotificationActions(context);
+                setUpNotification(context, note);
 
-            setFullScreenIntent(context);
-            setUpNotificationActions(context);
-            setUpNotification(context);
 
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
     }
@@ -97,11 +139,68 @@ public class ReminderReceiver extends BroadcastReceiver {
 
     }
 
-    public void setUpNotification(Context context) {
+    public void setUpNotification(Context context, Note note) {
 
+        if (note != null) {
+            noteTitle = note.title;
+            if (note.isCheckList()) {
+                noteContent = CheckListItem.toReadableString(CheckListItem.compileFromNoteContent(note.noteContent));
+            }
+
+            if (note.isMarkdown()) {
+                noteContent = note.noteContent;
+                String[] contents = noteContent.split("\n", 2);
+                if (contents.length != 0) {
+                    noteTitle = contents[0];
+                }
+                final float[] headingSizes = {
+                        2.F, 1.5F, 1.17F, 1.F, .83F, .67F,
+                };
+
+                final int bulletGapWidth = (int) (8 * context.getResources().getDisplayMetrics().density + 0.5F);
+                Markwon markwon = Markwon.builder(context)
+                        .usePlugin(StrikethroughPlugin.create())
+                        .usePlugin(TablePlugin.create(context))
+                        .usePlugin(new AbstractMarkwonPlugin() {
+                            @Override
+                            public void configureSpansFactory(@NonNull MarkwonSpansFactory.Builder builder) {
+                                builder
+                                        .setFactory(Heading.class, (configuration, props) -> new Object[]{
+                                                new StyleSpan(Typeface.BOLD),
+                                                new RelativeSizeSpan(headingSizes[CoreProps.HEADING_LEVEL.require(props) - 1])
+                                        })
+                                        .setFactory(StrongEmphasis.class, (configuration, props) -> new StyleSpan(Typeface.BOLD))
+                                        .setFactory(Emphasis.class, (configuration, props) -> new StyleSpan(Typeface.ITALIC))
+                                        .setFactory(Code.class, (configuration, props) -> new Object[]{
+                                                new BackgroundColorSpan(Color.GRAY),
+                                                new TypefaceSpan("monospace")
+                                        })
+                                        .setFactory(Strikethrough.class, (configuration, props) -> new StrikethroughSpan())
+                                        .setFactory(ListItem.class, (configuration, props) -> new BulletSpan(bulletGapWidth))
+                                        .setFactory(BlockQuote.class, (configuration, props) -> new QuoteSpan());
+                            }
+                        })
+                        .build();
+
+                RemoteViews notificationLayoutExpanded = new RemoteViews(context.getPackageName(),
+                        R.layout.notification_note_expanded);
+
+                notificationLayoutExpanded.setTextViewText(R.id.content, markwon.toMarkdown(noteContent));
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    builder .setCustomBigContentView(notificationLayoutExpanded)
+                            .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
+                } else {
+                    builder.setContent(notificationLayoutExpanded);
+                }
+
+            } else {
+               builder.setStyle(new NotificationCompat.BigTextStyle().bigText(noteContent));
+            }
+
+        }
         builder.setSmallIcon(R.drawable.ic_baseline_mode_edit_24)
                 .setContentTitle(noteTitle)
-                .setContentText(reminderDateTimeString)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .addAction(dismissAction)
