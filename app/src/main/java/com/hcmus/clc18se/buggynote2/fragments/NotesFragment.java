@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
@@ -46,9 +47,10 @@ import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNotesBinding;
+import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
-import com.hcmus.clc18se.buggynote2.utils.SpaceItemDecoration;
+import com.hcmus.clc18se.buggynote2.utils.views.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.views.ViewAnimation;
 import com.hcmus.clc18se.buggynote2.utils.views.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
@@ -362,7 +364,6 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main, menu);
 
-        // TODO: handle searching
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
 
@@ -397,8 +398,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             public boolean onQueryTextChange(String newText) {
                 if (newText != null) {
                     notesViewModel.search(newText);
-                }
-                else if (tagsViewModel.getTags().getValue() != null) {
+                } else if (tagsViewModel.getTags().getValue() != null) {
                     notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
                 }
                 return true;
@@ -497,7 +497,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     }
 
-    void setUpNavigationBar(){
+    void setUpNavigationBar() {
         List<FloatingActionButton> fabs = new ArrayList<FloatingActionButton>();
         fabs.add(binding.fabAddNormalNote);
         fabs.add(binding.fabAddCheckListNote);
@@ -593,21 +593,7 @@ public class NotesFragment extends Fragment implements OnBackPressed {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.action_archive: {
-                    int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
-                            + unpinnedNotesAdapter.numberOfSelectedItems();
-
-                    if (nSelectedItems == 0) {
-                        return true;
-                    }
-
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
-
-                    NoteWithTags[] archiveNotes = selectedItems.toArray(new NoteWithTags[]{});
-
-                    notesViewModel.moveToArchived(archiveNotes);
-                    actionModeCallback.finishActionMode();
+                    if (onActionArchive()) return true;
 
                     return true;
                 }
@@ -623,52 +609,117 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 }
 
                 case R.id.action_toggle_pin: {
-                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
-                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
-
-                    boolean actionPinAll = !selectedUnpinnedItems.isEmpty();
-                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
-                        return true;
-                    }
-
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
-
-                    NoteWithTags[] notes = selectedItems.toArray(new NoteWithTags[]{});
-                    notesViewModel.togglePin(actionPinAll, notes);
-                    notesViewModel.requestReloadingData();
-
-                    actionModeCallback.finishActionMode();
+                    if (onActionTogglePin()) return true;
 
                     return true;
                 }
 
                 case R.id.action_remove_note: {
-                    List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
-                    List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
-
-                    List<NoteWithTags> selectedItems = new ArrayList<>();
-                    selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
-                    selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
-
-                    if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
-                        return true;
-                    }
-
-                    NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
-                    notesViewModel.moveToTrash(trashedNotes);
-
-                    Snackbar.make(binding.getRoot(), R.string.restore_status, Snackbar.LENGTH_LONG)
-                            .setAction(R.string.undo, v -> notesViewModel.restoreNoteFromTrash(trashedNotes))
-                            .show();
-
-                    actionModeCallback.finishActionMode();
-
+                    if (onActionRemoveNotes()) return true;
                     return true;
+                }
+
+                case R.id.action_change_colour: {
+                    return onActionChangeColour();
                 }
             }
             return false;
+        }
+
+        private boolean onActionChangeColour() {
+            PropertiesBSFragment propertiesBSFragment = new PropertiesBSFragment();
+            propertiesBSFragment.setPropertiesChangeListener(colorCode -> {
+                int[] colors = getResources().getIntArray(R.array.note_color);
+
+                int currentColorIdx = 0;
+                for (int i = 0; i < colors.length; i++) {
+                    if (colors[i] == colorCode) {
+                        currentColorIdx = i;
+                        break;
+                    }
+                }
+
+                int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
+                        + unpinnedNotesAdapter.numberOfSelectedItems();
+
+                if (nSelectedItems == 0) {
+                    return;
+                }
+
+                List<NoteWithTags> selectedItems = new ArrayList<>();
+                selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+                selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+                NoteWithTags[] noteToChangeColour = selectedItems.toArray(new NoteWithTags[]{});
+                notesViewModel.changeColors(currentColorIdx, noteToChangeColour);
+                actionModeCallback.finishActionMode();
+
+            });
+            showBottomSheetDialogFragment(propertiesBSFragment);
+            return true;
+        }
+
+        private boolean onActionRemoveNotes() {
+            List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
+            List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
+
+            List<NoteWithTags> selectedItems = new ArrayList<>();
+            selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+            selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+            if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
+                return true;
+            }
+
+            NoteWithTags[] trashedNotes = selectedItems.toArray(new NoteWithTags[]{});
+            notesViewModel.moveToTrash(trashedNotes);
+
+            Snackbar.make(binding.getRoot(), R.string.restore_status, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.undo, v -> notesViewModel.restoreNoteFromTrash(trashedNotes))
+                    .show();
+
+            actionModeCallback.finishActionMode();
+            return true;
+        }
+
+        private boolean onActionTogglePin() {
+            List<NoteWithTags> selectedPinnedItems = pinnedNotesAdapter.getSelectedItems();
+            List<NoteWithTags> selectedUnpinnedItems = unpinnedNotesAdapter.getSelectedItems();
+
+            boolean actionPinAll = !selectedUnpinnedItems.isEmpty();
+            if (selectedPinnedItems.isEmpty() && selectedUnpinnedItems.isEmpty()) {
+                return true;
+            }
+
+            List<NoteWithTags> selectedItems = new ArrayList<>();
+            selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+            selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+            NoteWithTags[] notes = selectedItems.toArray(new NoteWithTags[]{});
+            notesViewModel.togglePin(actionPinAll, notes);
+            notesViewModel.requestReloadingData();
+
+            actionModeCallback.finishActionMode();
+            return true;
+        }
+
+        private boolean onActionArchive() {
+            int nSelectedItems = pinnedNotesAdapter.numberOfSelectedItems()
+                    + unpinnedNotesAdapter.numberOfSelectedItems();
+
+            if (nSelectedItems == 0) {
+                return true;
+            }
+
+            List<NoteWithTags> selectedItems = new ArrayList<>();
+            selectedItems.addAll(pinnedNotesAdapter.getSelectedItems());
+            selectedItems.addAll(unpinnedNotesAdapter.getSelectedItems());
+
+            NoteWithTags[] archiveNotes = selectedItems.toArray(new NoteWithTags[]{});
+
+            notesViewModel.moveToArchived(archiveNotes);
+            actionModeCallback.finishActionMode();
+            return true;
         }
 
         @Override
@@ -702,6 +753,13 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             }
 
             actionMode = null;
+        }
+
+        private void showBottomSheetDialogFragment(BottomSheetDialogFragment fragment) {
+            if (fragment == null || fragment.isAdded()) {
+                return;
+            }
+            fragment.show(getChildFragmentManager(), fragment.getTag());
         }
 
         void finishActionMode() {

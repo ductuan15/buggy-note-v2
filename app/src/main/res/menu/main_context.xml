@@ -6,13 +6,19 @@
         android:id="@+id/action_archive"
         android:icon="@drawable/ic_outline_archive_24"
         android:title="@string/move_to_archive"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_toggle_pin"
         android:icon="@drawable/ic_baseline_push_pin_24"
         android:title="@string/pin_selected_notes"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_change_colour"
+        android:icon="@drawable/ic_outline_color_lens_24"
+        android:title="@string/set_note_color"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_remove_note"
@@ -24,6 +30,6 @@
         android:id="@+id/action_select_all"
         android:icon="@drawable/ic_baseline_select_all_24"
         android:title="@android:string/selectAll"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
 </menu>

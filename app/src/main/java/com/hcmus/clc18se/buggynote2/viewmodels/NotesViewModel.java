@@ -381,4 +381,17 @@ public class NotesViewModel extends AndroidViewModel {
             }
         });
     }
+
+    public void changeColors(int colorIdx, NoteWithTags... noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            Note[] notes = new Note[noteList.length];
+            for (int i = 0; i < noteList.length; ++i) {
+                noteList[i].note.colorIdx = colorIdx;
+                notes[i] = noteList[i].note;
+            }
+
+            database.updateNote(notes);
+            reloadDataRequest.postValue(true);
+        });
+    }
 }
