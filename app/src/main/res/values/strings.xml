@@ -63,4 +63,6 @@
     <string name="color_title">Color</string>
     <string name="detail">Detail</string>
     <string name="invalid_reminder_time">Invalid reminder time</string>
+    <string name="existed_notification_dialog_title">Notification is existed</string>
+    <string name="existed_notification_dialog_msg">This note have notification at %1$s. Do you want override?</string>
 </resources>

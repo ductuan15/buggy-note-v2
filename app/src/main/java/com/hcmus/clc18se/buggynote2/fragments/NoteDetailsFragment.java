@@ -437,12 +437,6 @@ public class NoteDetailsFragment extends Fragment
                     notesViewModel.requestReloadingItem(noteWithTags.note.id);
                 }
             });
-
-            // set time reminder
-            if (dateReminder != null) {
-                String reminderDateTimeString = Utils.setReminder(dateReminder, requireContext(), noteWithTags, arguments.getNoteId());
-                Toast.makeText(requireContext(), "Set reminder at:" + reminderDateTimeString, Toast.LENGTH_SHORT).show();
-            }
         }
 
     }
@@ -615,40 +609,49 @@ public class NoteDetailsFragment extends Fragment
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(arrayAdapter);
         builder.setView(promptsView);
-        builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                NoteWithTags noteWithTags = viewModel.getNote().getValue();
-                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
-                long oldDateString = sharedPreferences.getLong(String.valueOf(noteWithTags.note.id),-1);
+        builder.setPositiveButton(getString(R.string.save), (dialog, which) -> {
+            NoteWithTags noteWithTags = viewModel.getNote().getValue();
+            SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
+            long oldDateString = 0;
+            if (noteWithTags != null) {
+                oldDateString = sharedPreferences.getLong(String.valueOf(noteWithTags.note.id), -1);
                 Date oldDate = null;
                 if (oldDateString != -1) {
                     oldDate = new Date(oldDateString);
-                    AlertDialog.Builder builder2 = new AlertDialog.Builder(requireContext());
-                    builder2.setTitle("This note have notification at" + formatterDateTime.format(oldDate) + ". Do you want override?");
-                    builder2.setPositiveButton("Override", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog2, int which) {
-                            dateReminder = (Date) date.clone();
-                            dialog2.dismiss();
-                        }
-                    });
-                    builder2.setPositiveButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog2, int which) {
-                            dialog.dismiss();
-                            dialog2.dismiss();
-                        }
-                    });
-                }
-                else {
-                    dateReminder = (Date) date.clone();
+                    if (oldDate.getTime() < System.currentTimeMillis()) {
+                        new MaterialAlertDialogBuilder(requireContext())
+                                .setTitle(R.string.existed_notification_dialog_title)
+                                .setMessage(getString(R.string.existed_notification_dialog_msg, formatterDateTime.format(oldDate)))
+                                .setPositiveButton("Override", (dialog2, which1) -> {
+                                    dateReminder = (Date) date.clone();
+                                    saveReminder(date, noteWithTags, sharedPreferences);
+                                    dialog2.dismiss();
+                                })
+                                .setNegativeButton(getString(R.string.cancel), (dialog2, which12) -> {
+                                    dialog.dismiss();
+                                    dialog2.dismiss();
+                                }).show();
+                    } else {
+                        saveReminder(date, noteWithTags, sharedPreferences);
+                    }
+                } else {
+                    saveReminder(date, noteWithTags, sharedPreferences);
                 }
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
         AlertDialog addNotification = builder.create();
         addNotification.show();
+    }
+
+    private void saveReminder(Date date, NoteWithTags noteWithTags, SharedPreferences sharedPreferences) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong(String.valueOf(noteWithTags.note.id), date.getTime())
+                .apply();
+        dateReminder = (Date) date.clone();
+        // set time reminder
+        String reminderDateTimeString = Utils.setReminder(dateReminder, requireContext(), noteWithTags, arguments.getNoteId());
+        Toast.makeText(requireContext(), "Set reminder at:" + reminderDateTimeString, Toast.LENGTH_SHORT).show();
     }
 
     private void onActionShare() {
@@ -906,9 +909,8 @@ public class NoteDetailsFragment extends Fragment
         );
         try {
             startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
-        }
-        catch (ActivityNotFoundException activityNotFoundException){
-            Toast.makeText(requireContext(),"App not found",Toast.LENGTH_SHORT).show();
+        } catch (ActivityNotFoundException activityNotFoundException) {
+            Toast.makeText(requireContext(), "App not found", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -920,9 +922,8 @@ public class NoteDetailsFragment extends Fragment
         ).setType("audio/*");
         try {
             startActivityForResult(intent, PICK_AUDIO_REQUEST_CODE);
-        }
-        catch (ActivityNotFoundException activityNotFoundException){
-            Toast.makeText(requireContext(),"App not found",Toast.LENGTH_SHORT).show();
+        } catch (ActivityNotFoundException activityNotFoundException) {
+            Toast.makeText(requireContext(), "App not found", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -977,7 +978,7 @@ public class NoteDetailsFragment extends Fragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data!=null && data.getData() != null) {
+        if (data != null && data.getData() != null) {
             if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
                 Uri uri = data.getData();
                 viewModel.addPhoto(uri);

@@ -38,6 +38,7 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View v) {
         if (v == dismissButton) {
+            // TODO:
             Intent intent = new Intent(getBaseContext(), ReminderActionReceiver.class);
             intent.setAction(ReminderActionReceiver.ACTION_DISMISS);
 

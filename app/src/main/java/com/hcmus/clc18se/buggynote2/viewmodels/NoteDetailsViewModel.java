@@ -141,7 +141,15 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
                 int nCol = database.removeNote(note.getValue().note);
                 Timber.d("Remove note" + nCol + " affected");
-                removePhoto(note.getValue().photos);
+                removePhotos(note.getValue().photos);
+                removeAudios(note.getValue().audios);
+
+                getApplication()
+                        .getApplicationContext()
+                        .getSharedPreferences("REMINDER", Context.MODE_PRIVATE)
+                        .edit().remove(String.valueOf(note.getValue().note.id))
+                        .apply();
+
                 deleteRequest.postValue(true);
             });
         }
@@ -310,7 +318,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
         });
     }
 
-    public void removePhoto(List<Photo> photos) {
+    public void removePhotos(List<Photo> photos) {
         if (photos != null) {
             return;
         }
@@ -335,6 +343,38 @@ public class NoteDetailsViewModel extends AndroidViewModel {
                 }
 
                 database.deletePhoto(photos.toArray(new Photo[]{}));
+
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void removeAudios(List<Audio> audios) {
+        if (audios != null) {
+            return;
+        }
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                List<File> files = new ArrayList<>();
+                for (Audio audio : audios) {
+                    File file = new File(Uri.parse(audio.uri).getPath());
+                    files.add(file);
+                }
+
+                for (File file : files) {
+                    if (file.exists()) {
+                        file.delete();
+                    }
+                }
+                NoteWithTags note = getNote().getValue();
+                if (note != null) {
+                    List<Audio> allPhotos = note.audios;
+                    allPhotos.removeAll(audios);
+                }
+
+                database.deleteAudio(audios.toArray(new Audio[]{}));
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
