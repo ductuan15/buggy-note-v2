@@ -8,43 +8,25 @@
         <variable
             name="audio"
             type="com.hcmus.clc18se.buggynote2.data.Audio" />
+
+        <import type="android.view.View" />
+        <variable
+            name="chipOnClickListener"
+            type="View.OnClickListener" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp">
-
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="140dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintDimensionRatio="H,1:1"
+        <com.google.android.material.chip.Chip
+            android:id="@+id/item_audio"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/audio_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:maxWidth="72dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_baseline_audiotrack_24"
-                tools:ignore="ContentDescription"
-                tools:src="@drawable/ic_baseline_audiotrack_24" />
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/item_audio"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginHorizontal="4dp"
             loadNameAudio="@{audio}"
-            android:layout_width="wrap_content"
+            style="@style/Widget.MaterialComponents.Chip.Action"
+            setOnClickToChipsAudio="@{chipOnClickListener}"
+            app:chipIcon="@drawable/ic_baseline_audiotrack_24"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="@+id/frameLayout"
-            app:layout_constraintEnd_toEndOf="@+id/frameLayout"
-            app:layout_constraintStart_toStartOf="@+id/frameLayout"
-            tools:text="@string/nothing_here" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_width="wrap_content"
+            tools:text="@string/nothing_here">
+        </com.google.android.material.chip.Chip>
 </layout>

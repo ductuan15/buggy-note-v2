@@ -1,9 +1,7 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,8 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.MediaController;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,22 +28,18 @@ import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
-import com.hcmus.clc18se.buggynote2.data.Photo;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentAudioViewBinding;
-import com.hcmus.clc18se.buggynote2.databinding.FragmentPhotoViewBinding;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NoteDetailsViewModelFactory;
 
-import java.io.IOException;
 import java.util.List;
 
 public class AudioViewFragment extends Fragment {
 
     private FragmentAudioViewBinding binding;
     private NoteDetailsViewModel viewModel;
-    private MediaPlayer mediaPlayer = null;
 
     private int currentPos = 0;
 
@@ -92,6 +84,15 @@ public class AudioViewFragment extends Fragment {
         binding.setNoteDetailsViewModel(viewModel);
 
         initObservers();
+
+        screenSlidePagerAdapter = new AudioViewFragment.ScreenSlidePagerAdapter(this);
+        binding.viewPager.setAdapter(screenSlidePagerAdapter);
+        if (viewModel.photoIndex >= 0) {
+            currentPos = viewModel.photoIndex;
+        }
+        binding.viewPager.setCurrentItem(currentPos, false);
+
+        binding.viewPager.registerOnPageChangeCallback(callback);
         return binding.getRoot();
     }
 
@@ -100,15 +101,10 @@ public class AudioViewFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
 
-        screenSlidePagerAdapter = new ScreenSlidePagerAdapter(this);
-        binding.viewPager.registerOnPageChangeCallback(callback);
-        binding.viewPager.setAdapter(screenSlidePagerAdapter);
-
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_CURRENT_POS)) {
             currentPos = savedInstanceState.getInt(BUNDLE_CURRENT_POS);
+            binding.viewPager.setCurrentItem(currentPos);
         }
-        binding.viewPager.setCurrentItem(currentPos);
-
     }
 
     private void initObservers() {
@@ -174,7 +170,6 @@ public class AudioViewFragment extends Fragment {
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStateAdapter {
-
         public ScreenSlidePagerAdapter(@NonNull Fragment fragment) {
             super(fragment);
         }

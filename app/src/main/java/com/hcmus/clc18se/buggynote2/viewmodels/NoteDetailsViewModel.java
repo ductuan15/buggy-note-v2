@@ -34,6 +34,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
 
     private final long id;
     private final BuggyNoteDao database;
+    public int photoIndex;
 
     public NoteDetailsViewModel(
             Application application,
