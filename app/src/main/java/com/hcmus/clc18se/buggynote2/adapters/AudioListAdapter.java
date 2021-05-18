@@ -33,7 +33,7 @@ public class AudioListAdapter extends ListAdapter<Audio, AudioListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Audio Audio = getItem(position);
         holder.bind(Audio);
-        holder.itemView.setOnClickListener(v -> callback.onItemClick(Audio));
+        holder.binding.setChipOnClickListener(v -> callback.onItemClick(Audio));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -43,10 +43,12 @@ public class AudioListAdapter extends ListAdapter<Audio, AudioListAdapter.ViewHo
         public ViewHolder(ItemAudioBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+
         }
 
         public void bind(Audio Audio) {
             binding.setAudio(Audio);
+
         }
     }
 }

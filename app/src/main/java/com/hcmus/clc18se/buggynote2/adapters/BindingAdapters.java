@@ -428,14 +428,14 @@ public class BindingAdapters {
     }
 
     @BindingAdapter("loadNameAudio")
-    public static void loadNameAudio(@NonNull TextView textView, @Nullable Audio audio) {
+    public static void loadNameAudio(@NonNull Chip chipView, @Nullable Audio audio) {
         if (audio != null) {
             Uri uri = Uri.parse(audio.uri);
             int index = uri.getPath().lastIndexOf("/");
             if (index != -1) {
-                textView.setText(uri.getPath().substring(index + 1));
+                chipView.setText(uri.getPath().substring(index + 1));
             } else {
-                textView.setText(uri.getPath());
+                chipView.setText(uri.getPath());
             }
         }
     }
@@ -512,6 +512,14 @@ public class BindingAdapters {
                 cardView.setStrokeColor(new ColorStateList(strokeColorStates, strokeColors));
 
             }
+        }
+    }
+
+    @BindingAdapter("setOnClickToChipsAudio")
+    public static void setOnCLickAudioToChip(Chip chip, View.OnClickListener onClickListener){
+        if (onClickListener != null)
+        {
+            chip.setOnClickListener(onClickListener);
         }
     }
 }
