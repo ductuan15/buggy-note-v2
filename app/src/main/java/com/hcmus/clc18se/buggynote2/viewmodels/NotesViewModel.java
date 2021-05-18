@@ -17,6 +17,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
@@ -370,15 +371,50 @@ public class NotesViewModel extends AndroidViewModel {
             return;
         }
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            long begin = System.currentTimeMillis();
+
             String queryStr = query;
             if (queryStr.isEmpty()) {
                 loadNotesFromDatabase();
-            }
-            else {
+            } else {
                 queryStr = queryStr.replaceAll(Pattern.quote("\""), "\"\"");
                 List<NoteWithTags> results = database.searchNote('*' + queryStr + '*');
                 noteList.postValue(results);
             }
+            Timber.d("Searched in " + (System.currentTimeMillis() - begin) + " ms");
+        });
+
+    }
+
+    public void searchWithSelectedTags(String query, List<Tag> tags) {
+
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            long begin = System.currentTimeMillis();
+
+            List<Long> tagIds = new LinkedList<>();
+            if (tags != null) {
+                for (Tag tag : tags) {
+                    if (tag.isSelectedState()) {
+                        tagIds.add(tag.getId());
+                    }
+                }
+            }
+
+            String queryStr = query;
+            if (queryStr.isEmpty()) {
+                filterByTags(tags);
+                return;
+            }
+
+            queryStr = queryStr.replaceAll(Pattern.quote("\""), "\"\"");
+            List<NoteWithTags> results;
+            if (!tagIds.isEmpty()) {
+                results = database.searchNoteWithSelectedTags('*' + queryStr + '*', tagIds);
+            } else {
+                results = database.searchNote('*' + queryStr + '*');
+            }
+            noteList.postValue(results);
+            Timber.d("Search in " + (System.currentTimeMillis() - begin) + " ms");
         });
     }
 

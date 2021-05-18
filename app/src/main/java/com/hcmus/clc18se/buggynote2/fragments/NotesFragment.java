@@ -388,7 +388,12 @@ public class NotesFragment extends Fragment implements OnBackPressed {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query != null) {
-                    notesViewModel.search(query);
+                    List<Tag> tagList = tagsViewModel.getTags().getValue();
+                    if (tagList != null) {
+                        notesViewModel.searchWithSelectedTags(query, tagList);
+                    } else {
+                        notesViewModel.search(query);
+                    }
                     return true;
                 }
                 return false;
@@ -396,9 +401,14 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                List<Tag> tagList = tagsViewModel.getTags().getValue();
                 if (newText != null) {
-                    notesViewModel.search(newText);
-                } else if (tagsViewModel.getTags().getValue() != null) {
+                    if (tagList != null) {
+                        notesViewModel.searchWithSelectedTags(newText, tagList);
+                    } else {
+                        notesViewModel.search(newText);
+                    }
+                } else if (tagList != null) {
                     notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
                 }
                 return true;

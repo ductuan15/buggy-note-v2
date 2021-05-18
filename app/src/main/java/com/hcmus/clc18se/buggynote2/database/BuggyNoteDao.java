@@ -103,4 +103,11 @@ public interface BuggyNoteDao {
             "join note_fts on note.rowid = note_fts.rowid " +
             "where note_fts match :query")
     List<NoteWithTags> searchNote(String query);
+
+    @Transaction
+    @Query("select * " +
+            "from note " +
+            "where note_id in (select note_id from notecrossref where tag_id in (:tagIds)) " +
+            "and note_id in (select note_fts.rowid from note_fts where note_fts match :query)")
+    List<NoteWithTags> searchNoteWithSelectedTags(String query, List<Long> tagIds);
 }
