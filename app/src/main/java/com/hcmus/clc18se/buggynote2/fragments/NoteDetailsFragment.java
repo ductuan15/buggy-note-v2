@@ -3,6 +3,7 @@ package com.hcmus.clc18se.buggynote2.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -903,17 +904,26 @@ public class NoteDetailsFragment extends Fragment
                 Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         );
-        startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+        try {
+            startActivityForResult(intent, PICK_IMAGE_REQUEST_CODE);
+        }
+        catch (ActivityNotFoundException activityNotFoundException){
+            Toast.makeText(requireContext(),"App not found",Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static final int PICK_AUDIO_REQUEST_CODE = 0x4949;
 
     private void onActionAddSound() {
         Intent intent = new Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-        );
-        startActivityForResult(intent, PICK_AUDIO_REQUEST_CODE);
+                Intent.ACTION_GET_CONTENT
+        ).setType("audio/*");
+        try {
+            startActivityForResult(intent, PICK_AUDIO_REQUEST_CODE);
+        }
+        catch (ActivityNotFoundException activityNotFoundException){
+            Toast.makeText(requireContext(),"App not found",Toast.LENGTH_SHORT).show();
+        }
     }
 
     private boolean onActionPin(@NonNull MenuItem item) {
@@ -967,13 +977,15 @@ public class NoteDetailsFragment extends Fragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-            viewModel.addPhoto(uri);
-        }
-        if (requestCode == PICK_AUDIO_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Uri uri = data.getData();
-            viewModel.addAudio(uri);
+        if (data!=null && data.getData() != null) {
+            if (requestCode == PICK_IMAGE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+                Uri uri = data.getData();
+                viewModel.addPhoto(uri);
+            }
+            if (requestCode == PICK_AUDIO_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+                Uri uri = data.getData();
+                viewModel.addAudio(uri);
+            }
         }
     }
 
