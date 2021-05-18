@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -519,8 +520,9 @@ public class NoteDetailsFragment extends Fragment
         View promptsView = li.inflate(R.layout.dialog_add_notification, null);
         Spinner dateSpinner = promptsView.findViewById(R.id.spinner_choose_day);
         List<String> listDateChoose = new ArrayList<>();
-        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat formatterTime = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm");
+        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MMMM-dd");
+        SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm");
         Date date = new Date(System.currentTimeMillis());
         listDateChoose.add(formatterDate.format(date));
         ArrayAdapter<String> arrayAdapterChooseDate = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listDateChoose);
@@ -580,6 +582,7 @@ public class NoteDetailsFragment extends Fragment
                 LayoutInflater li = LayoutInflater.from(requireContext());
                 View promptsView = li.inflate(R.layout.dialog_time_picker, null);
                 TimePicker timePicker = promptsView.findViewById(R.id.time_picker);
+                timePicker.setIs24HourView(true);
 
                 builder.setCancelable(false);
                 builder.setView(promptsView);
@@ -606,6 +609,7 @@ public class NoteDetailsFragment extends Fragment
         listModeChoose.add("Week");
         listModeChoose.add("Month");
         listModeChoose.add("Year");
+        listModeChoose.add("No repeat");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listModeChoose);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(arrayAdapter);
@@ -613,7 +617,32 @@ public class NoteDetailsFragment extends Fragment
         builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dateReminder = (Date) date.clone();
+                NoteWithTags noteWithTags = viewModel.getNote().getValue();
+                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
+                long oldDateString = sharedPreferences.getLong(String.valueOf(noteWithTags.note.id),-1);
+                Date oldDate = null;
+                if (oldDateString != -1) {
+                    oldDate = new Date(oldDateString);
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(requireContext());
+                    builder2.setTitle("This note have notification at" + formatterDateTime.format(oldDate) + ". Do you want override?");
+                    builder2.setPositiveButton("Override", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog2, int which) {
+                            dateReminder = (Date) date.clone();
+                            dialog2.dismiss();
+                        }
+                    });
+                    builder2.setPositiveButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog2, int which) {
+                            dialog.dismiss();
+                            dialog2.dismiss();
+                        }
+                    });
+                }
+                else {
+                    dateReminder = (Date) date.clone();
+                }
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
