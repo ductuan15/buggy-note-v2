@@ -99,8 +99,6 @@ public class NoteDetailsFragment extends Fragment
 
     private final View.OnClickListener tagOnClickListener = v -> viewModel.navigateToTagSelection();
 
-    private final View.OnClickListener audioOnClickListener = v -> viewModel.navigateToAudioView();
-
     private Menu menu;
 
     private PropertiesBSFragment propertiesBSFragment;
@@ -149,13 +147,15 @@ public class NoteDetailsFragment extends Fragment
 
     private final CheckListAdapter checkListAdapter = new CheckListAdapter(checkListAdapterCallbacks);
 
-    private final PhotoListAdapterCallback photoListAdapterCallback = photo -> {
+    private final PhotoListAdapterCallback photoListAdapterCallback = idx -> {
+        viewModel.photoIndex = idx;
         viewModel.navigateToPhotoView();
     };
 
     private final PhotoListAdapter photoListAdapter = new PhotoListAdapter(photoListAdapterCallback);
 
-    private final AudioListAdapterCallback audioListAdapterCallback = audio -> {
+    private final AudioListAdapterCallback audioListAdapterCallback = idx -> {
+        viewModel.photoIndex = idx;
         viewModel.navigateToAudioView();
     };
 
