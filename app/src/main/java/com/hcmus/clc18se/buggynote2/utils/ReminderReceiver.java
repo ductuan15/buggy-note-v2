@@ -37,6 +37,7 @@ import org.commonmark.node.Emphasis;
 import org.commonmark.node.Heading;
 import org.commonmark.node.ListItem;
 import org.commonmark.node.StrongEmphasis;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
@@ -148,70 +149,53 @@ public class ReminderReceiver extends BroadcastReceiver {
             }
 
             if (note.isMarkdown()) {
-                noteContent = note.noteContent;
-                String[] contents = noteContent.split("\n", 2);
-                if (contents.length != 0) {
-                    noteTitle = contents[0];
-                }
-                final float[] headingSizes = {
-                        2.F, 1.5F, 1.17F, 1.F, .83F, .67F,
-                };
 
-                final int bulletGapWidth = (int) (8 * context.getResources().getDisplayMetrics().density + 0.5F);
-                Markwon markwon = Markwon.builder(context)
-                        .usePlugin(StrikethroughPlugin.create())
-                        .usePlugin(TablePlugin.create(context))
-                        .usePlugin(new AbstractMarkwonPlugin() {
-                            @Override
-                            public void configureSpansFactory(@NonNull MarkwonSpansFactory.Builder builder) {
-                                builder
-                                        .setFactory(Heading.class, (configuration, props) -> new Object[]{
-                                                new StyleSpan(Typeface.BOLD),
-                                                new RelativeSizeSpan(headingSizes[CoreProps.HEADING_LEVEL.require(props) - 1])
-                                        })
-                                        .setFactory(StrongEmphasis.class, (configuration, props) -> new StyleSpan(Typeface.BOLD))
-                                        .setFactory(Emphasis.class, (configuration, props) -> new StyleSpan(Typeface.ITALIC))
-                                        .setFactory(Code.class, (configuration, props) -> new Object[]{
-                                                new BackgroundColorSpan(Color.GRAY),
-                                                new TypefaceSpan("monospace")
-                                        })
-                                        .setFactory(Strikethrough.class, (configuration, props) -> new StrikethroughSpan())
-                                        .setFactory(ListItem.class, (configuration, props) -> new BulletSpan(bulletGapWidth))
-                                        .setFactory(BlockQuote.class, (configuration, props) -> new QuoteSpan());
-                            }
-                        })
-                        .build();
 
-                RemoteViews notificationLayoutExpanded = new RemoteViews(context.getPackageName(),
-                        R.layout.notification_note_expanded);
-
-                notificationLayoutExpanded.setTextViewText(R.id.content, markwon.toMarkdown(noteContent));
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    builder .setCustomBigContentView(notificationLayoutExpanded)
-                            .setStyle(new NotificationCompat.DecoratedCustomViewStyle());
-                } else {
-                    builder.setContent(notificationLayoutExpanded);
-                }
 
             } else {
                builder.setStyle(new NotificationCompat.BigTextStyle().bigText(noteContent));
             }
+            builder.setSmallIcon(R.drawable.ic_baseline_mode_edit_24)
+                    .setContentTitle(noteTitle)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setCategory(NotificationCompat.CATEGORY_ALARM)
+                    .addAction(dismissAction)
+                    .addAction(noteDetailAction);
+            setChannel();
+            builder.setAutoCancel(true);
+            builder.setOngoing(true);
+            notificationManager.notify((int) noteID, builder.build());
+            ReminderMusicControl.getInstance(context).playMusic(context);
 
         }
-        builder.setSmallIcon(R.drawable.ic_baseline_mode_edit_24)
-                .setContentTitle(noteTitle)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ALARM)
-                .addAction(dismissAction)
-                .addAction(noteDetailAction);
-        setChannel();
-        builder.setAutoCancel(true);
-        builder.setOngoing(true);
-        notificationManager.notify((int) noteID, builder.build());
+    }
 
-
-        ReminderMusicControl.getInstance(context).playMusic(context);
+    @NotNull
+    private Markwon makeMarkwonInstance(Context context, float[] headingSizes, int bulletGapWidth) {
+        Markwon markwon = Markwon.builder(context)
+                .usePlugin(StrikethroughPlugin.create())
+                .usePlugin(TablePlugin.create(context))
+                .usePlugin(new AbstractMarkwonPlugin() {
+                    @Override
+                    public void configureSpansFactory(@NonNull MarkwonSpansFactory.Builder builder) {
+                        builder
+                                .setFactory(Heading.class, (configuration, props) -> new Object[]{
+                                        new StyleSpan(Typeface.BOLD),
+                                        new RelativeSizeSpan(headingSizes[CoreProps.HEADING_LEVEL.require(props) - 1])
+                                })
+                                .setFactory(StrongEmphasis.class, (configuration, props) -> new StyleSpan(Typeface.BOLD))
+                                .setFactory(Emphasis.class, (configuration, props) -> new StyleSpan(Typeface.ITALIC))
+                                .setFactory(Code.class, (configuration, props) -> new Object[]{
+                                        new BackgroundColorSpan(Color.GRAY),
+                                        new TypefaceSpan("monospace")
+                                })
+                                .setFactory(Strikethrough.class, (configuration, props) -> new StrikethroughSpan())
+                                .setFactory(ListItem.class, (configuration, props) -> new BulletSpan(bulletGapWidth))
+                                .setFactory(BlockQuote.class, (configuration, props) -> new QuoteSpan());
+                    }
+                })
+                .build();
+        return markwon;
     }
 
     public void setFullScreenIntent(Context context) {

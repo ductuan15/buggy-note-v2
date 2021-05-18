@@ -7,6 +7,6 @@
     style="@style/TextAppearance.Compat.Notification.Info"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:maxLines="10"
+    android:maxLines="20"
     tools:text="@tools:sample/lorem/random" />
 
