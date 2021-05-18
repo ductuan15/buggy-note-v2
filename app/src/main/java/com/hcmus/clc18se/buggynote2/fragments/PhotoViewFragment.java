@@ -40,7 +40,7 @@ public class PhotoViewFragment extends Fragment {
     private FragmentPhotoViewBinding binding;
     private NoteDetailsViewModel viewModel;
 
-    private int currentPos = 0;
+    private int currentPos = 1;
 
     private final ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
         @Override
@@ -83,6 +83,15 @@ public class PhotoViewFragment extends Fragment {
         binding.setNoteDetailsViewModel(viewModel);
 
         initObservers();
+
+        screenSlidePagerAdapter = new ScreenSlidePagerAdapter(this);
+        binding.viewPager.setAdapter(screenSlidePagerAdapter);
+        if (viewModel.photoIndex >= 0) {
+            currentPos = viewModel.photoIndex;
+        }
+        binding.viewPager.setCurrentItem(currentPos, false);
+
+        binding.viewPager.registerOnPageChangeCallback(callback);
         return binding.getRoot();
     }
 
@@ -90,16 +99,11 @@ public class PhotoViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setUpNavigation();
-
-        screenSlidePagerAdapter = new ScreenSlidePagerAdapter(this);
-        binding.viewPager.registerOnPageChangeCallback(callback);
-        binding.viewPager.setAdapter(screenSlidePagerAdapter);
-
         if (savedInstanceState != null && savedInstanceState.containsKey(BUNDLE_CURRENT_POS)) {
             currentPos = savedInstanceState.getInt(BUNDLE_CURRENT_POS);
-        }
-        binding.viewPager.setCurrentItem(currentPos);
+            binding.viewPager.setCurrentItem(currentPos);
 
+        }
     }
 
     private void initObservers() {
@@ -120,8 +124,7 @@ public class PhotoViewFragment extends Fragment {
                         }
                         screenSlidePagerAdapter.notifyItemRemoved(currentPos);
                     }
-                }
-                else {
+                } else {
                     requireActivity().onBackPressed();
                 }
 
@@ -207,7 +210,7 @@ public class PhotoViewFragment extends Fragment {
             NoteWithTags note = viewModel.getNote().getValue();
             if (note != null) {
                 List<Photo> photos = note.photos;
-                for (Photo photo: photos) {
+                for (Photo photo : photos) {
                     if (photo.id == itemId) {
                         return true;
                     }

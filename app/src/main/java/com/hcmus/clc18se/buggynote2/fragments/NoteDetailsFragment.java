@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -64,6 +65,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
 import com.hcmus.clc18se.buggynote2.utils.FileUtils;
+import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.utils.views.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.utils.Utils;
@@ -84,7 +86,8 @@ import timber.log.Timber;
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 
-public class NoteDetailsFragment extends Fragment implements PropertiesBSFragment.Properties {
+public class NoteDetailsFragment extends Fragment
+        implements PropertiesBSFragment.Properties, OnBackPressed {
 
     private FragmentNoteDetailsBinding binding = null;
     private NoteDetailsFragmentArgs arguments;
@@ -144,13 +147,15 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
 
     private final CheckListAdapter checkListAdapter = new CheckListAdapter(checkListAdapterCallbacks);
 
-    private final PhotoListAdapterCallback photoListAdapterCallback = photo -> {
+    private final PhotoListAdapterCallback photoListAdapterCallback = idx -> {
+        viewModel.photoIndex = idx;
         viewModel.navigateToPhotoView();
     };
 
     private final PhotoListAdapter photoListAdapter = new PhotoListAdapter(photoListAdapterCallback);
 
-    private final AudioListAdapterCallback audioListAdapterCallback = audio -> {
+    private final AudioListAdapterCallback audioListAdapterCallback = idx -> {
+        viewModel.photoIndex = idx;
         viewModel.navigateToAudioView();
     };
 
@@ -358,25 +363,27 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         saveNote(false);
     }
 
+
+    @Override
+    public boolean onBackPressed() {
+
+        return false;
+    }
+
     @Override
     public void onDestroy() {
-        NoteWithTags noteWithTags = viewModel.getNote().getValue();
-        if (noteWithTags != null) {
-            Integer color = noteWithTags.note.getColor(requireContext());
-            if (color != null) {
-                requireActivity().getWindow().setStatusBarColor(
-                        ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
-                );
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                requireActivity().getWindow().setNavigationBarColor(
-                        ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
-                );
-            }
-        }
-
         super.onDestroy();
+
+        requireActivity().getWindow().setStatusBarColor(
+                ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+        );
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            requireActivity().getWindow().setNavigationBarColor(
+                    ViewUtils.getColorAttr(requireContext(), R.attr.colorSurface)
+            );
+
+        }
     }
 
     void saveNote(boolean require) {
@@ -431,8 +438,8 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             });
 
             // set time reminder
-            if(dateReminder != null){
-                String reminderDateTimeString =  Utils.setReminder(dateReminder,requireContext(),noteWithTags,arguments.getNoteId());
+            if (dateReminder != null) {
+                String reminderDateTimeString = Utils.setReminder(dateReminder, requireContext(), noteWithTags, arguments.getNoteId());
                 Toast.makeText(requireContext(), "Set reminder at:" + reminderDateTimeString, Toast.LENGTH_SHORT).show();
             }
         }
@@ -513,8 +520,9 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         View promptsView = li.inflate(R.layout.dialog_add_notification, null);
         Spinner dateSpinner = promptsView.findViewById(R.id.spinner_choose_day);
         List<String> listDateChoose = new ArrayList<>();
-        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat formatterTime = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat formatterDateTime = new SimpleDateFormat("yyyy-MMMM-dd HH:mm");
+        SimpleDateFormat formatterDate = new SimpleDateFormat("yyyy-MMMM-dd");
+        SimpleDateFormat formatterTime = new SimpleDateFormat("HH:mm");
         Date date = new Date(System.currentTimeMillis());
         listDateChoose.add(formatterDate.format(date));
         ArrayAdapter<String> arrayAdapterChooseDate = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listDateChoose);
@@ -574,6 +582,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
                 LayoutInflater li = LayoutInflater.from(requireContext());
                 View promptsView = li.inflate(R.layout.dialog_time_picker, null);
                 TimePicker timePicker = promptsView.findViewById(R.id.time_picker);
+                timePicker.setIs24HourView(true);
 
                 builder.setCancelable(false);
                 builder.setView(promptsView);
@@ -600,16 +609,42 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
         listModeChoose.add("Week");
         listModeChoose.add("Month");
         listModeChoose.add("Year");
+        listModeChoose.add("No repeat");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, listModeChoose);
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         typeSpinner.setAdapter(arrayAdapter);
         builder.setView(promptsView);
         builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dateReminder = (Date) date.clone();
-                    }
-                });
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                NoteWithTags noteWithTags = viewModel.getNote().getValue();
+                SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
+                long oldDateString = sharedPreferences.getLong(String.valueOf(noteWithTags.note.id),-1);
+                Date oldDate = null;
+                if (oldDateString != -1) {
+                    oldDate = new Date(oldDateString);
+                    AlertDialog.Builder builder2 = new AlertDialog.Builder(requireContext());
+                    builder2.setTitle("This note have notification at" + formatterDateTime.format(oldDate) + ". Do you want override?");
+                    builder2.setPositiveButton("Override", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog2, int which) {
+                            dateReminder = (Date) date.clone();
+                            dialog2.dismiss();
+                        }
+                    });
+                    builder2.setPositiveButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog2, int which) {
+                            dialog.dismiss();
+                            dialog2.dismiss();
+                        }
+                    });
+                }
+                else {
+                    dateReminder = (Date) date.clone();
+                }
+            }
+        });
         builder.setNegativeButton(getString(R.string.cancel), null);
         AlertDialog addNotification = builder.create();
         addNotification.show();
@@ -710,6 +745,7 @@ public class NoteDetailsFragment extends Fragment implements PropertiesBSFragmen
             startActivity(Intent.createChooser(sendIntent, getString(R.string.share_to)));
         }
     }
+
     private void shareAudios() {
         NoteWithTags noteWithTags = viewModel.getNote().getValue();
         if (noteWithTags != null) {

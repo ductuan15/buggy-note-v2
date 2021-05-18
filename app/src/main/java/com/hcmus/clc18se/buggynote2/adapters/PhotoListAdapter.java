@@ -33,7 +33,7 @@ public class PhotoListAdapter extends ListAdapter<Photo, PhotoListAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Photo photo = getItem(position);
         holder.bind(photo);
-        holder.itemView.setOnClickListener(v -> callback.onItemClick(photo));
+        holder.itemView.setOnClickListener(v -> callback.onItemClick(position));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
