@@ -1,15 +1,12 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.Toolbar;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
+import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -17,5 +14,32 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
+        setupPreferences();
+    }
+
+    private void setupPreferences() {
+        Preference backupPref = findPreference(getString(R.string.preference_backup_key));
+        backupPref.setOnPreferenceClickListener(
+                preference -> {
+                    Activity activity = requireActivity();
+                    if (activity instanceof BuggyNoteActivity) {
+                        ((BuggyNoteActivity) activity).onActionBackup();
+                        return true;
+                    }
+                    return false;
+                }
+        );
+
+        Preference importPref = findPreference(getString(R.string.preference_import_key));
+        importPref.setOnPreferenceClickListener(
+                preference -> {
+                    Activity activity = requireActivity();
+                    if (activity instanceof BuggyNoteActivity) {
+                        ((BuggyNoteActivity) activity).onActionImport();
+                        return true;
+                    }
+                    return false;
+                }
+        );
     }
 }

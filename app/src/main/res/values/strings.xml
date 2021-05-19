@@ -66,4 +66,11 @@
     <string name="existed_notification_dialog_title">Notification is existed</string>
     <string name="existed_notification_dialog_msg">This note have notification at %1$s. Do you want override?</string>
     <string name="dialog_tag_filter_preview_title">Filter result</string>
+    <string name="advanced">Advanced</string>
+    <string name="preference_backup_summary">Save your notes into a file</string>
+    <string name="preference_backup">Backup</string>
+    <string name="preference_import_summary">Import your notes from a backup file</string>
+    <string name="preference_import">Import</string>
+    <string name="preference_backup_key" translatable="false">preference_backup_key</string>
+    <string name="preference_import_key" translatable="false">preference_import_key</string>
 </resources>

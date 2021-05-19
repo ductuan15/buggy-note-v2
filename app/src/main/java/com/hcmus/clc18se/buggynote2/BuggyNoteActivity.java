@@ -6,12 +6,14 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -19,16 +21,19 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.navigation.NavigationView;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
+import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;
 import com.hcmus.clc18se.buggynote2.utils.PreferenceUtils;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
-
-import timber.log.Timber;
+import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
+import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
 
     private NavHostFragment navHostFragment = null;
+
     private NavController navController = null;
 
     public AppBarConfiguration getAppBarConfiguration() {
@@ -38,9 +43,12 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     AppBarConfiguration appBarConfiguration = null;
 
     private ActivityBuggyNoteBinding binding = null;
+
     private DrawerLayout drawerLayout = null;
 
     private SharedPreferences preferences = null;
+
+    private NotesViewModel notesViewModel;
 
     int[] topDestinations = new int[]{
             R.id.nav_notes,
@@ -81,6 +89,26 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         binding = ActivityBuggyNoteBinding.inflate(getLayoutInflater());
+        setupNavigation();
+        setUpViewModels();
+        setContentView(binding.getRoot());
+
+        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
+    }
+
+    private void setUpViewModels() {
+        BuggyNoteDao database = BuggyNoteDatabase.getInstance(this).buggyNoteDatabaseDao();
+
+        notesViewModel = new ViewModelProvider(
+                this,
+                new NotesViewModelFactory(
+                        database,
+                        this.getApplication()))
+                .get(NotesViewModel.class);
+
+    }
+
+    private void setupNavigation() {
         navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
         if (navHostFragment != null) {
             navController = navHostFragment.getNavController();
@@ -105,9 +133,6 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
                 }
         );
         navController.addOnDestinationChangedListener(onDestinationChangedListener);
-        setContentView(binding.getRoot());
-
-        preferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
     }
 
     @Override
@@ -120,7 +145,7 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
             if (id != -1) {
 
                 navController.navigate(
-                    NavigationNoteDetailsDirections.actionGlobalNavigationNoteDetails(id)
+                        NavigationNoteDetailsDirections.actionGlobalNavigationNoteDetails(id)
                 );
             }
         }
@@ -166,7 +191,6 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         super.onDestroy();
     }
 
-
     @Override
     public void lockTheDrawer() {
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
@@ -185,5 +209,13 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         super.onNewIntent(intent);
         setIntent(intent);
 
+    }
+
+    public void onActionBackup() {
+        Toast.makeText(this, R.string.preference_backup, Toast.LENGTH_SHORT).show();
+    }
+
+    public void onActionImport() {
+        Toast.makeText(this, R.string.preference_import, Toast.LENGTH_SHORT).show();
     }
 }
