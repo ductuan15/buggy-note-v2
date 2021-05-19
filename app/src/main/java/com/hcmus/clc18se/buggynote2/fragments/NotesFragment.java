@@ -66,9 +66,11 @@ import timber.log.Timber;
 public class NotesFragment extends Fragment implements OnBackPressed {
 
     private SharedPreferences preferences = null;
+
     private FragmentNotesBinding binding = null;
 
     private NotesViewModel notesViewModel;
+
     private boolean isFabRotate = false;
 
     private final NoteListActionMode actionModeCallback = new NoteListActionMode();
@@ -147,12 +149,10 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
         @Override
         public boolean onLongClick(Tag tag) {
-            //TagFilterPreviewDialogFragment.display(tag, getChildFragmentManager());
-            //return true;
-            return false;
+            TagFilterPreviewDialogFragment.display(tag, getChildFragmentManager());
+            return true;
         }
     };
-
     private final TagFilterAdapter tagFilterAdapter = new TagFilterAdapter(tagFilterAdapterCallbacks);
 
     private ItemTouchHelper noteListTouchHelper;

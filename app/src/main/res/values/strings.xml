@@ -65,4 +65,5 @@
     <string name="invalid_reminder_time">Invalid reminder time</string>
     <string name="existed_notification_dialog_title">Notification is existed</string>
     <string name="existed_notification_dialog_msg">This note have notification at %1$s. Do you want override?</string>
+    <string name="dialog_tag_filter_preview_title">Filter result</string>
 </resources>

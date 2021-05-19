@@ -7,10 +7,11 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity(tableName = "tag")
-public class Tag {
+public class Tag implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "tag_id", index = true)
