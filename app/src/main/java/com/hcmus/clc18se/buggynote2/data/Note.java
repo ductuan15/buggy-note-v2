@@ -8,32 +8,44 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
+
+import java.text.DateFormat;
+import java.util.List;
 
 @Entity(tableName = "note")
 public class Note {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "note_id", index = true)
+    @Expose(deserialize = false)
     public long id = 0L;
 
     // This attribute is redundant, it will be removed in the future version
     @Deprecated
     public String name = "";
 
+    @Expose
     public String title = "";
 
     @ColumnInfo(name = "note_content")
+    @Expose
     public String noteContent = "";
 
     @ColumnInfo(name = "last_modify")
     public long lastModify = System.currentTimeMillis();
 
     @ColumnInfo(name = "title_format", defaultValue = TextFormatter.DEFAULT_FORMAT_STRING)
+    @Expose
     public String titleFormat = TextFormatter.DEFAULT_FORMAT_STRING;
 
     @ColumnInfo(name = "content_format", defaultValue = TextFormatter.DEFAULT_FORMAT_STRING)
+    @Expose
     public String contentFormat = TextFormatter.DEFAULT_FORMAT_STRING;
 
     @ColumnInfo(defaultValue = "0")
@@ -57,9 +69,11 @@ public class Note {
      * - When the value is `null`, the color of the note is control by R.attr.colorSurface.
      */
     @ColumnInfo(name = "color", defaultValue = "0")
+    @Expose
     public Integer colorIdx = 0;
 
     @ColumnInfo(defaultValue = "0")
+    @Expose
     public int type = 0;
 
     @Ignore
@@ -108,7 +122,8 @@ public class Note {
     public Integer getTitleColor(Context context) {
         if (colorIdx == null) {
             colorIdx = 0;
-        };
+        }
+        ;
         int[] titleColorArr = context.getResources().getIntArray(R.array.note_title_color);
         if (colorIdx >= 0 && colorIdx < titleColorArr.length) {
             return titleColorArr[colorIdx];
@@ -170,4 +185,26 @@ public class Note {
     public static final int NOTE_TYPE_CHECK_LIST = 1;
 
     public static final int NOTE_TYPE_MARKDOWN = 2;
+
+    private static Gson INSTANCE;
+
+    private static Gson getGsonInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new GsonBuilder()
+                    .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                    .setDateFormat(DateFormat.LONG)
+                    .setPrettyPrinting()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .setVersion(1.0)
+                    .create();
+        }
+        return INSTANCE;
+    }
+
+    public static String toSerializedJson(List<Note> noteList) {
+        Gson gson = getGsonInstance();
+
+        return gson.toJson(noteList);
+
+    }
 }

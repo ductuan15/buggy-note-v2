@@ -3,12 +3,17 @@ package com.hcmus.clc18se.buggynote2;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -20,6 +25,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
@@ -29,6 +35,9 @@ import com.hcmus.clc18se.buggynote2.utils.interfaces.ControllableDrawerActivity;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
 
@@ -211,11 +220,66 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
 
     }
 
+    public void onActionShowBackupPreview() {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setMessage(notesViewModel.getJsonFromNoteList())
+                .setNegativeButton(R.string.dismiss, (u, v) -> {
+                }).show();
+
+        TextView textView = dialog.findViewById(android.R.id.message);
+
+        if (textView != null) {
+            textView.setTypeface(Typeface.MONOSPACE);
+        }
+
+    }
+
     public void onActionBackup() {
-        Toast.makeText(this, R.string.preference_backup, Toast.LENGTH_SHORT).show();
+        createBackupFile();
     }
 
     public void onActionImport() {
         Toast.makeText(this, R.string.preference_import, Toast.LENGTH_SHORT).show();
+    }
+
+    // Request code for creating a PDF document.
+    private static final int REQUEST_CREATE_BACKUP_FILE = 0x696969;
+    private static final String BACKUP_FILE_NAME = "backup.bgn";
+
+    private void createBackupFile() {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/json")
+                .putExtra(Intent.EXTRA_TITLE, BACKUP_FILE_NAME);
+
+        startActivityForResult(intent, REQUEST_CREATE_BACKUP_FILE);
+    }
+
+    private void saveBackupFile(Uri documentUri) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            try (OutputStream outputStream = getContentResolver().openOutputStream(documentUri)) {
+                String serializedJson = notesViewModel.getJsonFromNoteList();
+                outputStream.write(serializedJson.getBytes());
+
+                runOnUiThread(() -> {
+                    Toast.makeText(this, getString(R.string.Saved), Toast.LENGTH_SHORT).show();
+                });
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CREATE_BACKUP_FILE &&
+                resultCode == RESULT_OK &&
+                data != null &&
+                data.getData() != null) {
+
+            saveBackupFile(data.getData());
+        }
     }
 }

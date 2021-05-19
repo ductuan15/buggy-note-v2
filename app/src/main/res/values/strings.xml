@@ -73,4 +73,5 @@
     <string name="preference_import">Import</string>
     <string name="preference_backup_key" translatable="false">preference_backup_key</string>
     <string name="preference_import_key" translatable="false">preference_import_key</string>
+    <string name="Saved">Saved</string>
 </resources>

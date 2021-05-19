@@ -42,7 +42,7 @@
         android:icon="@drawable/ic_baseline_settings_backup_restore_24"
         android:title="Backup &amp; Restore">
 
-        <Preference
+        <com.hcmus.clc18se.buggynote2.utils.views.LongClickablePreference
             android:key="@string/preference_backup_key"
             android:summary="@string/preference_backup_summary"
             android:title="@string/preference_backup" />

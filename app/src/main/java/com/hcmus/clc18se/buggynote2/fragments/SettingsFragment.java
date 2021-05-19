@@ -8,6 +8,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.hcmus.clc18se.buggynote2.BuggyNoteActivity;
 import com.hcmus.clc18se.buggynote2.R;
+import com.hcmus.clc18se.buggynote2.utils.views.LongClickablePreference;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
@@ -19,6 +20,19 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void setupPreferences() {
         Preference backupPref = findPreference(getString(R.string.preference_backup_key));
+
+        if (backupPref instanceof LongClickablePreference) {
+
+            ((LongClickablePreference) backupPref).setLongClickListener(v -> {
+                Activity activity = requireActivity();
+                if (activity instanceof BuggyNoteActivity) {
+                    ((BuggyNoteActivity) activity).onActionShowBackupPreview();
+                    return true;
+                }
+                return false;
+            });
+        }
+
         backupPref.setOnPreferenceClickListener(
                 preference -> {
                     Activity activity = requireActivity();

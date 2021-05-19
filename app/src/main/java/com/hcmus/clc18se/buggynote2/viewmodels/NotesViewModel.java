@@ -437,4 +437,16 @@ public class NotesViewModel extends AndroidViewModel {
             reloadDataRequest.postValue(true);
         });
     }
+
+    public String getJsonFromNoteList() {
+        List<NoteWithTags> noteWithTags = noteList.getValue();
+        if (noteWithTags != null) {
+            List<Note> notes = new ArrayList<>(noteWithTags.size());
+            for (NoteWithTags noteWithTag : noteWithTags) {
+                notes.add(noteWithTag.note);
+            }
+            return Note.toSerializedJson(notes);
+        }
+        return "";
+    }
 }
