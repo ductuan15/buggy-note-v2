@@ -74,4 +74,9 @@
     <string name="preference_backup_key" translatable="false">preference_backup_key</string>
     <string name="preference_import_key" translatable="false">preference_import_key</string>
     <string name="Saved">Saved</string>
+    <string name="import_failed">No notes found from the file</string>
+    <string name="import_note_dialog_title">Import notes</string>
+    <string name="import_note_dialog_msg">Number of notes found from the file: %1$d</string>
+    <string name="import_notes_dialog_positive">Import</string>
+    <string name="import_note_dialog_succeed">Imported</string>
 </resources>

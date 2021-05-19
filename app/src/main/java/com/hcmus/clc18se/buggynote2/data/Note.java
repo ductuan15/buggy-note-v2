@@ -2,6 +2,7 @@ package com.hcmus.clc18se.buggynote2.data;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -11,12 +12,18 @@ import androidx.room.PrimaryKey;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
+import com.google.gson.reflect.TypeToken;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 
+import java.lang.reflect.Type;
 import java.text.DateFormat;
+import java.util.LinkedList;
 import java.util.List;
+
+import timber.log.Timber;
 
 @Entity(tableName = "note")
 public class Note {
@@ -80,7 +87,8 @@ public class Note {
     public static final int N_REMOVING_DAYS = 30;
 
     @Ignore
-    public Note() {}
+    public Note() {
+    }
 
     public Note(long id,
                 String name,
@@ -205,6 +213,29 @@ public class Note {
         Gson gson = getGsonInstance();
 
         return gson.toJson(noteList);
+    }
 
+    @NonNull
+    public static List<Note> deserializeFromJson(String json) {
+
+        if (json != null) {
+            Gson gson = getGsonInstance();
+            Type noteListType = new TypeToken<LinkedList<Note>>() {
+            }.getType();
+
+            try {
+
+                List<Note> parsedNotes = gson.fromJson(json, noteListType);
+                if (parsedNotes != null) {
+                    return parsedNotes;
+                }
+
+            } catch (JsonParseException e) {
+                Timber.e(e);
+            }
+
+        }
+
+        return new LinkedList<>();
     }
 }

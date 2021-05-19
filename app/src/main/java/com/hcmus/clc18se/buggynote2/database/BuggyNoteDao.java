@@ -49,8 +49,11 @@ public interface BuggyNoteDao {
     @Update
     void updateNote(Note... notes);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     long addNewNote(Note notes);
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    void addNewNotes(Note... notes);
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertTag(Tag tag);

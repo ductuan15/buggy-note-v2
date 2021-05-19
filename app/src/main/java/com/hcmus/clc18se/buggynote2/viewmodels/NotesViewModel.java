@@ -105,6 +105,21 @@ public class NotesViewModel extends AndroidViewModel {
         return 0L;
     }
 
+    public void insertNewNotes(List<Note> noteList) {
+        BuggyNoteDatabase.databaseWriteExecutor.submit(
+            () -> {
+                Note[] notes = new Note[noteList.size()];
+
+                for (int i = 0; i < noteList.size(); i++) {
+                    notes[i] = noteList.get(i);
+                }
+                database.addNewNotes(notes);
+
+                loadNotesFromDatabase();
+            }
+        );
+    }
+
     public final LiveData<List<NoteWithTags>> getNoteList() {
         return noteList;
     }

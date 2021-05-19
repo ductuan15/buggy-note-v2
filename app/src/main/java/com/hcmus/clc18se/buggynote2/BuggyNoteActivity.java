@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +27,9 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.dialog.MaterialDialogs;
 import com.google.android.material.navigation.NavigationView;
+import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.ActivityBuggyNoteBinding;
@@ -36,8 +39,15 @@ import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Objects;
+
+import timber.log.Timber;
 
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
 
@@ -238,13 +248,11 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         createBackupFile();
     }
 
-    public void onActionImport() {
-        Toast.makeText(this, R.string.preference_import, Toast.LENGTH_SHORT).show();
-    }
+    public void onActionImport() { openBackupFile(); }
 
-    // Request code for creating a PDF document.
+    // Request code for creating a backup file.
     private static final int REQUEST_CREATE_BACKUP_FILE = 0x696969;
-    private static final String BACKUP_FILE_NAME = "backup.bgn";
+    private static final String BACKUP_FILE_NAME = "backup";
 
     private void createBackupFile() {
         Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
@@ -254,6 +262,24 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
 
         startActivityForResult(intent, REQUEST_CREATE_BACKUP_FILE);
     }
+
+    private static final int REQUEST_IMPORT_BACKUP_FILE = 0x96969;
+
+    private void openBackupFile() {
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension("json");
+        if (type == null) {
+            intent.setType("application/octet-stream");
+        }
+        else {
+            intent.setType(type);
+        }
+        Timber.d(intent.getType());
+
+        startActivityForResult(intent, REQUEST_IMPORT_BACKUP_FILE);
+    }
+
 
     private void saveBackupFile(Uri documentUri) {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
@@ -271,15 +297,61 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         });
     }
 
+    private void readBackupFile(Uri documentUri) {
+        BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
+            StringBuilder stringBuilder = new StringBuilder();
+
+            try (InputStream inputStream = getContentResolver().openInputStream(documentUri);
+                 BufferedReader reader = new BufferedReader(
+                         new InputStreamReader(Objects.requireNonNull(inputStream)))
+            ) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            List<Note> notes = Note.deserializeFromJson(stringBuilder.toString());
+            runOnUiThread(() -> {
+                importNotes(notes);
+            });
+        });
+    }
+
+    private void importNotes(List<Note> notes) {
+        if (notes == null || notes.isEmpty()){
+            Toast.makeText(this, getString(R.string.import_failed), Toast.LENGTH_SHORT).show();
+        }
+        else {
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.import_note_dialog_title)
+                    .setMessage(getString(R.string.import_note_dialog_msg, notes.size()))
+                    .setPositiveButton(getString(R.string.import_notes_dialog_positive), (d, w) -> {
+                        notesViewModel.insertNewNotes(notes);
+                        Toast.makeText(this, getString(R.string.import_note_dialog_succeed), Toast.LENGTH_SHORT).show();
+                    }).setNegativeButton(R.string.cancel, (d, w) -> {})
+            .show();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CREATE_BACKUP_FILE &&
-                resultCode == RESULT_OK &&
+        if (resultCode == RESULT_OK &&
                 data != null &&
                 data.getData() != null) {
 
-            saveBackupFile(data.getData());
+            if (requestCode == REQUEST_CREATE_BACKUP_FILE) {
+                saveBackupFile(data.getData());
+            }
+            else if (requestCode == REQUEST_IMPORT_BACKUP_FILE) {
+                readBackupFile(data.getData());
+            }
         }
+
     }
 }
