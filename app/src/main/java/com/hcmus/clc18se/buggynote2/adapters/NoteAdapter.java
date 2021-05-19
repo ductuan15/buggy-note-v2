@@ -35,11 +35,21 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
     public static final String UNPIN_TAG = "UNPIN";
     public static final String ARCHIVE_TAG = "ARCHIVE";
     public static final String TRASH_TAG = "TRASH";
+    public static final String DIALOG = "DIALOG";
+
+    private boolean allowMultipleSelection = true;
 
     public NoteAdapter(NoteAdapterCallbacks callbacks, String tag) {
         super(NoteWithTags.diffCallBacks);
         this.tag = tag;
         this.callbacks = callbacks;
+    }
+
+    public NoteAdapter(NoteAdapterCallbacks callbacks, String tag, boolean allowMultipleSelection) {
+        super(NoteWithTags.diffCallBacks);
+        this.tag = tag;
+        this.callbacks = callbacks;
+        this.allowMultipleSelection = allowMultipleSelection;
     }
 
     public final String tag;
@@ -87,7 +97,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         holder.bindFrom(item, tag);
 
         holder.itemView.setOnClickListener(view -> {
-            if (multiSelected) {
+            if (multiSelected && allowMultipleSelection) {
                 selectItem(holder, item);
                 callbacks.onMultipleSelect(item);
             } else {
@@ -97,7 +107,10 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
         });
 
         holder.itemView.setOnLongClickListener(v -> {
-            if (!multiSelected) {
+            if (!allowMultipleSelection) {
+                return false;
+            }
+            if (!multiSelected && allowMultipleSelection) {
                 multiSelected = true;
                 selectItem(holder, item);
                 callbacks.onMultipleSelect(item);
