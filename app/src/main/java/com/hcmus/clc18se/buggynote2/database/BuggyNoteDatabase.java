@@ -24,7 +24,7 @@ import java.util.concurrent.Executors;
             Photo.class,
             Audio.class,
             NoteFTS.class},
-        version = 9)
+        version = 10)
 public abstract class BuggyNoteDatabase extends RoomDatabase {
 
     public abstract BuggyNoteDao buggyNoteDatabaseDao();
@@ -48,6 +48,7 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
                             .addMigrations(MIGRATION_6_7)
                             .addMigrations(MIGRATION_7_8)
                             .addMigrations(MIGRATION_8_9)
+                            .addMigrations(MIGRATION_9_10)
                             .fallbackToDestructiveMigration()
                             .build();
                 }
@@ -143,4 +144,30 @@ public abstract class BuggyNoteDatabase extends RoomDatabase {
         }
     };
 
+    public static Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase _db) {
+
+            // Add foreign key constraint to photo & audio entities
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `photo_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT, `note_id` INTEGER NOT NULL, FOREIGN KEY(`note_id`) REFERENCES `note`(`note_id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+            _db.execSQL("CREATE TABLE IF NOT EXISTS `audio_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT, `note_id` INTEGER NOT NULL, FOREIGN KEY(`note_id`) REFERENCES `note`(`note_id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
+
+            _db.execSQL("INSERT INTO photo_new " +
+                    "SELECT * FROM photo WHERE EXISTS " +
+                    "(SELECT 1 FROM note WHERE note.note_id = photo.note_id)");
+
+            _db.execSQL("INSERT INTO audio_new " +
+                    "SELECT * FROM audio WHERE EXISTS " +
+                    "(SELECT 1 FROM note WHERE note.note_id = audio.note_id)");
+
+            _db.execSQL("DROP TABLE IF EXISTS photo");
+            _db.execSQL("DROP TABLE IF EXISTS audio");
+
+            _db.execSQL("ALTER TABLE `photo_new` RENAME TO `photo`");
+            _db.execSQL("ALTER TABLE `audio_new` RENAME TO `audio`");
+
+            _db.execSQL("CREATE INDEX IF NOT EXISTS `index_photo_note_id` ON `photo` (`note_id`)");
+            _db.execSQL("CREATE INDEX IF NOT EXISTS `index_audio_note_id` ON `audio` (`note_id`)");
+        }
+    };
 }

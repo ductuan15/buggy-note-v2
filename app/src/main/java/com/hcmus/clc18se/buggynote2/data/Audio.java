@@ -4,18 +4,27 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(tableName = "audio")
+@Entity(tableName = "audio",
+        foreignKeys = {
+                @ForeignKey(entity = Note.class,
+                        parentColumns = "note_id",
+                        childColumns = "note_id",
+                        onDelete = ForeignKey.CASCADE
+                )
+        }
+)
 public class Audio implements Serializable {
     @PrimaryKey(autoGenerate = true)
     public long id = 0L;
 
     public String uri = "";
 
-    @ColumnInfo(name = "note_id")
+    @ColumnInfo(name = "note_id", index = true)
     public long noteId = 0L;
 
     public Audio(long id, String uri, long noteId) {

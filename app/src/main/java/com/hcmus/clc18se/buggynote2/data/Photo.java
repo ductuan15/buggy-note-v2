@@ -4,12 +4,21 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity(tableName = "photo")
+@Entity(tableName = "photo",
+        foreignKeys = {
+                @ForeignKey(entity = Note.class,
+                        parentColumns = "note_id",
+                        childColumns = "note_id",
+                        onDelete = ForeignKey.CASCADE
+                )
+        }
+)
 public class Photo implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
@@ -17,7 +26,7 @@ public class Photo implements Serializable {
 
     public String uri = "";
 
-    @ColumnInfo(name = "note_id")
+    @ColumnInfo(name = "note_id", index = true)
     public long noteId = 0L;
 
     public Photo(long id, String uri, long noteId) {

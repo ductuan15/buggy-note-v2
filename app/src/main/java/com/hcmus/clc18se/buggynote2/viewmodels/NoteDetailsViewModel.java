@@ -137,17 +137,18 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     }
 
     public void deleteMe() {
-        if (note.getValue() != null) {
+        NoteWithTags noteWithTags = note.getValue();
+        if (noteWithTags != null) {
             BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
-                int nCol = database.removeNote(note.getValue().note);
+                int nCol = database.removeNote(noteWithTags.note);
                 Timber.d("Remove note" + nCol + " affected");
-                removePhotos(note.getValue().photos);
-                removeAudios(note.getValue().audios);
+                removePhotos(noteWithTags.photos);
+                removeAudios(noteWithTags.audios);
 
                 getApplication()
                         .getApplicationContext()
                         .getSharedPreferences("REMINDER", Context.MODE_PRIVATE)
-                        .edit().remove(String.valueOf(note.getValue().note.id))
+                        .edit().remove(String.valueOf(noteWithTags.note.id))
                         .apply();
 
                 deleteRequest.postValue(true);
@@ -319,7 +320,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     }
 
     public void removePhotos(List<Photo> photos) {
-        if (photos != null) {
+        if (photos == null) {
             return;
         }
 
@@ -336,9 +337,9 @@ public class NoteDetailsViewModel extends AndroidViewModel {
                         file.delete();
                     }
                 }
-                NoteWithTags note = getNote().getValue();
-                if (note != null) {
-                    List<Photo> allPhotos = note.photos;
+                NoteWithTags noteWithTags = note.getValue();
+                if (noteWithTags != null) {
+                    List<Photo> allPhotos = noteWithTags.photos;
                     allPhotos.removeAll(photos);
                 }
 
@@ -351,7 +352,7 @@ public class NoteDetailsViewModel extends AndroidViewModel {
     }
 
     public void removeAudios(List<Audio> audios) {
-        if (audios != null) {
+        if (audios == null) {
             return;
         }
 
@@ -368,9 +369,9 @@ public class NoteDetailsViewModel extends AndroidViewModel {
                         file.delete();
                     }
                 }
-                NoteWithTags note = getNote().getValue();
-                if (note != null) {
-                    List<Audio> allPhotos = note.audios;
+                NoteWithTags noteWithTags = note.getValue();
+                if (noteWithTags != null) {
+                    List<Audio> allPhotos = noteWithTags.audios;
                     allPhotos.removeAll(audios);
                 }
 
