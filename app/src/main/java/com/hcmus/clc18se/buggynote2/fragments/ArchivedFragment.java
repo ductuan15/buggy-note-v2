@@ -97,33 +97,39 @@ public class ArchivedFragment extends Fragment {
 
     private TagsViewModel tagsViewModel;
 
-    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
-        if (tag.isSelectedState() != isChecked) {
-            archivedNoteAdapter.finishSelection();
+    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = new TagFilterAdapterCallbacks() {
+        @Override
+        public void onCheckChanged(boolean isChecked, Tag tag) {
+                if (tag.isSelectedState() != isChecked) {
+                    archivedNoteAdapter.finishSelection();
 
-            actionModeCallback.finishActionMode();
+                    actionModeCallback.finishActionMode();
 
-            boolean notFilter = true;
-            if (tagsViewModel.getTags().getValue() != null) {
-                for (Tag t : tagsViewModel.getTags().getValue()) {
-                    if (t.isSelectedState()) {
-                        notFilter = false;
-                        break;
+                    boolean notFilter = true;
+                    if (tagsViewModel.getTags().getValue() != null) {
+                        for (Tag t : tagsViewModel.getTags().getValue()) {
+                            if (t.isSelectedState()) {
+                                notFilter = false;
+                                break;
+                            }
+                        }
                     }
+
+                    if (notesViewModel.getOrderChanged().getValue() != null
+                            && notesViewModel.getOrderChanged().getValue()
+                            && notFilter
+                    ) {
+                        notesViewModel.reorderNotes(archivedNoteAdapter.getCurrentList());
+                        notesViewModel.finishReordering();
+                    }
+
+                    tag.setSelectedState(isChecked);
+                    notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
                 }
-            }
-
-            if (notesViewModel.getOrderChanged().getValue() != null
-                    && notesViewModel.getOrderChanged().getValue()
-                    && notFilter
-            ) {
-                notesViewModel.reorderNotes(archivedNoteAdapter.getCurrentList());
-                notesViewModel.finishReordering();
-            }
-
-            tag.setSelectedState(isChecked);
-            notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
         }
+
+        @Override
+        public boolean onLongClick(Tag tag) { return false; }
     };
 
     private final TagFilterAdapter tagFilterAdapter = new TagFilterAdapter(tagFilterAdapterCallbacks);

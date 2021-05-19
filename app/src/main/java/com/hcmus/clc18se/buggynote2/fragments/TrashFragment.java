@@ -36,6 +36,7 @@ import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.NoteItemTouchHelperCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.TagFilterAdapterCallbacks;
 import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
+import com.hcmus.clc18se.buggynote2.data.Tag;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentTrashBinding;
@@ -90,13 +91,21 @@ public class TrashFragment extends Fragment {
 
     private TagsViewModel tagsViewModel;
 
-    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
-        if (tag.isSelectedState() != isChecked) {
-            trashedNoteAdapter.finishSelection();
-            actionModeCallback.finishActionMode();
+    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = new TagFilterAdapterCallbacks() {
+        @Override
+        public void onCheckChanged(boolean isChecked, Tag tag) {
+            if (tag.isSelectedState() != isChecked) {
+                trashedNoteAdapter.finishSelection();
+                actionModeCallback.finishActionMode();
 
-            tag.setSelectedState(isChecked);
-            notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+                tag.setSelectedState(isChecked);
+                notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(Tag tag) {
+            return false;
         }
     };
 

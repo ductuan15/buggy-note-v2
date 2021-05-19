@@ -25,10 +25,9 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
 
     @Override
     public boolean isLongPressDragEnabled() {
-
         int nSelectedItems = 0;
         for (NoteAdapter adapter : adapters) {
-            if (adapter.tag.equals(NoteAdapter.TRASH_TAG)) {
+            if (adapter.tag.equals(NoteAdapter.TRASH_TAG) || adapter.tag.equals(NoteAdapter.DIALOG)) {
                 return false;
             }
             nSelectedItems += adapter.numberOfSelectedItems();
@@ -39,7 +38,7 @@ public class NoteItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback 
     @Override
     public boolean isItemViewSwipeEnabled() {
         for (NoteAdapter adapter : adapters) {
-            if (adapter.tag.equals(NoteAdapter.TRASH_TAG)) {
+            if (adapter.tag.equals(NoteAdapter.TRASH_TAG) || adapter.tag.equals(NoteAdapter.DIALOG)) {
                 return false;
             }
         }

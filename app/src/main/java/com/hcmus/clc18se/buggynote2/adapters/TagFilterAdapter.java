@@ -33,6 +33,7 @@ public class TagFilterAdapter extends ListAdapter<Tag, TagFilterAdapter.ViewHold
         holder.binding.tagFilter.setOnCheckedChangeListener((v, isChecked) -> {
             callbacks.onCheckChanged(isChecked, tag);
         });
+        holder.binding.tagFilter.setOnLongClickListener(v -> callbacks.onLongClick(tag));
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

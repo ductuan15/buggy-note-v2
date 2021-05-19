@@ -130,5 +130,13 @@
         <item name="itemBackground">?colorOnPrimary</item>
     </style>
 
+    <style name="AppTheme.FullScreenDialog" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorPrimaryDark">?colorPrimary</item>
+        <item name="colorAccent">?colorPrimary</item>
+        <item name="colorPrimary">?colorPrimary</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowBackground">?colorSurface</item>
+        <item name="actionMenuTextColor">?colorPrimary</item>
+    </style>
 
 </resources>

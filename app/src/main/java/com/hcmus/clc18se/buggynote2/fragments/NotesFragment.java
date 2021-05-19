@@ -66,9 +66,11 @@ import timber.log.Timber;
 public class NotesFragment extends Fragment implements OnBackPressed {
 
     private SharedPreferences preferences = null;
+
     private FragmentNotesBinding binding = null;
 
     private NotesViewModel notesViewModel;
+
     private boolean isFabRotate = false;
 
     private final NoteListActionMode actionModeCallback = new NoteListActionMode();
@@ -112,37 +114,45 @@ public class NotesFragment extends Fragment implements OnBackPressed {
 
     private TagsViewModel tagsViewModel;
 
-    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = (isChecked, tag) -> {
-        if (tag.isSelectedState() != isChecked) {
-            pinnedNotesAdapter.finishSelection();
-            unpinnedNotesAdapter.finishSelection();
+    private final TagFilterAdapterCallbacks tagFilterAdapterCallbacks = new TagFilterAdapterCallbacks() {
+        @Override
+        public void onCheckChanged(boolean isChecked, Tag tag) {
+            if (tag.isSelectedState() != isChecked) {
+                pinnedNotesAdapter.finishSelection();
+                unpinnedNotesAdapter.finishSelection();
 
-            actionModeCallback.finishActionMode();
+                actionModeCallback.finishActionMode();
 
-            boolean notFilter = true;
-            if (tagsViewModel.getTags().getValue() != null) {
-                for (Tag t : tagsViewModel.getTags().getValue()) {
-                    if (t.isSelectedState()) {
-                        notFilter = false;
-                        break;
+                boolean notFilter = true;
+                if (tagsViewModel.getTags().getValue() != null) {
+                    for (Tag t : tagsViewModel.getTags().getValue()) {
+                        if (t.isSelectedState()) {
+                            notFilter = false;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (notesViewModel.getOrderChanged().getValue() != null
-                    && notesViewModel.getOrderChanged().getValue()
-                    && notFilter
-            ) {
-                notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
-                notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
-                notesViewModel.finishReordering();
-            }
+                if (notesViewModel.getOrderChanged().getValue() != null
+                        && notesViewModel.getOrderChanged().getValue()
+                        && notFilter
+                ) {
+                    notesViewModel.reorderNotes(pinnedNotesAdapter.getCurrentList());
+                    notesViewModel.reorderNotes(unpinnedNotesAdapter.getCurrentList());
+                    notesViewModel.finishReordering();
+                }
 
-            tag.setSelectedState(isChecked);
-            notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+                tag.setSelectedState(isChecked);
+                notesViewModel.filterByTags(tagsViewModel.getTags().getValue());
+            }
+        }
+
+        @Override
+        public boolean onLongClick(Tag tag) {
+            TagFilterPreviewDialogFragment.display(tag, getChildFragmentManager());
+            return true;
         }
     };
-
     private final TagFilterAdapter tagFilterAdapter = new TagFilterAdapter(tagFilterAdapterCallbacks);
 
     private ItemTouchHelper noteListTouchHelper;

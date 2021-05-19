@@ -85,6 +85,14 @@ public interface BuggyNoteDao {
     )
     List<NoteWithTags> filterNoteByTagList(List<Long> tagIds);
 
+    @Transaction
+    @Query(
+            "select * from note where note_id in (" +
+                    "select note_id from notecrossref where tag_id = :tagId" +
+                    ") order by " + DEFAULT_SORT_ORDER
+    )
+    LiveData<List<NoteWithTags>> filterNoteByTag(long tagId);
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void addPhoto(Photo... photos);
 

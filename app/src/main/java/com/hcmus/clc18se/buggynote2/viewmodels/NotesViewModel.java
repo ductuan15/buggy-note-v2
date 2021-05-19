@@ -258,6 +258,13 @@ public class NotesViewModel extends AndroidViewModel {
         });
     }
 
+    public LiveData<List<NoteWithTags>> filterByTag(Tag tag) {
+        if (tag != null) {
+            return database.filterNoteByTag(tag.getId());
+        }
+        return null;
+    }
+
     public void filterByTags(List<Tag> tags) {
         BuggyNoteDatabase.databaseWriteExecutor.execute(() -> {
             boolean hasSelectedTags = false;
