@@ -400,7 +400,9 @@ public class NotesViewModel extends AndroidViewModel {
                 loadNotesFromDatabase();
             } else {
                 queryStr = queryStr.replaceAll(Pattern.quote("\""), "\"\"");
-                List<NoteWithTags> results = database.searchNote('*' + queryStr + '*');
+                queryStr = '*' + queryStr + '*';
+                // Timber.d(queryStr);
+                List<NoteWithTags> results = database.searchNote(queryStr);
                 noteList.postValue(results);
             }
             Timber.d("Searched in " + (System.currentTimeMillis() - begin) + " ms");
@@ -431,10 +433,14 @@ public class NotesViewModel extends AndroidViewModel {
             queryStr = queryStr.replaceAll(Pattern.quote("\""), "\"\"");
             List<NoteWithTags> results;
             if (!tagIds.isEmpty()) {
-                results = database.searchNoteWithSelectedTags('*' + queryStr + '*', tagIds);
+                queryStr = '*' + queryStr + '*';
+                results = database.searchNoteWithSelectedTags(queryStr, tagIds);
             } else {
-                results = database.searchNote('*' + queryStr + '*');
+                queryStr = '*' + queryStr + '*';
+                results = database.searchNote(queryStr);
             }
+            // Timber.d(queryStr);
+
             noteList.postValue(results);
             Timber.d("Search in " + (System.currentTimeMillis() - begin) + " ms");
         });

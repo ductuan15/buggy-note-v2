@@ -47,6 +47,7 @@ public class PhotoListAdapter extends ListAdapter<Photo, PhotoListAdapter.ViewHo
 
         public void bind(Photo photo) {
             binding.setPhoto(photo);
+            binding.executePendingBindings();
         }
     }
 }

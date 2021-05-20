@@ -42,6 +42,7 @@
                 android:id="@+id/title"
                 noteTitleFormat="@{note}"
                 textColorFromNote="@{note.note}"
+                visibleWhenNoteIsNotMarkdown="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
@@ -50,12 +51,12 @@
                 tools:text="Title" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:visibility="gone"
-                visibleWhenNoteIsCheckList="@{note.note}"
-                displayCheckList="@{note.note}"
                 checkboxTintForAdapter="@{note.note}"
+                displayCheckList="@{note.note}"
+                visibleWhenNoteIsCheckList="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="0"
                 tools:listitem="@layout/item_check_list_preview" />
@@ -76,6 +77,7 @@
                 visibleWhenNoteIsNotCheckList="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
                 android:maxLines="10"
                 android:paddingVertical="12dp"
                 android:textAlignment="gravity"

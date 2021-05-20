@@ -198,8 +198,11 @@ public class NoteDetailsViewModel extends AndroidViewModel {
                 copy(uri, fileDest);
                 File[] files = directory.listFiles((dir, name) -> name.equals(fileName.toString()));
 
-                Photo photo = new Photo(0L, Uri.fromFile(files[0]).toString(), note.getValue().note.id);
-                database.addPhoto(photo);
+                NoteWithTags noteWithTags = note.getValue();
+                if (noteWithTags != null && files != null && files.length > 0) {
+                    Photo photo = new Photo(0L, Uri.fromFile(files[0]).toString(), noteWithTags.note.id);
+                    database.addPhoto(photo);
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -262,9 +265,11 @@ public class NoteDetailsViewModel extends AndroidViewModel {
             try {
                 copy(uri, fileDest);
                 File[] files = directory.listFiles((dir, name) -> name.equals(fileName.toString()));
-
-                Audio audio = new Audio(0L, Uri.fromFile(files[0]).toString(), note.getValue().note.id);
-                database.addAudio(audio);
+                NoteWithTags noteWithTags = note.getValue();
+                if (noteWithTags != null && files != null && files.length > 0) {
+                    Audio audio = new Audio(0L, Uri.fromFile(files[0]).toString(), noteWithTags.note.id);
+                    database.addAudio(audio);
+                }
 
             } catch (IOException e) {
                 e.printStackTrace();

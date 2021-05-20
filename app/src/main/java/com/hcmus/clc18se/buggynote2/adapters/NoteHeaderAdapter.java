@@ -103,6 +103,7 @@ public class NoteHeaderAdapter extends RecyclerView.Adapter<NoteHeaderAdapter.Vi
                     null,
                     null
             );
+            binding.executePendingBindings();
         }
     }
 }

@@ -400,7 +400,10 @@ public class BindingAdapters {
                                    @Nullable String noteContent) {
         if (markwon != null && noteContent != null) {
             markwon.setMarkdown(textView, noteContent);
+            textView.setMaxLines(10);
+            textView.setVerticalScrollBarEnabled(false);
         } else if (noteContent != null) {
+            textView.setText(null);
             textView.setText(noteContent);
         }
     }

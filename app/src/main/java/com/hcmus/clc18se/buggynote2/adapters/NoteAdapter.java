@@ -110,7 +110,7 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
             if (!allowMultipleSelection) {
                 return false;
             }
-            if (!multiSelected && allowMultipleSelection) {
+            if (!multiSelected) {
                 multiSelected = true;
                 selectItem(holder, item);
                 callbacks.onMultipleSelect(item);
@@ -215,7 +215,11 @@ public class NoteAdapter extends ListAdapter<NoteWithTags, NoteAdapter.ViewHolde
 
                 binding.setMarkwon(markwon);
             }
+            else {
+                binding.setMarkwon(null);
+            }
             binding.setNote(note);
+            binding.executePendingBindings();
             this.tag = tag;
         }
     }
