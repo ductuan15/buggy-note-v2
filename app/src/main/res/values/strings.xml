@@ -79,4 +79,5 @@
     <string name="import_note_dialog_msg">Number of notes found from the file: %1$d</string>
     <string name="import_notes_dialog_positive">Import</string>
     <string name="import_note_dialog_succeed">Imported</string>
+    <string name="load_audio_unsuccess">Load audio unsuccessful</string>
 </resources>
