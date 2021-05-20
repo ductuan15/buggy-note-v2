@@ -394,14 +394,18 @@ public class BindingAdapters {
         }
     }
 
-    @BindingAdapter(value = {"markwon", "noteContent"})
+    @BindingAdapter(value = {"markwon", "noteContent", "verticalScrollBarEnabled"}, requireAll = false)
     public static void setMarkdown(@NonNull TextView textView,
                                    @Nullable Markwon markwon,
-                                   @Nullable String noteContent) {
+                                   @Nullable String noteContent,
+                                   @Nullable Boolean verticalScrollBarEnabled) {
         if (markwon != null && noteContent != null) {
             markwon.setMarkdown(textView, noteContent);
-            textView.setMaxLines(10);
-            textView.setVerticalScrollBarEnabled(false);
+
+            if (verticalScrollBarEnabled != null) {
+                textView.setVerticalScrollBarEnabled(verticalScrollBarEnabled);
+            }
+
         } else if (noteContent != null) {
             textView.setText(null);
             textView.setText(noteContent);
@@ -499,7 +503,7 @@ public class BindingAdapters {
 
                 int colorOnSurfaceA20 = ColorUtils.setAlphaComponent(color, 51);
                 int colorSurfaceA20 = ColorUtils.setAlphaComponent(titleColor, 51);
-                int[] rippleColors = new int[]{ colorSurfaceA20,
+                int[] rippleColors = new int[]{colorSurfaceA20,
                         Color.TRANSPARENT,
                         colorOnSurfaceA20,
                 };
@@ -519,9 +523,8 @@ public class BindingAdapters {
     }
 
     @BindingAdapter("setOnClickToChipsAudio")
-    public static void setOnCLickAudioToChip(Chip chip, View.OnClickListener onClickListener){
-        if (onClickListener != null)
-        {
+    public static void setOnCLickAudioToChip(Chip chip, View.OnClickListener onClickListener) {
+        if (onClickListener != null) {
             chip.setOnClickListener(onClickListener);
         }
     }

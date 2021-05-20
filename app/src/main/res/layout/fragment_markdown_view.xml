@@ -24,11 +24,12 @@
         app:boxStrokeWidthFocused="1dp"
         app:hintEnabled="false">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/edit_text"
             markwon="@{markwon}"
             noteContent="@{noteWithTags.note.noteContent}"
             noteContentFormat="@{noteWithTags}"
+            verticalScrollBarEnabled="@{true}"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="false"
