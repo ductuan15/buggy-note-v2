@@ -79,8 +79,8 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
         Intent intent = getIntent();
         if (intent != null) {
             Bundle bundle = intent.getExtras();
-            noteTitle = bundle.getString(ReminderReceiver.NOTE_TITLE_KEY);
-            noteDateTime = bundle.getString(ReminderReceiver.NOTE_DATE_TIME_KEY);
+            noteTitle = bundle.getString(ReminderReceiver.NOTE_TITLE_KEY, "");
+            noteDateTime = bundle.getString(ReminderReceiver.NOTE_DATE_TIME_KEY, "");
             noteID = bundle.getLong(ReminderReceiver.NOTE_ID_KEY);
         }
     }

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
@@ -30,7 +29,9 @@ public class ReminderActionReceiver extends BroadcastReceiver {
                     .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtras(extras);
-
+            ReminderMusicControl.getInstance(context).stopMusic();
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            notificationManager.cancel((int) noteID);
             context.startActivity(toNoteDetails);
         }
     }
