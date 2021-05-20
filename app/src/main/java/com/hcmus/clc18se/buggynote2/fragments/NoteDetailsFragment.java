@@ -66,10 +66,10 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
 import com.hcmus.clc18se.buggynote2.utils.FileUtils;
-import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
-import com.hcmus.clc18se.buggynote2.utils.views.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.utils.Utils;
+import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
+import com.hcmus.clc18se.buggynote2.utils.views.PropertiesBSFragment;
 import com.hcmus.clc18se.buggynote2.utils.views.ViewUtils;
 import com.hcmus.clc18se.buggynote2.viewmodels.NoteDetailsViewModel;
 import com.hcmus.clc18se.buggynote2.viewmodels.NotesViewModel;
@@ -79,6 +79,7 @@ import com.hcmus.clc18se.buggynote2.viewmodels.factories.NotesViewModelFactory;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -610,6 +611,7 @@ public class NoteDetailsFragment extends Fragment
         typeSpinner.setAdapter(arrayAdapter);
         builder.setView(promptsView);
         builder.setPositiveButton(getString(R.string.save), (dialog, which) -> {
+            int repeatType = typeSpinner.getSelectedItemPosition();
             NoteWithTags noteWithTags = viewModel.getNote().getValue();
             SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
             long oldDateString = 0;
@@ -618,13 +620,13 @@ public class NoteDetailsFragment extends Fragment
                 Date oldDate = null;
                 if (oldDateString != -1) {
                     oldDate = new Date(oldDateString);
-                    if (oldDate.getTime() < System.currentTimeMillis()) {
+                    if (oldDate.getTime() > System.currentTimeMillis()) {
                         new MaterialAlertDialogBuilder(requireContext())
                                 .setTitle(R.string.existed_notification_dialog_title)
                                 .setMessage(getString(R.string.existed_notification_dialog_msg, formatterDateTime.format(oldDate)))
                                 .setPositiveButton("Override", (dialog2, which1) -> {
                                     dateReminder = (Date) date.clone();
-                                    saveReminder(date, noteWithTags, sharedPreferences);
+                                    saveReminder(date, noteWithTags, sharedPreferences, repeatType);
                                     dialog2.dismiss();
                                 })
                                 .setNegativeButton(getString(R.string.cancel), (dialog2, which12) -> {
@@ -632,10 +634,10 @@ public class NoteDetailsFragment extends Fragment
                                     dialog2.dismiss();
                                 }).show();
                     } else {
-                        saveReminder(date, noteWithTags, sharedPreferences);
+                        saveReminder(date, noteWithTags, sharedPreferences, repeatType);
                     }
                 } else {
-                    saveReminder(date, noteWithTags, sharedPreferences);
+                    saveReminder(date, noteWithTags, sharedPreferences, repeatType);
                 }
             }
         });
@@ -644,14 +646,18 @@ public class NoteDetailsFragment extends Fragment
         addNotification.show();
     }
 
-    private void saveReminder(Date date, NoteWithTags noteWithTags, SharedPreferences sharedPreferences) {
+    private void saveReminder(Date date, NoteWithTags noteWithTags, SharedPreferences sharedPreferences, int repeatType) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong(String.valueOf(noteWithTags.note.id), date.getTime())
                 .apply();
         dateReminder = (Date) date.clone();
         // set time reminder
-        String reminderDateTimeString = Utils.setReminder(dateReminder, requireContext(), noteWithTags, arguments.getNoteId());
-        Toast.makeText(requireContext(), "Set reminder at:" + reminderDateTimeString, Toast.LENGTH_SHORT).show();
+        Calendar reminderCalendar = Utils.setReminder(dateReminder, requireContext(), noteWithTags, arguments.getNoteId(), repeatType);
+        if (reminderCalendar == null) {
+            Toast.makeText(requireContext(), "Invalid time", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(requireContext(), "Set reminder at:" + Utils.getDateTimeStringFromCalender(reminderCalendar), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void onActionShare() {

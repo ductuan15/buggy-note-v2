@@ -29,8 +29,10 @@ public class Utils {
         return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm",Locale.getDefault()).format(calendar.getTime());
     }
 
-    public static String setReminder(Date date, Context context, NoteWithTags noteWithTags, long noteID) {
+    public static Calendar setReminder(Date date, Context context, NoteWithTags noteWithTags, long noteID, int repeatType) {
         // get save time
+        if (!isReminderTimeValid(date)) return null;
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 
@@ -49,9 +51,9 @@ public class Utils {
 
         // put data into Intent
         intent.setAction("note_alarm");
-        sendData.putLong("note_id", noteID);
+        sendData.putLong(ReminderReceiver.NOTE_ID_KEY, noteID);
+        sendData.putInt(ReminderReceiver.NOTE_DATE_REPEAT_TYPE, repeatType);
         sendData.putSerializable("calendar", calendar);
-        sendData.putString("note_title", noteTitle);
         intent.putExtras(sendData);
 
         // set up AlarmManager
@@ -65,11 +67,11 @@ public class Utils {
         }
         //get time reminder
 
-        return Utils.getDateTimeStringFromCalender(calendar);
+        return calendar;
     }
 
     public static boolean isReminderTimeValid(Date reminderDate) {
-        return reminderDate.getTime() > System.currentTimeMillis();
+        return reminderDate.getTime() + 60 * 1000 > System.currentTimeMillis();
     }
 
     public static boolean isAlarmOfNoteExisted(Context context, long noteID){
@@ -78,7 +80,5 @@ public class Utils {
 
         Toast.makeText(context,String.valueOf(noteID),Toast.LENGTH_LONG).show();
         return pendingIntentCheck != null;
-
-
     }
 }

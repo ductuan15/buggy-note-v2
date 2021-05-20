@@ -1,11 +1,13 @@
 package com.hcmus.clc18se.buggynote2.utils;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -18,6 +20,7 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -27,6 +30,7 @@ import com.hcmus.clc18se.buggynote2.AlarmActivity;
 import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.data.Note;
+import com.hcmus.clc18se.buggynote2.data.NoteWithTags;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 
@@ -40,6 +44,7 @@ import org.commonmark.node.StrongEmphasis;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import io.noties.markwon.AbstractMarkwonPlugin;
@@ -54,11 +59,22 @@ public class ReminderReceiver extends BroadcastReceiver {
     long noteID;
     String noteTitle;
     String noteContent;
+    int reminderRepeatType;
     String reminderDateTimeString;
+    Calendar calendar;
+    NoteWithTags noteWithTags;
 
     public final static String NOTE_ID_KEY = "note_id";
     public final static String NOTE_TITLE_KEY = "note_title";
     public final static String NOTE_DATE_TIME_KEY = "note_datetime";
+    public final static String NOTE_DATE_REPEAT_TYPE = "note_repeat_type";
+
+    public final static int REMINDER_REPEAT_DAY = 0;
+    public final static int REMINDER_REPEAT_WEEK = 1;
+    public final static int REMINDER_REPEAT_MONTH = 2;
+    public final static int REMINDER_REPEAT_YEAR = 3;
+    public final static int REMINDER_REPEAT_NONE = 4;
+
 
     final static String CHANNEL_ID = "Note_reminder_id";
     final static String ACTION_REMINDER = "note_alarm";
@@ -77,27 +93,61 @@ public class ReminderReceiver extends BroadcastReceiver {
             getReceivedData(receivedData);
             BuggyNoteDao buggyNoteDao = BuggyNoteDatabase.getInstance(context).buggyNoteDatabaseDao();
             try {
-                Note note = BuggyNoteDatabase.databaseWriteExecutor.submit(() -> buggyNoteDao.getPlainNoteFromId(noteID)).get();
+                noteWithTags = BuggyNoteDatabase.databaseWriteExecutor.submit(() -> buggyNoteDao.getNoteFromId(noteID)).get();
 
                 notificationManager = NotificationManagerCompat.from(context);
                 builder = new NotificationCompat.Builder(context, CHANNEL_ID);
 
                 setFullScreenIntent(context);
                 setUpNotificationActions(context);
-                setUpNotification(context, note);
+                setUpNotification(context, noteWithTags);
+
+                updateReminderTime(context);
 
 
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
 
+    @SuppressLint("ApplySharedPref")
+    private void updateReminderTime(Context context) {
+        Calendar updatedReminderCalendar = (Calendar) calendar.clone();
+        switch (reminderRepeatType) {
+            case REMINDER_REPEAT_DAY:
+                updatedReminderCalendar.add(Calendar.DAY_OF_MONTH, 1);
+                break;
+            case REMINDER_REPEAT_WEEK:
+                updatedReminderCalendar.add(Calendar.WEEK_OF_MONTH, 1);
+                break;
+            case REMINDER_REPEAT_MONTH:
+                updatedReminderCalendar.add(Calendar.MONTH, 1);
+                break;
+            case REMINDER_REPEAT_YEAR:
+                updatedReminderCalendar.add(Calendar.YEAR, 1);
+                break;
+            default:
+                return;
+        }
+        Date updatedReminderDate = updatedReminderCalendar.getTime();
+        updatedReminderCalendar = Utils.setReminder(updatedReminderDate, context, noteWithTags, noteID, reminderRepeatType);
+        if (updatedReminderCalendar != null) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
+            long a = sharedPreferences.getLong(String.valueOf(noteID), 100);
+
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(String.valueOf(noteID), updatedReminderDate.getTime())
+                    .apply();
+            long b = sharedPreferences.getLong(String.valueOf(noteID), 100);
+            Toast.makeText(context, "Reset time's reminder to: " + Utils.getDateTimeStringFromCalender(updatedReminderCalendar), Toast.LENGTH_LONG).show();
         }
     }
 
     private void getReceivedData(Bundle bundle) {
-        noteID = bundle.getLong("note_id");
-        noteTitle = bundle.getString("note_title");
-        Calendar calendar = (Calendar) bundle.getSerializable("calendar");
+        noteID = bundle.getLong(NOTE_ID_KEY);
+        reminderRepeatType = bundle.getInt(NOTE_DATE_REPEAT_TYPE);
+        calendar = (Calendar) bundle.getSerializable("calendar");
         reminderDateTimeString = Utils.getDateTimeStringFromCalender(calendar);
     }
 
@@ -117,7 +167,7 @@ public class ReminderReceiver extends BroadcastReceiver {
     public void setUpNotificationActions(Context context) {
         Intent dismissIntent = new Intent(context, ReminderActionReceiver.class);
         dismissIntent.setAction(ReminderActionReceiver.ACTION_DISMISS);
-        dismissIntent.putExtra("note_id", noteID);
+        dismissIntent.putExtra(NOTE_ID_KEY, noteID);
         PendingIntent dismissPendingIntent =
                 PendingIntent.getBroadcast(context, (int) noteID, dismissIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -127,7 +177,8 @@ public class ReminderReceiver extends BroadcastReceiver {
 
         Intent noteDetailIntent = new Intent(context, ReminderActionReceiver.class);
         noteDetailIntent.setAction(ReminderActionReceiver.ACTION_DETAIL);
-        noteDetailIntent.putExtra("note_id", noteID);
+        noteDetailIntent.putExtra(NOTE_ID_KEY, noteID);
+
         PendingIntent noteDetailPendingIntent =
                 PendingIntent.getBroadcast(context, (int) noteID, noteDetailIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -137,10 +188,11 @@ public class ReminderReceiver extends BroadcastReceiver {
 
     }
 
-    public void setUpNotification(Context context, Note note) {
-
+    public void setUpNotification(Context context, NoteWithTags noteWithTags) {
+        Note note = noteWithTags.note;
         if (note != null) {
             noteTitle = note.title;
+            noteContent = note.noteContent;
             if (note.isCheckList()) {
                 noteContent = CheckListItem.toReadableString(CheckListItem.compileFromNoteContent(note.noteContent));
             }
@@ -219,13 +271,14 @@ public class ReminderReceiver extends BroadcastReceiver {
     public void setFullScreenIntent(Context context) {
         Intent fullScreenIntent = new Intent(context, AlarmActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString(NOTE_TITLE_KEY, noteTitle);
+        bundle.putString(NOTE_TITLE_KEY, noteWithTags.note.title);
         bundle.putString(NOTE_DATE_TIME_KEY, reminderDateTimeString);
         bundle.putLong(NOTE_ID_KEY, noteID);
 
         fullScreenIntent.putExtras(bundle);
         PendingIntent fullScreenPendingIntent = PendingIntent.getActivity(context, (int) noteID, fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setFullScreenIntent(fullScreenPendingIntent, true);
+
     }
 
 }
