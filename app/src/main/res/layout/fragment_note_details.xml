@@ -114,6 +114,10 @@
                         tools:text="Title" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <View
+                    android:background="#33000000"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
                 <!--                CHECK LIST-->
                 <LinearLayout
                     android:id="@+id/add_check_list_layout"
@@ -122,17 +126,7 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:background="@android:color/transparent"
-                    android:orientation="horizontal"
-                    tools:visibility="gone">
-
-                    <ImageButton
-                        android:id="@+id/add_tag_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
-                        android:paddingHorizontal="16dp"
-                        android:src="@drawable/ic_baseline_add_24"
-                        tools:ignore="ContentDescription" />
+                    android:orientation="horizontal">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/add_check_list_text_layout"
@@ -168,7 +162,13 @@
                         android:paddingHorizontal="16dp"
                         android:src="@drawable/ic_baseline_done_24"
                         tools:ignore="ContentDescription" />
+
                 </LinearLayout>
+
+                <View
+                    android:background="#33000000"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"/>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/check_list_recycler_view"
@@ -178,8 +178,7 @@
                     android:layout_height="match_parent"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:itemCount="2"
-                    tools:listitem="@layout/item_check_list"
-                    tools:visibility="gone" />
+                    tools:listitem="@layout/item_check_list" />
                 <!--                END CHECK LIST-->
 
                 <!--                MARKDOWN EDITOR-->

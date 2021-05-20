@@ -40,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavBackStackEntry;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.appbar.MaterialToolbar;
@@ -56,6 +57,7 @@ import com.hcmus.clc18se.buggynote2.adapters.MarkdownPagerAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.PhotoListAdapter;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.AudioListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks;
+import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListTouchHelperCallback;
 import com.hcmus.clc18se.buggynote2.adapters.callbacks.PhotoListAdapterCallback;
 import com.hcmus.clc18se.buggynote2.data.Audio;
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
@@ -129,6 +131,10 @@ public class NoteDetailsFragment extends Fragment
                 checkListAdapter.setCurrentFocusedView(null, null);
             }
 
+            if (binding.listContent.getText() == null) {
+                return;
+            }
+
             String text = binding.listContent.getText().toString().trim();
             if (text.isEmpty()) {
                 binding.listContent.setText(item.getContent());
@@ -170,7 +176,7 @@ public class NoteDetailsFragment extends Fragment
         public void onPageSelected(int position) {
             super.onPageSelected(position);
             if (previousPos != null && previousPos == MarkdownPagerAdapter.PAGE_EDITOR) {
-                saveNote(false);
+                saveNote(false, false);
             }
             previousPos = position;
 
@@ -266,8 +272,13 @@ public class NoteDetailsFragment extends Fragment
     }
 
     private void checkAListItem() {
+        if (binding.addCheckListContent.getText() == null) {
+            return;
+        }
+
         String content = binding.addCheckListContent.getText().toString().trim();
         binding.addCheckListTextLayout.getEditText().getText().clear();
+
         if (content.isEmpty()) {
             return;
         }
@@ -276,12 +287,9 @@ public class NoteDetailsFragment extends Fragment
 
         List<CheckListItem> currentList = checkListAdapter.getCurrentList();
 
-        List<CheckListItem> items = new ArrayList<>();
-        if (currentList != null) {
-            items.addAll(currentList);
-        }
+        List<CheckListItem> items = new ArrayList<>(currentList);
 
-        items.add(new CheckListItem(items.size(), false, content));
+        items.add(0, new CheckListItem(items.size(), false, content));
         checkListAdapter.submitList(items);
     }
 
@@ -389,6 +397,10 @@ public class NoteDetailsFragment extends Fragment
     private void initRecyclerViews() {
         //RecyclerView checkListRecyclerView = binding.scrollLayout.findViewById()
         binding.checkListRecyclerView.setAdapter(checkListAdapter);
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(new CheckListTouchHelperCallback());
+        touchHelper.attachToRecyclerView(binding.checkListRecyclerView);
+
         binding.photoList.setAdapter(photoListAdapter);
         binding.audioList.setAdapter(audioListAdapter);
     }
@@ -401,7 +413,7 @@ public class NoteDetailsFragment extends Fragment
             imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
         }
 
-        saveNote(false);
+        saveNote(false, false);
     }
 
     @Override
@@ -426,7 +438,7 @@ public class NoteDetailsFragment extends Fragment
         }
     }
 
-    void saveNote(boolean require) {
+    void saveNote(boolean require, boolean forceReloadingData) {
 
         String title = ((EditText) binding.layout.findViewById(R.id.text_view_title)).getText().toString();
         String content = ((EditText) binding.layout.findViewById(R.id.note_content)).getText().toString();
@@ -471,9 +483,14 @@ public class NoteDetailsFragment extends Fragment
                         noteWithTags.note.colorIdx = currentColorIdx;
                     }
 
-                    Timber.d("Set new note content");
+                    // Timber.d("Set new note content");
                     db.updateNote(noteWithTags.note);
-                    notesViewModel.requestReloadingItem(noteWithTags.note.id);
+                    if (forceReloadingData) {
+                        notesViewModel.requestReloadingData();
+                    }
+                    else {
+                        notesViewModel.requestReloadingItem(noteWithTags.note.id);
+                    }
                 }
             });
         }
@@ -868,7 +885,7 @@ public class NoteDetailsFragment extends Fragment
                 noteWithTags.note.contentFormat = formatter.toString();
             }
 
-            saveNote(true);
+            saveNote(true, false);
         }
     }
 
@@ -983,7 +1000,7 @@ public class NoteDetailsFragment extends Fragment
             item.setIcon(pinIcon);
 
             viewModel.togglePin();
-            saveNote(true);
+            saveNote(true, true);
             return true;
         }
         return false;
@@ -1013,7 +1030,7 @@ public class NoteDetailsFragment extends Fragment
 
                 }
 
-                saveNote(true);
+                saveNote(true, false);
                 return;
             }
         }

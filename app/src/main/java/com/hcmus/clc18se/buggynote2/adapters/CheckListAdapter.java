@@ -11,6 +11,10 @@ import com.hcmus.clc18se.buggynote2.adapters.callbacks.CheckListAdapterCallbacks
 import com.hcmus.clc18se.buggynote2.data.CheckListItem;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class CheckListAdapter extends ListAdapter<CheckListItem, CheckListAdapter.ViewHolder> {
 
     private final CheckListAdapterCallbacks callbacks;
@@ -66,9 +70,33 @@ public class CheckListAdapter extends ListAdapter<CheckListItem, CheckListAdapte
         holder.bind(item, buttonTintColor);
     }
 
-
     public void setButtonTint(Integer buttonTint) {
         this.buttonTintColor = buttonTint;
+    }
+
+    public boolean onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition == RecyclerView.NO_POSITION
+                || toPosition == RecyclerView.NO_POSITION
+                || toPosition >= getCurrentList().size()
+        ) {
+            return false;
+        }
+
+        List<CheckListItem> items = new ArrayList<>(getCurrentList().size());
+        items.addAll(getCurrentList());
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(items, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i >= toPosition + 1; i--) {
+                Collections.swap(items, i, i - 1);
+            }
+        }
+
+        submitList(items);
+        return true;
+
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
