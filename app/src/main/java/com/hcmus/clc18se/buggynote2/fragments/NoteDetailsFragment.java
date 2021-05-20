@@ -163,6 +163,56 @@ public class NoteDetailsFragment extends Fragment
 
     private final AudioListAdapter audioListAdapter = new AudioListAdapter(audioListAdapterCallback);
 
+    private final ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
+        Integer previousPos = null;
+
+        @Override
+        public void onPageSelected(int position) {
+            super.onPageSelected(position);
+            if (previousPos != null && previousPos == MarkdownPagerAdapter.PAGE_EDITOR) {
+                saveNote(false);
+            }
+            previousPos = position;
+
+            // Update the height when changing page
+
+            // Because the fragment might or might not be created yet,
+            // we need to check for the size of the fragmentManager
+            // before accessing it.
+            if (getChildFragmentManager().getFragments().size() > position) {
+                updatePagerHeightForChild(position);
+            }
+        }
+
+        private void updatePagerHeightForChild(int position) {
+            Fragment fragment = getChildFragmentManager().getFragments().get(position);
+
+            if (fragment != null && fragment.getView() != null) {
+
+                View view = fragment.getView();
+                view.post(() -> {
+
+                    int wMeasureSpec = View.MeasureSpec.makeMeasureSpec(view.getWidth(),
+                            View.MeasureSpec.EXACTLY
+                    );
+                    int hMeasureSpec = View.MeasureSpec.makeMeasureSpec(0,
+                            View.MeasureSpec.UNSPECIFIED
+                    );
+
+                    view.measure(wMeasureSpec, hMeasureSpec);
+                    ViewPager2 pager = binding.markdownViewPager;
+                    if (pager.getHeight() != view.getMeasuredHeight()) {
+                        ViewGroup.LayoutParams lp = pager.getLayoutParams();
+                        lp.height = view.getMeasuredHeight();
+                        pager.setLayoutParams(lp);
+                    }
+                });
+
+            }
+        }
+    };
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -310,30 +360,19 @@ public class NoteDetailsFragment extends Fragment
         });
     }
 
-    private final ViewPager2.OnPageChangeCallback callback = new ViewPager2.OnPageChangeCallback() {
-        Integer previousPos = null;
-
-        @Override
-        public void onPageSelected(int position) {
-            super.onPageSelected(position);
-            if (previousPos != null && previousPos == MarkdownPagerAdapter.PAGE_EDITOR) {
-                saveNote(false);
-            }
-            previousPos = position;
-        }
-    };
-
     private void setUpViewPagerWhenNoteIsMarkDown(@NonNull NoteWithTags noteWithTags) {
 
         if (noteWithTags.note.isMarkdown()) {
-            binding.markdownViewPager.unregisterOnPageChangeCallback(callback);
+            ViewPager2 pager = binding.markdownViewPager;
+            pager.unregisterOnPageChangeCallback(callback);
+            pager.setOffscreenPageLimit(2);
 
-            binding.markdownViewPager.setAdapter(new MarkdownPagerAdapter(this, noteWithTags));
+            pager.setAdapter(new MarkdownPagerAdapter(this, noteWithTags));
             new TabLayoutMediator(binding.tabs, binding.markdownViewPager, (tab, page) -> {
                 tab.setText(getTabText(page));
             }).attach();
 
-            binding.markdownViewPager.registerOnPageChangeCallback(callback);
+            pager.registerOnPageChangeCallback(callback);
         }
     }
 
@@ -364,7 +403,6 @@ public class NoteDetailsFragment extends Fragment
 
         saveNote(false);
     }
-
 
     @Override
     public boolean onBackPressed() {

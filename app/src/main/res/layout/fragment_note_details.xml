@@ -64,9 +64,9 @@
                     visibleWhenNotEmptyOrNull="@{noteDetailsViewModel.note.audios}"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:orientation="horizontal"
                     android:scrollbarAlwaysDrawHorizontalTrack="true"
-                    android:layout_marginTop="20dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:itemCount="10"
                     tools:listitem="@layout/item_audio" />
@@ -192,6 +192,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@android:color/transparent"
+                    app:tabMaxWidth="0dp"
+                    app:tabGravity="fill"
+                    app:tabMode="fixed"
                     app:tabInlineLabel="true"
                     app:tabTextColor="?colorOnSurface"
                     tools:visibility="gone" />
