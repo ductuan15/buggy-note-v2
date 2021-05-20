@@ -356,8 +356,6 @@ public class TrashFragment extends Fragment {
                 ));
             }
 
-            binding.getRoot().setBackgroundResource(R.drawable.multi_selection_background);
-
             ViewUtils.setLightStatusBarFlagFromColor(requireActivity().getWindow().getDecorView(), requireActivity());
 
             actionMode = mode;
