@@ -1,7 +1,6 @@
 package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;

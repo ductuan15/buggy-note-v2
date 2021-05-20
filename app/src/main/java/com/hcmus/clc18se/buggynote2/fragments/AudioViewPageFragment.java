@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MediaController;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
@@ -13,11 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.hcmus.clc18se.buggynote2.data.Audio;
-import com.hcmus.clc18se.buggynote2.data.Photo;
+import com.hcmus.clc18se.buggynote2.R;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentAudioViewPageBinding;
-import com.hcmus.clc18se.buggynote2.databinding.FragmentPhotoViewPageBinding;
-
-import java.io.Serializable;
 
 public class AudioViewPageFragment extends Fragment {
 
@@ -41,23 +39,30 @@ public class AudioViewPageFragment extends Fragment {
         VideoView videoView =  binding.videoView;
         MediaController mediaController = null;
         if (mediaController == null) {
-            mediaController = new MediaController(requireContext());
+            mediaController = new MediaController(requireContext()) {
+                @Override
+                public void show() {
+                    super.show(0);
+                }
+            };
             mediaController.setAnchorView(videoView);
             videoView.setMediaController(mediaController);
         }
         try {
             videoView.setVideoURI(Uri.parse(audio.uri));
+            if (mediaController != null) {
+                videoView.requestFocus();
+                MediaController finalMediaController = mediaController;
+                videoView.setOnPreparedListener(mediaPlayer -> {
+                    videoView.seekTo(position);
+                    videoView.start();
+                    mediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> finalMediaController.setAnchorView(videoView));
+                });
+            }
         } catch (Exception e) {
+            Toast.makeText(requireContext(),getString(R.string.load_audio_unsuccess),Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
-        videoView.requestFocus();
-        MediaController finalMediaController = mediaController;
-        videoView.setOnPreparedListener(mediaPlayer -> {
-            videoView.seekTo(position);
-            videoView.start();
-            mediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> finalMediaController.setAnchorView(videoView));
-        });
-
         binding.executePendingBindings();
         return binding.getRoot();
     }
