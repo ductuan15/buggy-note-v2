@@ -296,7 +296,7 @@ public class TrashFragment extends Fragment {
         if (noteListDisplayType.equals(list)) {
             noteListDisplayItem.setIcon(R.drawable.ic_baseline_grid_view_24);
         } else {
-            noteListDisplayItem.setIcon(R.drawable.ic_baseline_list_alt_24);
+            noteListDisplayItem.setIcon(R.drawable.ic_outline_view_agenda_24);
         }
     }
 
@@ -311,7 +311,7 @@ public class TrashFragment extends Fragment {
         if (item.getItemId() == R.id.note_list_item_view_type) {
             onItemTypeOptionClicked();
             if (preferences.getString(getString(R.string.note_list_view_type_key), "0").equals("0")) {
-                item.setIcon(R.drawable.ic_baseline_list_alt_24);
+                item.setIcon(R.drawable.ic_outline_view_agenda_24);
             } else {
                 item.setIcon(R.drawable.ic_baseline_grid_view_24);
             }
@@ -337,7 +337,7 @@ public class TrashFragment extends Fragment {
 
         notesViewModel.requestReordering();
         trashedNoteAdapter.notifyDataSetChanged();
-        // binding.noteList.startLayoutAnimation();
+        binding.noteList.startLayoutAnimation();
     }
 
     class TrashActionMode implements ActionMode.Callback {

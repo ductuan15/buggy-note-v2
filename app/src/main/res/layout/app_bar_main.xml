@@ -14,6 +14,8 @@
         noteColor="@{note.note}"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:elevation="0dp"
+        app:statusBarForeground="@color/white_A80"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -26,8 +28,8 @@
             app:titleEnabled="false">
 
             <com.google.android.material.appbar.MaterialToolbar
-                noteColor="@{note.note}"
                 android:id="@+id/toolbar"
+                noteColor="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="?colorSurface"

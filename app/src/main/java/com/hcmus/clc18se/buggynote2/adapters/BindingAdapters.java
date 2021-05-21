@@ -399,12 +399,15 @@ public class BindingAdapters {
                                    @Nullable Markwon markwon,
                                    @Nullable String noteContent,
                                    @Nullable Boolean verticalScrollBarEnabled) {
+        if (verticalScrollBarEnabled != null) {
+            textView.setVerticalScrollBarEnabled(verticalScrollBarEnabled);
+        }
+        else {
+            textView.setVerticalScrollBarEnabled(false);
+        }
+
         if (markwon != null && noteContent != null) {
             markwon.setMarkdown(textView, noteContent);
-
-            if (verticalScrollBarEnabled != null) {
-                textView.setVerticalScrollBarEnabled(verticalScrollBarEnabled);
-            }
 
         } else if (noteContent != null) {
             textView.setText(null);
