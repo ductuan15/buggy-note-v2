@@ -2,6 +2,7 @@ package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -314,6 +315,40 @@ public class NotesFragment extends Fragment implements OnBackPressed {
                 return;
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Intent intent = requireActivity().getIntent();
+
+        switch (intent.getAction()) {
+
+            case BuggyNoteActivity.ACTION_ADD_MARKDOWN: {
+                intent.setAction(Intent.ACTION_MAIN);
+                requireActivity().setIntent(intent);
+                binding.fabAddMarkdownNote.performClick();
+                break;
+            }
+
+            case BuggyNoteActivity.ACTION_ADD_NOTE: {
+                intent.setAction(Intent.ACTION_MAIN);
+                requireActivity().setIntent(intent);
+                binding.fabAddNormalNote.performClick();
+                break;
+            }
+
+            case BuggyNoteActivity.ACTION_ADD_CHECKLIST: {
+                intent.setAction(Intent.ACTION_MAIN);
+                requireActivity().setIntent(intent);
+                binding.fabAddCheckListNote.performClick();
+                break;
+            }
+
+            default:
+                break;
+        }
+
     }
 
     @Override

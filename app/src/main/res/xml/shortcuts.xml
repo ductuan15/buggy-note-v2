@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:targetApi="25">
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_outline_sticky_note_2_24"
+        android:shortcutShortLabel="@string/create_plain_text_label"
+        android:shortcutId="create_plain_text">
+        <intent
+            android:action="com.hcmus.clc18se.buggynote2.ACTION_ADD_NOTE"
+            android:targetClass="com.hcmus.clc18se.buggynote2.BuggyNoteActivity"
+            android:targetPackage="com.hcmus.clc18se.buggynote2" />
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_list_alt_24"
+        android:shortcutShortLabel="@string/create_checklist_label"
+        android:shortcutId="create_checklist">
+
+        <intent
+            android:action="com.hcmus.clc18se.buggynote2.ACTION_ADD_CHECKLIST"
+            android:targetClass="com.hcmus.clc18se.buggynote2.BuggyNoteActivity"
+            android:targetPackage="com.hcmus.clc18se.buggynote2" />
+
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_markdown_mark"
+        android:shortcutShortLabel="@string/create_markdown_label"
+        android:shortcutId="create_markdown">
+
+        <intent
+            android:action="com.hcmus.clc18se.buggynote2.ACTION_ADD_MARKDOWN"
+            android:targetClass="com.hcmus.clc18se.buggynote2.BuggyNoteActivity"
+            android:targetPackage="com.hcmus.clc18se.buggynote2" />
+
+        <categories android:name="android.shortcut.conversation" />
+        <capability-binding android:key="actions.intent.CREATE_MESSAGE" />
+    </shortcut>
+
+
+</shortcuts>

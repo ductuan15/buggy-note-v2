@@ -91,4 +91,8 @@
     <string name="title_intro2">Support various types of notes</string>
     <string name="title_intro3">Backup &amp; Restore your notes</string>
     <string name="first_time_key">first_time_key</string>
+    <string name="introduction">Introduction</string>
+    <string name="create_plain_text_label">Create note</string>
+    <string name="create_markdown_label">Create markdown note</string>
+    <string name="create_checklist_label">Create checklist</string>
 </resources>

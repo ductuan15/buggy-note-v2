@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.MenuItem;
 import android.webkit.MimeTypeMap;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,6 +52,12 @@ import timber.log.Timber;
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
 
     private static final int REQUEST_CODE_INTRO = 0x66969;
+
+    public static final String ACTION_ADD_MARKDOWN = "com.hcmus.clc18se.buggynote2.ACTION_ADD_MARKDOWN";
+
+    public static final String ACTION_ADD_NOTE = "com.hcmus.clc18se.buggynote2.ACTION_ADD_NOTE";
+
+    public static final String ACTION_ADD_CHECKLIST= "com.hcmus.clc18se.buggynote2.ACTION_ADD_CHECKLIST";
 
     private NavHostFragment navHostFragment = null;
 
@@ -192,12 +199,21 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
                 boolean defaultBackPress = ((OnBackPressed) currentFragment).onBackPressed();
 
                 if (!defaultBackPress) {
-                    super.onBackPressed();
-                } else if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    binding.drawerLayout.closeDrawer(GravityCompat.START);
+                    if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        binding.drawerLayout.closeDrawer(GravityCompat.START);
+                    }
+                    else {
+                        super.onBackPressed();
+                    }
                 }
             } else {
-                super.onBackPressed();
+
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START);
+                }
+                else {
+                    super.onBackPressed();
+                }
             }
         } catch (IndexOutOfBoundsException exception) {
             super.onBackPressed();
@@ -379,5 +395,11 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
                 finish();
             }
         }
+    }
+
+    public void showIntro(MenuItem item) {
+        onBackPressed();
+        Intent intent = new Intent(this, AppIntroActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_INTRO);
     }
 }

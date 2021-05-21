@@ -37,5 +37,12 @@
             android:icon="@drawable/ic_outline_settings_24"
             android:title="@string/settings" />
 
+        <item
+            android:checkable="false"
+            android:onClick="showIntro"
+            android:id="@+id/action_show_intro"
+            android:icon="@drawable/ic_baseline_content_paste_24"
+            android:title="@string/introduction" />
+
     </group>
 </menu>
