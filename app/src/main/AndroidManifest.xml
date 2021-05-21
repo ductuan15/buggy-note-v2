@@ -27,9 +27,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:label="@string/intro_title"
+            android:name=".AppIntroActivity"
+            android:theme="@style/Theme.BuggyNote2"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.hcmus.clc18se.buggynote2.debug"
+            android:authorities="com.hcmus.clc18se.buggynote2"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

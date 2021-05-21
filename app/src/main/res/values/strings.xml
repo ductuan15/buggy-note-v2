@@ -84,4 +84,11 @@
     <string name="delete_reminder_opt">Delete this reminder</string>
     <string name="delete_reminder_msg">Do you really want to delete this reminder?</string>
     <string name="deleted">Deleted</string>
+    <string name="intro_title">Get started</string>
+    <string name="title_intro1">Hi there!</string>
+    <string name="description_intro1">Welcome to Notto, a simple light-weight note editor for Android.</string>
+    <string name="description_intro2">\"You can create quick text 📝, a check list  📋 or fancy ✨ Markdown \"</string>
+    <string name="title_intro2">Support various types of notes</string>
+    <string name="title_intro3">Backup &amp; Restore your notes</string>
+    <string name="first_time_key">first_time_key</string>
 </resources>

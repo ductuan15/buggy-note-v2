@@ -27,7 +27,6 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.preference.PreferenceManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.dialog.MaterialDialogs;
 import com.google.android.material.navigation.NavigationView;
 import com.hcmus.clc18se.buggynote2.data.Note;
 import com.hcmus.clc18se.buggynote2.database.BuggyNoteDao;
@@ -50,6 +49,8 @@ import java.util.Objects;
 import timber.log.Timber;
 
 public class BuggyNoteActivity extends AppCompatActivity implements ControllableDrawerActivity {
+
+    private static final int REQUEST_CODE_INTRO = 0x66969;
 
     private NavHostFragment navHostFragment = null;
 
@@ -106,6 +107,12 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
 
         PreferenceManager.setDefaultValues(this, R.xml.root_preferences, false);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        boolean firstStart = preferences.getBoolean(getString(R.string.first_time_key), true);
+        if (firstStart) {
+            Intent intent = new Intent(this, AppIntroActivity.class);
+            startActivityForResult(intent, REQUEST_CODE_INTRO);
+        }
 
         binding = ActivityBuggyNoteBinding.inflate(getLayoutInflater());
         setupNavigation();
@@ -248,7 +255,9 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         createBackupFile();
     }
 
-    public void onActionImport() { openBackupFile(); }
+    public void onActionImport() {
+        openBackupFile();
+    }
 
     // Request code for creating a backup file.
     private static final int REQUEST_CREATE_BACKUP_FILE = 0x696969;
@@ -271,8 +280,7 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
         String type = MimeTypeMap.getSingleton().getMimeTypeFromExtension("json");
         if (type == null) {
             intent.setType("application/octet-stream");
-        }
-        else {
+        } else {
             intent.setType(type);
         }
         Timber.d(intent.getType());
@@ -323,18 +331,18 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     }
 
     private void importNotes(List<Note> notes) {
-        if (notes == null || notes.isEmpty()){
+        if (notes == null || notes.isEmpty()) {
             Toast.makeText(this, getString(R.string.import_failed), Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             new MaterialAlertDialogBuilder(this)
                     .setTitle(R.string.import_note_dialog_title)
                     .setMessage(getString(R.string.import_note_dialog_msg, notes.size()))
                     .setPositiveButton(getString(R.string.import_notes_dialog_positive), (d, w) -> {
                         notesViewModel.insertNewNotes(notes);
                         Toast.makeText(this, getString(R.string.import_note_dialog_succeed), Toast.LENGTH_SHORT).show();
-                    }).setNegativeButton(R.string.cancel, (d, w) -> {})
-            .show();
+                    }).setNegativeButton(R.string.cancel, (d, w) -> {
+            })
+                    .show();
         }
     }
 
@@ -347,11 +355,23 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
 
             if (requestCode == REQUEST_CREATE_BACKUP_FILE) {
                 saveBackupFile(data.getData());
-            }
-            else if (requestCode == REQUEST_IMPORT_BACKUP_FILE) {
+            } else if (requestCode == REQUEST_IMPORT_BACKUP_FILE) {
                 readBackupFile(data.getData());
             }
         }
 
+        if (requestCode == REQUEST_CODE_INTRO) {
+            if (resultCode == RESULT_OK) {
+                preferences.edit()
+                        .putBoolean(getString(R.string.first_time_key), false)
+                        .apply();
+            } else {
+                preferences.edit()
+                        .putBoolean(getString(R.string.first_time_key), true)
+                        .apply();
+                //User cancelled the intro so we'll finish this activity too.
+                finish();
+            }
+        }
     }
 }

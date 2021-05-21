@@ -111,7 +111,6 @@ public class ReminderReceiver extends BroadcastReceiver {
         }
     }
 
-    @SuppressLint("ApplySharedPref")
     private void updateReminderTime(Context context) {
         Calendar updatedReminderCalendar = (Calendar) calendar.clone();
         switch (reminderRepeatType) {

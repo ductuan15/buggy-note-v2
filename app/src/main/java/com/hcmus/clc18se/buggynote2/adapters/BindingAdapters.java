@@ -383,14 +383,14 @@ public class BindingAdapters {
                                         @Nullable Note note
     ) {
         if (note != null && note.isCheckList()) {
-            if (recyclerView.getAdapter() == null ||
-                    !(recyclerView.getAdapter() instanceof CheckListPreviewAdapter)) {
-                recyclerView.setAdapter(new CheckListPreviewAdapter());
-            }
+            recyclerView.setAdapter(null);
+            recyclerView.setAdapter(new CheckListPreviewAdapter());
 
             ((CheckListPreviewAdapter) recyclerView.getAdapter()).submitList(
                     CheckListItem.compileFromNoteContent(note.getNoteContent())
             );
+        } else if (note != null && !note.isCheckList()) {
+            recyclerView.setAdapter(null);
         }
     }
 

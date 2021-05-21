@@ -51,9 +51,9 @@
                 tools:text="Title" />
 
             <androidx.recyclerview.widget.RecyclerView
-                checkboxTintForAdapter="@{note.note}"
-                displayCheckList="@{note.note}"
                 visibleWhenNoteIsCheckList="@{note.note}"
+                displayCheckList="@{note.note}"
+                checkboxTintForAdapter="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
@@ -71,10 +71,10 @@
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/note_content"
+                visibleWhenNoteIsNotCheckList="@{note.note}"
                 markwon="@{markwon}"
                 noteContent="@{note.note.noteContent}"
                 noteContentFormat="@{note}"
-                visibleWhenNoteIsNotCheckList="@{note.note}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
