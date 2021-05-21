@@ -2,7 +2,9 @@ package com.hcmus.clc18se.buggynote2.fragments;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -68,6 +70,7 @@ import com.hcmus.clc18se.buggynote2.database.BuggyNoteDatabase;
 import com.hcmus.clc18se.buggynote2.databinding.FragmentNoteDetailsBinding;
 import com.hcmus.clc18se.buggynote2.databinding.ItemCheckListBinding;
 import com.hcmus.clc18se.buggynote2.utils.FileUtils;
+import com.hcmus.clc18se.buggynote2.utils.ReminderReceiver;
 import com.hcmus.clc18se.buggynote2.utils.TextFormatter;
 import com.hcmus.clc18se.buggynote2.utils.Utils;
 import com.hcmus.clc18se.buggynote2.utils.interfaces.OnBackPressed;
@@ -697,8 +700,26 @@ public class NoteDetailsFragment extends Fragment
             }
         });
         builder.setNegativeButton(getString(R.string.cancel), null);
+        builder.setNeutralButton(R.string.delete, (dialog, which) -> new MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.delete_reminder_opt)
+                .setMessage(R.string.delete_reminder_msg)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.delete, (dialog1, which13) -> {
+                    deleteReminder(requireContext(), arguments.getNoteId());
+                }).show());
         AlertDialog addNotification = builder.create();
         addNotification.show();
+    }
+
+    private void deleteReminder(Context context, long noteID) {
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(requireContext(), ReminderReceiver.class);
+        intent.setAction(ReminderReceiver.ACTION_REMINDER);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), (int) arguments.getNoteId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        alarmManager.cancel(pendingIntent);
+        SharedPreferences sharedPreferences = requireContext().getSharedPreferences("REMINDER", Context.MODE_PRIVATE);
+        sharedPreferences.edit().remove(String.valueOf(arguments.getNoteId())).apply();
+        Toast.makeText(requireContext(), getString(R.string.deleted), Toast.LENGTH_LONG).show();
     }
 
     private void saveReminder(Date date, NoteWithTags noteWithTags, SharedPreferences sharedPreferences, int repeatType) {

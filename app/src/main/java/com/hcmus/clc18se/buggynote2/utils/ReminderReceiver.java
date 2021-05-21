@@ -77,7 +77,7 @@ public class ReminderReceiver extends BroadcastReceiver {
 
 
     final static String CHANNEL_ID = "Note_reminder_id";
-    final static String ACTION_REMINDER = "note_alarm";
+    public final static String ACTION_REMINDER = "note_alarm";
 
     NotificationManagerCompat notificationManager;
     NotificationCompat.Builder builder;

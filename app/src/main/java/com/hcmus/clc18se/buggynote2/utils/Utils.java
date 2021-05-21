@@ -50,7 +50,7 @@ public class Utils {
 
 
         // put data into Intent
-        intent.setAction("note_alarm");
+        intent.setAction(ReminderReceiver.ACTION_REMINDER);
         sendData.putLong(ReminderReceiver.NOTE_ID_KEY, noteID);
         sendData.putInt(ReminderReceiver.NOTE_DATE_REPEAT_TYPE, repeatType);
         sendData.putSerializable("calendar", calendar);

@@ -80,4 +80,8 @@
     <string name="import_notes_dialog_positive">Import</string>
     <string name="import_note_dialog_succeed">Imported</string>
     <string name="load_audio_unsuccess">Load audio unsuccessful</string>
+    <string name="delete">Delete</string>
+    <string name="delete_reminder_opt">Delete this reminder</string>
+    <string name="delete_reminder_msg">Do you really want to delete this reminder?</string>
+    <string name="deleted">Deleted</string>
 </resources>
