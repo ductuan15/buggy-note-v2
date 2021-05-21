@@ -140,7 +140,9 @@
 
     <action
         android:id="@+id/action_global_navigation_note_details"
-        app:destination="@id/navigation_note_details">
+        app:destination="@id/navigation_note_details"
+        app:popUpTo="@id/nav_notes"
+        app:popUpToInclusive="false">
         <argument
             android:name="noteId"
             app:argType="long" />

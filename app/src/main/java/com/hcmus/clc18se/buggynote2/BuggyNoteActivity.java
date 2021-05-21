@@ -165,11 +165,17 @@ public class BuggyNoteActivity extends AppCompatActivity implements Controllable
     protected void onResume() {
         super.onResume();
 
-        Bundle extras = getIntent().getExtras();
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+
         if (extras != null && extras.containsKey(EXTRA_NOTE_ID)) {
             long id = extras.getLong(EXTRA_NOTE_ID, -1);
-            if (id != -1) {
 
+            intent.removeExtra(EXTRA_NOTE_ID);
+            setIntent(intent);
+
+            extras.remove(EXTRA_NOTE_ID);
+            if (id != -1) {
                 navController.navigate(
                         NavigationNoteDetailsDirections.actionGlobalNavigationNoteDetails(id)
                 );
